@@ -33,9 +33,8 @@ Rules for the result:
 
 ### Save sheet (every save)
 - Opens on every Save, even when only one thing is missing.
-- Top row: power and data, read-only, each with a lock icon.
-- Editable rows, prefilled with everything already known (from the chip or earlier): tie colour,
-  length, vendor. Rows still missing a value are gently highlighted. No Skip buttons: Save saves
+- Everything is editable (no locks, Max 2026-11-22), prefilled with everything already known (from
+  the chip, charger or link): power, data, speed, tie colour, length, vendor. Rows still missing a value are gently highlighted. No Skip buttons: Save saves
   whatever is filled in and leaves empty fields blank (Max, 2026-11-22).
 - Length is typed, in metres, with validation: accepts `0.13`, `2`, `1,5` (comma ok), range 0.01 to 10 m.
   Invalid input shows a red hint ("Enter a length in metres, like 0.13 or 2") and disables Save.
@@ -47,7 +46,10 @@ Rules for the result:
   Data is the USB name (with the Thunderbolt icon when it applies); Speed is its own column
   (`40 Gb/s`, `480 Mb/s`), sortable by real speed.
 - Search field, filter `All | 240 W | 100 W | 60 W | Thunderbolt` (filter by the icon's meaning), "N cables" status bar.
-- Power, Data and Speed are locked (lock icon). Tie, Vendor, Length are editable inline; empty ones show "Add".
+- Every column except `#` and Tested is editable inline (no locks); empty cells show "Add".
+  Power: pop-up 15/60/100/140/240 W or typed. Data: pop-up USB 2/3/4/4 v2 plus a Thunderbolt toggle.
+  Speed: typed with validation (Mb/s or Gb/s). Edited values are marked as edited so the measured
+  value can be restored.
   Length uses the same typed field and validation as the sheet. A validation message floats over the
   row below (popover style); it never makes the row taller.
 - Toolbar: back to Now, copy label, print label, export (CSV). Delete via context menu.
