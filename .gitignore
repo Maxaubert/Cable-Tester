@@ -1,2 +1,8 @@
 cables.csv
 __pycache__/
+.DS_Store
+build/
+DerivedData/
+*.xcodeproj/
+.swiftpm/
+CableKit/.build/

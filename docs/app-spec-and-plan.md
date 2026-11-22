@@ -1,7 +1,7 @@
 # Cable Tester app: spec and build plan
 
-Written 2026-11-22 from the mockup rounds with Max. Mockups: `.impeccable/mocks/` (gallery:
-`.impeccable/gallery.html`). Product facts: `PRODUCT.md`. E-marker decoding: `docs/emarker.md`.
+Written 2026-11-22 from the mockup rounds with Max. Approved mockups: `.impeccable/mocks/`. All rounds (36 images, gallery.html) are archived in
+`~/Documents/Claude/zz-Misc/cable-tester/mockups/`. Product facts: `PRODUCT.md`. E-marker decoding: `docs/emarker.md`.
 
 ## Spec
 
@@ -14,11 +14,11 @@ No clicks needed to get a result. Dark, Apple-like, two panes: result on the lef
 | State | Mockup | What shows |
 |---|---|---|
 | Nothing plugged in | `round2-n2-empty-illustration` | Plug illustration, "Plug in a cable", recent cables list on the right |
-| Cable to a Mac, chip read | `round2-g2-main-copy-icon` | Big watts, "USB 4 · 40 Gb/s" with the Thunderbolt icon, chips, Save + copy icon, inspector (e-marker + live connection) |
+| Cable to a Mac, chip read | `r5-main` | Big watts, "USB 4 · 40 Gb/s" with the Thunderbolt icon, chips, Save + copy icon, inspector (e-marker + live connection) |
 | Cable to a charger | `r3-c1-charger` | Big watts, no data line (only "Plug it into another Mac to see data speed."), inspector (e-marker + charger, Max row shows watts: "28 V × 5 A · 140 W") |
 | No chip in the cable | `round2-x1-no-chip-inspector` | "60 W est.", live data speed, amber note on the 3 A limit, inspector says "Not present" |
-| Save | `r4-sheet-*` | Always a sheet (see below) |
-| History | `r4-table-length` / `r3-h2-table` | Table, see below |
+| Save | `r7-sheet` | Always a sheet (see below) |
+| History | `r7-table` | Table, see below |
 
 Rules for the result:
 - Wattage always shows. Data speed shows only when there is a data link; on a charger it is simply absent.
