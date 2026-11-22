@@ -11,7 +11,7 @@ the overview; docs/app-spec-and-plan.md is the spec; docs/emarker.md the chip fi
 - Known failures to tolerate: none
 - Version source: `project.yml` (MARKETING_VERSION + CURRENT_PROJECT_VERSION, bump both)   Release: `scripts/release.sh` on this Mac after merge (not release.yml: the certificate stays in the Keychain)
 - Install locally after merge: copy the app from the DMG to /Applications   Confirm version: `PlistBuddy -c "Print :CFBundleShortVersionString"` on the installed app, or About
-- Deploy: DMG + Sparkle feed in the public repo loftspace/cable-tester-releases (code repo stays private)
+- Deploy: DMG + Sparkle feed in loftspace/cable-tester-releases (the feed URL is baked into shipped apps: keep that repo where it is). Code: public, github.com/Maxaubert/cable-tester (moved from loftspace 2026-11-22)
 - Signing: Developer ID WV7BY8CUM8 + notarization (profile `notary`), Sparkle EdDSA key in the Keychain (account `cable-tester`)
 - Never open a window to check things: use `--probe` and `--snapshot`.
 
@@ -35,7 +35,9 @@ the overview; docs/app-spec-and-plan.md is the spec; docs/emarker.md the chip fi
   Sparkle's Updater.app and Autoupdate ad hoc, which notarization rejects: always release via the script.
 
 ## Status (2026-11-22)
-- v1 app built on branch `app`. Verified on the Mac mini: chip read with a Mac or a small USB device at
-  the far end; far end unplugged gives no chip. Untested: charger path on the MacBook, a Thunderbolt
-  link (CIO transport keys), telling Thunderbolt cables from plain USB 4 ones.
+- v0.4.0 released: app icon, Pure Black Lime theme, bolt plug-in animation, cascades (spec "Visual design").
+  The Now screen tests only a cable plugged in after launch, with a two-step checklist ("Plug-in flow").
+- Verified on the Mac mini: chip read with a Mac or a small USB device at the far end; far end free
+  gives CC only, no chip. Untested: charger path on the MacBook, a Thunderbolt link (CIO keys),
+  telling Thunderbolt cables from plain USB 4 ones, a Sparkle update end to end, the animations on real hardware.
 - Later ideas (Ethernet, HDMI, USB-A, transfer test): end of docs/app-spec-and-plan.md.
