@@ -98,3 +98,14 @@ label via the system print dialog.
 7. Hardware test on the MacBook; fix what it finds; update README (with screenshots) and CLAUDE.md.
 8. Open the PR with the screenshots, then ask Max to merge.
 Release and installer come afterwards through the `shipping` skill, not in this plan.
+
+## Later ideas (not in v1, Max 2026-11-22: keep v1 USB-C only)
+- **Ethernet:** negotiated link speed (2.5G / 1G / 100M) from the Mac's port. 100 Mb/s flags a cable
+  with only two working pairs. No category or length.
+- **HDMI:** best mode carried (e.g. 4K 120 Hz) as an estimate. HDMI cables are passive (no chip); the
+  devices talk over DDC (EDID), HDCP, CEC and, on HDMI 2.1, SCDC (FRL link training and character
+  error counters). On the Mac mini the HDMI port sits behind an internal DisplayPort-to-HDMI converter
+  (`BranchDeviceID` "pHDMIg"): macOS exposes the TV's EDID and the DisplayPort side (`LinkRateDescription`
+  "8.1 Gbps (HBR3)", 4 lanes), not the HDMI FRL rate or SCDC error counts (checked 2026-11-22).
+- **USB-A to USB-C:** data only (USB 2 vs USB 3) via a USB-A host port and a USB-C device.
+- **Real transfer test:** "Measure" button timing real data to the Mac mini over Thunderbolt.
