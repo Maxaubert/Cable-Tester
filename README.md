@@ -7,12 +7,19 @@
 **Plug in a USB-C cable. See its wattage and data speed.** A small native Mac app that reads the
 chip inside the cable, so you can label a drawer of cables without a hardware tester.
 
-[![macOS](https://img.shields.io/badge/macOS-15%2B-2f6fde?logo=apple&logoColor=white)](#requirements)
-[![Swift](https://img.shields.io/badge/Swift-6-2f6fde?logo=swift&logoColor=white)](CableKit)
-[![SwiftUI](https://img.shields.io/badge/UI-SwiftUI-2f6fde)](App)
-[![Tests](https://img.shields.io/badge/tests-swift%20test-2f6fde)](CableKit/Tests)
+[![Latest release](https://img.shields.io/github/v/release/loftspace/cable-tester-releases?label=release&color=a4de06&labelColor=111014)](https://github.com/loftspace/cable-tester-releases/releases/latest)
+[![macOS](https://img.shields.io/badge/macOS-15%2B-a4de06?logo=apple&logoColor=white&labelColor=111014)](#requirements)
+[![Swift](https://img.shields.io/badge/Swift-6-a4de06?logo=swift&logoColor=white&labelColor=111014)](CableKit)
+[![Signed and notarized](https://img.shields.io/badge/signed-notarized-a4de06?labelColor=111014)](#install)
 
-<img src="docs/screenshots/mac.png" alt="Cable Tester showing a 240 W USB 4 cable at 40 Gb/s, with the cable's chip data in the side panel" width="820">
+**[Download for Mac](https://github.com/loftspace/cable-tester-releases/releases/latest)** · [Releases](https://github.com/loftspace/cable-tester-releases/releases) · [How it reads the chip](docs/emarker.md)
+
+<picture>
+  <source srcset="docs/media/demo.avif" type="image/avif">
+  <img src="docs/media/demo-poster.png" alt="Cable Tester demo: plug in a cable, the checklist ticks off both ends, a Thunderbolt 5 cable counts up to 240 W at USB 4 v2 80 Gb/s, it is saved as #13 and shows up in History" width="860">
+</picture>
+
+<sub>The real app, rebuilt frame for frame in <a href="video">HyperFrames</a>. <a href="docs/media/demo.mp4">Watch the MP4</a>.</sub>
 
 </div>
 
@@ -23,7 +30,7 @@ chip inside the cable, so you can label a drawer of cables without a hardware te
 | **Another Mac** | Watts, USB generation, live speed (Thunderbolt icon when the link is Thunderbolt), chip data |
 | **Any small USB-C device** (earbuds case, flash drive) | Watts and rated speed from the cable's chip. The live speed is the device's, and the app says so. |
 | **A charger** | Watts only. Data speed is hidden: there is no data link. |
-| **Nothing** | "Plug in the other end": the Mac sees the cable but cannot read it yet |
+| **Nothing yet** | A checklist: the Mac end ticks as soon as the cable is in; the chip is read once the other end is connected |
 
 Cables without a chip are basic USB 2 cables limited to 3 A, so they show **60 W est.** plus whatever
 speed the live link reaches.

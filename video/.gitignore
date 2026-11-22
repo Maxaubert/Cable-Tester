@@ -1,0 +1,7 @@
+node_modules/
+renders/
+.thumbnails/
+# Apple SF Pro: licensed for this Mac only, never published. Copy it from /System/Library/Fonts/SFNS.ttf.
+assets/fonts/
+.hyperframes/artifacts/
+.hyperframes/render-outputs.json

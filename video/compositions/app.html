@@ -1,0 +1,419 @@
+<template>
+  <style>
+    @font-face { font-family: "SF Pro"; src: url("assets/fonts/SFNS.ttf") format("truetype"); font-weight: 100 1000; }
+    #root { position: absolute; inset: 0; background: #000; overflow: hidden; font-family: "SF Pro", sans-serif; color: #fff;
+      --lime: #c5fa09; --ink: #111014; --sec: rgba(255,255,255,.55); --ter: rgba(255,255,255,.3);
+      --fill: rgba(255,255,255,.04); --stroke: rgba(255,255,255,.08); }
+    #app-cam { position: absolute; inset: 0; transform-origin: 696px 580px; }
+    #app-win { position: absolute; left: 80px; top: 45px; width: 1760px; height: 990px; background: #000;
+      border: 1.5px solid #1d1d1f; border-radius: 22px; overflow: hidden; }
+
+    /* toolbar */
+    .app-tb { position: absolute; left: 0; right: 0; top: 0; height: 80px; border-bottom: 1px solid #161616; }
+    .app-lights { position: absolute; left: 30px; top: 31px; display: flex; gap: 13px; }
+    .app-lights i { width: 19px; height: 19px; border-radius: 50%; background: #3a3a3c; display: block; }
+    .app-tbtn { position: absolute; top: 15px; height: 50px; min-width: 50px; border-radius: 25px; background: #161616;
+      display: flex; align-items: center; justify-content: center; gap: 8px; color: rgba(255,255,255,.75); font-size: 21px; font-weight: 500; }
+    .app-tbtn svg { width: 25px; height: 25px; }
+    #app-side { left: 140px; }
+    #app-back { left: 140px; padding: 0 20px 0 14px; opacity: 0; }
+    #app-title { position: absolute; left: 212px; top: 25px; font-size: 24px; font-weight: 600; color: rgba(255,255,255,.75); }
+    #app-clock { right: 26px; }
+    #app-hacts { position: absolute; right: 26px; top: 15px; height: 50px; border-radius: 25px; background: #161616; display: flex; opacity: 0; }
+    #app-hacts span { width: 56px; display: grid; place-items: center; color: rgba(255,255,255,.75); }
+    #app-hacts svg { width: 24px; height: 24px; }
+
+    /* body */
+    .app-body { position: absolute; left: 0; right: 0; top: 80px; bottom: 0; }
+    #app-now { position: absolute; inset: 0; }
+    .app-left { position: absolute; left: 0; top: 0; bottom: 0; width: 1232px; }
+    .app-right { position: absolute; right: 0; top: 0; bottom: 0; width: 528px; border-left: 1px solid #161616; padding: 35px; }
+
+    /* checklist */
+    #app-check { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 35px; }
+    #app-illus { width: 416px; height: 240px; position: relative; overflow: hidden;
+      -webkit-mask-image: linear-gradient(#000 80%, transparent); mask-image: linear-gradient(#000 80%, transparent); }
+    #app-bolt { position: absolute; left: 176px; top: 0; width: 64px; height: 99px; overflow: visible; transform-origin: 50% 50%; }
+    #app-plug { position: absolute; left: 155px; top: 118px; width: 106px; }
+    .app-tip { margin: 0 auto; width: 86px; height: 51px; border-radius: 16px; position: relative;
+      background: linear-gradient(90deg, #6e6e6e 0%, #e6e6e6 50%, #787878 100%); }
+    .app-tip::after { content: ""; position: absolute; left: 17px; right: 17px; top: 17px; height: 10px; border-radius: 5px; background: #1a1a1a; }
+    #app-ledge { height: 10px; border-radius: 3px; background: #212121; }
+    .app-house { height: 74px; border-radius: 10px 10px 0 0; background: #292929; }
+    .app-ctitle { position: relative; width: 900px; height: 58px; text-align: center; font-size: 48px; font-weight: 700; letter-spacing: -0.01em; }
+    .app-ctitle span { position: absolute; left: 0; right: 0; top: 0; }
+    #app-t1, #app-t2 { opacity: 0; }
+    #app-list { width: 704px; background: var(--fill); border: 1.5px solid var(--stroke); border-radius: 19px; }
+    .app-row { display: flex; align-items: center; gap: 22px; padding: 19px 22px; }
+    .app-row + .app-row { border-top: 1px solid rgba(255,255,255,.08); margin-left: 0; }
+    .app-mk { width: 42px; height: 42px; position: relative; flex: none; }
+    .app-ring { position: absolute; left: 3px; top: 3px; width: 36px; height: 36px; border-radius: 50%; border: 3px solid rgba(255,255,255,.25); }
+    #app-ring1 { border-color: var(--lime); }
+    .app-ck { position: absolute; left: 2px; top: 2px; width: 38px; height: 38px; overflow: visible; transform-origin: 50% 50%; transform: scale(0.3); opacity: 0; }
+    
+    .app-tick { stroke-dasharray: 20; stroke-dashoffset: 20; }
+    .app-lb { font-size: 24px; font-weight: 500; }
+    #app-lb2 { color: var(--sec); }
+    .app-dt { font-size: 19px; color: var(--sec); margin-top: 3px; position: relative; height: 24px; width: 560px; }
+    .app-dt span { position: absolute; left: 0; top: 0; white-space: nowrap; }
+    .app-dt .b { opacity: 0; }
+
+    /* recent (right, checklist state) */
+    .app-h4 { font-size: 24px; font-weight: 600; margin-bottom: 14px; }
+    .app-group { background: var(--fill); border: 1.5px solid var(--stroke); border-radius: 16px; }
+    .app-rec { display: flex; align-items: center; gap: 16px; padding: 13px 19px; font-size: 21px; font-weight: 500; }
+    .app-rec + .app-rec { border-top: 1px solid rgba(255,255,255,.07); }
+    .app-rec i { width: 14px; height: 14px; border-radius: 50%; display: block; }
+    .app-rec em { margin-left: auto; font-style: normal; font-size: 19px; color: var(--sec); font-weight: 400; }
+    #app-recent { position: absolute; left: 35px; right: 35px; top: 35px; }
+
+    /* result */
+    #app-result { position: absolute; left: 77px; top: 196px; }
+    #app-result > * { opacity: 0; }
+    .app-status { font-size: 24px; color: var(--sec); }
+    .app-watts { font-size: 180px; font-weight: 700; color: var(--lime); line-height: 1; margin-top: 29px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+    .app-data { display: flex; align-items: center; gap: 16px; font-size: 61px; margin-top: 4px; white-space: nowrap; }
+    .app-data svg { width: 38px; height: 48px; }
+    .app-data .s { color: var(--sec); }
+    .app-chips { display: flex; gap: 16px; margin-top: 32px; }
+    .app-chips span { font-size: 22px; font-weight: 500; padding: 11px 22px; border-radius: 14px; background: var(--fill); border: 1.5px solid var(--stroke); }
+    .app-btns { display: flex; gap: 19px; margin-top: 48px; align-items: center; }
+    #app-save { height: 58px; border-radius: 16px; background: var(--lime); color: var(--ink); font-size: 24px; font-weight: 600;
+      padding: 0 29px; display: grid; place-items: center; position: relative; transform-origin: 50% 50%; }
+    #app-save span { grid-area: 1 / 1; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+    #app-save .b { opacity: 0; }
+    #app-save svg { width: 24px; height: 24px; }
+    .app-copy { width: 62px; height: 58px; border-radius: 16px; background: #1c1c1e; display: grid; place-items: center; color: rgba(255,255,255,.8); }
+    .app-copy svg { width: 26px; height: 26px; }
+
+    /* inspector (right, result state) */
+    #app-insp { position: absolute; left: 35px; right: 35px; top: 35px; }
+    #app-insp > * { opacity: 0; }
+    .app-info { margin-bottom: 42px; }
+    .app-info p { margin: 0; display: flex; padding: 10px 19px; font-size: 21px; }
+    .app-info p + p { border-top: 1px solid rgba(255,255,255,.07); }
+    .app-info p span { width: 189px; color: var(--sec); flex: none; }
+    .app-port { font-size: 19px; color: var(--ter); }
+
+    /* save sheet */
+    #app-sheet { position: absolute; left: 464px; top: 80px; width: 832px; background: #1c1c1e; border-radius: 0 0 20px 20px;
+      border: 1px solid #2c2c2e; border-top: 0; box-shadow: 0 30px 80px rgba(0,0,0,.7); padding: 38px 42px 34px; opacity: 0; }
+    .app-st { font-size: 40px; font-weight: 700; letter-spacing: -0.01em; }
+    .app-ss { font-size: 21px; color: var(--sec); margin-top: 6px; margin-bottom: 18px; }
+    .app-srow { display: flex; align-items: center; gap: 26px; height: 66px; padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,.07); position: relative; }
+    .app-srow label { width: 128px; font-size: 22px; flex: none; }
+    .app-field { height: 42px; border-radius: 9px; background: #2a2a2c; border: 1px solid #3a3a3c; padding: 0 14px; font-size: 22px; display: flex; align-items: center; }
+    .app-pop { height: 42px; border-radius: 9px; background: #343436; padding: 0 14px; font-size: 22px; display: flex; align-items: center; gap: 12px; }
+    .app-pop svg { width: 14px; height: 22px; }
+    .app-cb { display: flex; align-items: center; gap: 10px; font-size: 22px; }
+    .app-cb i { width: 24px; height: 24px; border-radius: 6px; background: var(--lime); display: grid; place-items: center; }
+    .app-cb svg { width: 16px; height: 16px; }
+    .app-unit { font-size: 22px; color: var(--sec); }
+    #app-tierow { border-radius: 12px; }
+    #app-tieline { position: absolute; inset: 2px 0; border-radius: 12px; border: 1.5px solid rgba(197,250,9,.5); }
+    .app-sw { display: flex; gap: 16px; }
+    .app-sw i { width: 35px; height: 35px; border-radius: 50%; display: block; position: relative; }
+    #app-swring { position: absolute; left: -6px; top: -6px; width: 47px; height: 47px; border-radius: 50%; border: 3px solid rgba(255,255,255,.9); opacity: 0; }
+    .app-sbtns { display: flex; justify-content: flex-end; gap: 16px; margin-top: 30px; }
+    .app-cancel { height: 48px; padding: 0 22px; border-radius: 11px; background: #343436; font-size: 22px; display: grid; place-items: center; }
+    #app-ssave { height: 48px; padding: 0 26px; border-radius: 11px; background: var(--lime); color: var(--ink); font-size: 22px; font-weight: 600; display: grid; place-items: center; transform-origin: 50% 50%; }
+
+    /* history */
+    #app-hist { position: absolute; inset: 0; }
+    #app-hist > * { opacity: 0; }
+    .app-htitle { position: absolute; left: 38px; top: 29px; font-size: 45px; font-weight: 700; letter-spacing: -0.01em; }
+    .app-hbar { position: absolute; left: 38px; right: 38px; top: 105px; height: 42px; }
+    .app-search { position: absolute; left: 0; top: 0; width: 512px; height: 42px; border-radius: 10px; background: #111; border: 1px solid #262626;
+      display: flex; align-items: center; gap: 12px; padding: 0 14px; color: var(--ter); font-size: 21px; }
+    .app-search svg { width: 20px; height: 20px; }
+    .app-seg { position: absolute; right: 0; top: 0; width: 704px; height: 42px; border-radius: 10px; background: #111; border: 1px solid #262626; }
+    #app-segpill { position: absolute; left: 3px; top: 3px; width: 137px; height: 34px; border-radius: 7px; background: #2e2e30; }
+    .app-segl { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(5, 1fr); }
+    .app-segl span { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 20px; color: rgba(255,255,255,.75); }
+    .app-segl svg { width: 15px; height: 19px; }
+    .app-table { position: absolute; left: 0; right: 0; top: 167px; height: 690px; }
+    .app-th { position: absolute; left: 0; right: 0; top: 0; height: 40px; border-bottom: 1px solid #222; font-size: 19px; font-weight: 600; color: var(--sec); }
+    .app-c { position: absolute; top: 0; height: 100%; display: flex; align-items: center; white-space: nowrap; }
+    .c1 { left: 38px; } .c2 { left: 112px; } .c3 { left: 192px; } .c4 { left: 362px; } .c5 { left: 622px; } .c6 { left: 822px; } .c7 { left: 1052px; } .c8 { left: 1232px; }
+    .app-stripe { position: absolute; left: 16px; right: 16px; height: 46px; border-radius: 9px; background: rgba(255,255,255,.045); }
+    .app-tr { position: absolute; left: 0; right: 0; height: 46px; font-size: 21px; font-variant-numeric: tabular-nums; }
+    .app-tr .dot { width: 18px; height: 18px; border-radius: 50%; display: block; }
+    .app-tr .tb { display: flex; align-items: center; gap: 7px; }
+    .app-tr .tb svg { width: 16px; height: 20px; }
+    .app-tr .add { color: var(--ter); font-style: italic; }
+    .app-tr .when { color: var(--sec); }
+    #app-newmark { position: absolute; left: 16px; right: 16px; top: 40px; height: 46px; border-radius: 9px; background: rgba(197,250,9,.09); opacity: 0; }
+    .app-foot { position: absolute; left: 0; right: 0; bottom: 0; height: 52px; border-top: 1px solid #1c1c1c; padding: 14px 38px; font-size: 19px; color: var(--sec); }
+    .app-foot span { position: absolute; left: 38px; top: 14px; }
+    #app-foot2 { opacity: 0; }
+
+    /* cursor */
+    #app-cursor { position: absolute; left: 0; top: 0; width: 40px; height: 58px; transform-origin: 6px 4px; }
+  </style>
+
+  <div id="root" data-composition-id="app" data-width="1920" data-height="1080">
+    <div id="app-cam" class="clip" data-start="0" data-duration="18">
+      <div id="app-win">
+        <div class="app-tb">
+          <div class="app-lights"><i></i><i></i><i></i></div>
+          <div class="app-tbtn" id="app-side"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M15 5v14"/></svg></div>
+          <div class="app-tbtn" id="app-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Now</div>
+          <div id="app-title">Cable Tester</div>
+          <div class="app-tbtn" id="app-clock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/><path d="M12 7.5V12l3 2"/></svg></div>
+          <div id="app-hacts">
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/></svg></span>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></span>
+          </div>
+        </div>
+
+        <div class="app-body">
+          <div id="app-now">
+            <div class="app-left">
+              <div id="app-check">
+                <div id="app-illus">
+                  <svg id="app-bolt" viewBox="0 0 31 48">
+                    <polygon points="22,0 0,28 13,28 8,48 31,18 18,18" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1.3" stroke-linejoin="round"/>
+                    <polygon id="app-boltfill" points="22,0 0,28 13,28 8,48 31,18 18,18" fill="#c5fa09" opacity="0"/>
+                    <polygon id="app-boltline" pathLength="100" points="22,0 0,28 13,28 8,48 31,18 18,18" fill="none" stroke="#c5fa09" stroke-width="1.6" stroke-linejoin="round" stroke-dasharray="100" stroke-dashoffset="100"/>
+                  </svg>
+                  <div id="app-plug"><div class="app-tip"></div><div id="app-ledge"></div><div class="app-house"></div></div>
+                </div>
+                <div class="app-ctitle"><span id="app-t0">Plug in a cable you want to test</span><span id="app-t1">Now plug in the other end</span><span id="app-t2">Reading the cable…</span></div>
+                <div id="app-list">
+                  <div class="app-row">
+                    <div class="app-mk"><div class="app-ring" id="app-ring1"></div>
+                      <svg class="app-ck" id="app-disc1" viewBox="0 0 24 24"><circle class="app-disc" cx="12" cy="12" r="12" fill="#c5fa09"/><path class="app-tick" id="app-tick1" d="M7 12.5L10.3 15.8L17 9" fill="none" stroke="#111014" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div><div class="app-lb">One end into this Mac</div><div class="app-dt"><span class="a" id="app-d1a">Any USB-C port</span><span class="b" id="app-d1b">Port 1</span></div></div>
+                  </div>
+                  <div class="app-row">
+                    <div class="app-mk"><div class="app-ring" id="app-ring2"></div>
+                      <svg class="app-ck" id="app-disc2" viewBox="0 0 24 24"><circle class="app-disc" cx="12" cy="12" r="12" fill="#c5fa09"/><path class="app-tick" id="app-tick2" d="M7 12.5L10.3 15.8L17 9" fill="none" stroke="#111014" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div><div class="app-lb" id="app-lb2">Other end into a charger, Mac or device</div><div class="app-dt"><span class="a" id="app-d2a">A charger tests power. A Mac or device also shows data speed.</span><span class="b" id="app-d2b">MacBook Pro</span></div></div>
+                  </div>
+                </div>
+              </div>
+
+              <div id="app-result">
+                <div class="app-status">Plugged in 2 seconds ago</div>
+                <div class="app-watts"><span id="app-num">0</span> W</div>
+                <div class="app-data"><svg viewBox="0 0 80 100"><polygon points="49.6,0 14.4,56 38.4,56 28.8,100 56,52 68.8,52 68.8,66 80,44 68.8,22 68.8,36 48,36" fill="#c5fa09"/></svg><span>USB 4 v2</span><span class="s">· 80 Gb/s</span></div>
+                <div class="app-chips"><span>EPR</span><span>5 A</span></div>
+                <div class="app-btns">
+                  <div id="app-save"><span class="a" id="app-save-a">Save as #13</span><span class="b" id="app-save-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Saved #13</span></div>
+                  <div class="app-copy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="app-right">
+              <div id="app-recent">
+                <div class="app-h4">Recent</div>
+                <div class="app-group">
+                  <div class="app-rec"><i style="background:#30d158"></i>#12 240W USB4<em>1 hour ago</em></div>
+                  <div class="app-rec"><i style="background:#bf5af2"></i>#11 240W USB2<em>2 hours ago</em></div>
+                  <div class="app-rec"><i style="background:#ffd60a"></i>#10 60W USB2<em>2 hours ago</em></div>
+                  <div class="app-rec"><i style="background:#ff9f0a"></i>#09 100W USB3<em>yesterday</em></div>
+                  <div class="app-rec"><i style="background:#ff453a"></i>#08 100W USB3<em>yesterday</em></div>
+                  <div class="app-rec"><i style="background:#0a84ff"></i>#07 240W USB4v2<em>yesterday</em></div>
+                </div>
+              </div>
+              <div id="app-insp">
+                <div class="app-info"><div class="app-h4">Cable e-marker</div><div class="app-group">
+                  <p><span>Vendor ID</span>0x05AC (Apple)</p><p><span>Product ID</span>0x7320</p><p><span>Cable type</span>Passive</p>
+                  <p><span>Max VBUS</span>50 V</p><p><span>Max current</span>5 A</p><p><span>Speed</span>USB 4 v2 · 80 Gb/s</p><p><span>Length</span>~1 m</p></div></div>
+                <div class="app-info"><div class="app-h4">Live connection</div><div class="app-group">
+                  <p><span>Far end</span>MacBook Pro</p><p><span>Link</span>USB 4 (Thunderbolt)</p><p><span>Negotiated</span>80 Gb/s</p></div></div>
+                <div class="app-port">Port 1</div>
+              </div>
+            </div>
+          </div>
+
+          <div id="app-hist">
+            <div class="app-htitle">History</div>
+            <div class="app-hbar">
+              <div class="app-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>Search</div>
+              <div class="app-seg"><div id="app-segpill"></div><div class="app-segl"><span>All</span><span>240 W</span><span>100 W</span><span>60 W</span><span><svg viewBox="0 0 80 100"><polygon points="49.6,0 14.4,56 38.4,56 28.8,100 56,52 68.8,52 68.8,66 80,44 68.8,22 68.8,36 48,36" fill="#c5fa09"/></svg>Thunderbolt</span></div></div>
+            </div>
+            <div class="app-table" id="app-table">
+              <div class="app-th"><span class="app-c c1">#</span><span class="app-c c2">Tie</span><span class="app-c c3">Power</span><span class="app-c c4">Data</span><span class="app-c c5">Speed</span><span class="app-c c6">Vendor</span><span class="app-c c7">Length</span><span class="app-c c8">Tested</span></div>
+              <div id="app-stripes"></div>
+              <div id="app-newmark"></div>
+              <div id="app-rows"></div>
+            </div>
+            <div class="app-foot"><span id="app-foot1">12 cables</span><span id="app-foot2">4 cables</span></div>
+          </div>
+          <div id="app-sheet" data-layout-allow-overlap>
+            <div class="app-st">Save cable #13</div>
+            <div class="app-ss">Filled in from the cable. Change anything that looks wrong.</div>
+            <div class="app-srow"><label>Power</label><div class="app-field" style="width:120px">240</div><span class="app-unit">W</span></div>
+            <div class="app-srow"><label>Data</label><div class="app-pop">USB 4 v2<svg viewBox="0 0 14 22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4-4 4 4M3 14l4 4 4-4"/></svg></div><div class="app-cb"><i><svg viewBox="0 0 24 24" fill="none" stroke="#111014" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>Thunderbolt</div></div>
+            <div class="app-srow"><label>Speed</label><div class="app-field" style="width:120px">80</div><div class="app-pop">Gb/s<svg viewBox="0 0 14 22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l4-4 4 4M3 14l4 4 4-4"/></svg></div></div>
+            <div class="app-srow" id="app-tierow"><div id="app-tieline"></div><label>Tie color</label><div class="app-sw">
+              <i style="background:#ff453a"></i><i style="background:#ff9f0a"></i><i style="background:#ffd60a"></i><i style="background:#30d158"></i><i style="background:#0a84ff"><b id="app-swring"></b></i><i style="background:#bf5af2"></i><i style="background:#ff80cc"></i><i style="background:#8e8e93"></i></div></div>
+            <div class="app-srow"><label>Length</label><div class="app-field" style="width:120px">1</div><span class="app-unit">m</span></div>
+            <div class="app-srow" style="border-bottom:0"><label>Vendor</label><div class="app-field" style="width:260px">Apple</div></div>
+            <div class="app-sbtns"><div class="app-cancel">Cancel</div><div id="app-ssave">Save</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <svg id="app-cursor" data-layout-allow-overflow class="clip" data-start="0" data-duration="18" viewBox="0 0 20 29">
+      <path d="M1.5 1.5 L1.5 22.5 L6.6 17.6 L10.2 26 L13.6 24.5 L10.1 16.4 L17 16.4 Z" fill="#000" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <script>
+    // History rows: number, tie, watts, data, thunderbolt, speed, vendor, length, tested.
+    const ROWS = [
+      ["13", "#0a84ff", 240, "USB 4 v2", true, "80 Gb/s", "Apple", "1 m", "22 Nov at 09:14"],
+      ["12", "#30d158", 240, "USB 4", true, "40 Gb/s", "Apple", "1 m", "22 Nov at 08:00"],
+      ["11", "#bf5af2", 240, "USB 2", false, "480 Mb/s", "", "2 m", "22 Nov at 07:40"],
+      ["10", "#ffd60a", 60, "USB 2", false, "480 Mb/s", "", "", "22 Nov at 07:10"],
+      ["09", "#ff9f0a", 100, "USB 3", false, "10 Gb/s", "Belkin", "1 m", "21 Nov at 21:51"],
+      ["08", "#ff453a", 100, "USB 3", false, "5 Gb/s", "Anker", "2 m", "21 Nov at 21:40"],
+      ["07", "#0a84ff", 240, "USB 4 v2", true, "80 Gb/s", "Belkin", "1 m", "21 Nov at 21:32"],
+      ["06", "#8e8e93", 100, "USB 4", false, "40 Gb/s", "Anker", "0.8 m", "21 Nov at 21:31"],
+      ["05", "#ff80cc", 60, "USB 2", false, "480 Mb/s", "Ugreen", "0.13 m", "21 Nov at 21:21"],
+      ["04", "#30d158", 100, "USB 3", false, "10 Gb/s", "", "1.5 m", "21 Nov at 20:58"],
+      ["03", "#bf5af2", 240, "USB 4", true, "40 Gb/s", "CalDigit", "0.8 m", "21 Nov at 20:40"],
+      ["02", "#ffd60a", 60, "USB 2", false, "480 Mb/s", "", "3 m", "21 Nov at 20:12"],
+    ];
+    const TB = '<svg viewBox="0 0 80 100"><polygon points="49.6,0 14.4,56 38.4,56 28.8,100 56,52 68.8,52 68.8,66 80,44 68.8,22 68.8,36 48,36" fill="#c5fa09"/></svg>';
+    const ROW_H = 46, ROW_TOP = 40;
+    document.querySelector("#app-stripes").innerHTML = ROWS.map((r, i) => i % 2 === 1
+      ? `<div class="app-stripe" id="app-stripe-${i}" style="top:${ROW_TOP + i * ROW_H}px"></div>` : "").join("");
+    document.querySelector("#app-rows").innerHTML = ROWS.map((r, i) => `<div class="app-tr" id="app-tr-${i}" style="top:${ROW_TOP + i * ROW_H}px">
+      <span class="app-c c1">${r[0]}</span><span class="app-c c2"><i class="dot" style="background:${r[1]}"></i></span>
+      <span class="app-c c3">${r[2]} W</span><span class="app-c c4">${r[4] ? `<span class="tb">${TB}${r[3]}</span>` : r[3]}</span>
+      <span class="app-c c5">${r[5]}</span><span class="app-c c6">${r[6] || '<span class="add">Add</span>'}</span>
+      <span class="app-c c7">${r[7] || '<span class="add">Add</span>'}</span><span class="app-c c8 when">${r[8]}</span></div>`).join("");
+
+    const tl = gsap.timeline({ paused: true });
+    // Every tween keeps its start state in CSS, so nothing is written at build time.
+    const F = (t, from, to, at) => tl.fromTo(t, from, Object.assign({ immediateRender: false }, to), at);
+    const click = (at) => { F("#app-cursor", { scale: 1 }, { scale: 0.86, duration: 0.07, ease: "power2.out" }, at);
+                            F("#app-cursor", { scale: 0.86 }, { scale: 1, duration: 0.12, ease: "power2.out" }, at + 0.07); };
+    const move = (x0, y0, x, y, at, d = 0.65) => F("#app-cursor", { x: x0, y: y0 }, { x, y, duration: d, ease: "power2.inOut" }, at);
+
+    // 0. The app arrives slightly large out of the icon and settles.
+    F("#app-cam", { scale: 1.06, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.7, ease: "expo.out" }, 0);
+    F("#app-cursor", { x: 2000, y: 1200 }, { x: 2000, y: 1200, duration: 0.01 }, 0);
+    // Camera onto the checklist.
+    F("#app-cam", { scale: 1, x: 0, y: 0 }, { scale: 1.38, x: 264, y: -40, duration: 0.6, ease: "power2.inOut" }, 0.8);
+    // The first ring pulses, as in the app.
+    F("#app-ring1", { opacity: 1 }, { opacity: 0.4, duration: 0.7, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0.2);
+
+    // 1. Mac end in (1.6): the plug rises, the ledge lights, the bolt outline draws, check 1.
+    const s1 = 2.3;
+    F("#app-plug", { y: 29, opacity: 0.8 }, { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.6)" }, s1);
+    F("#app-ledge", { backgroundColor: "#212121" }, { backgroundColor: "#c5fa09", duration: 0.3, ease: "none" }, s1 + 0.3);
+    F("#app-boltline", { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.7, ease: "power2.out" }, s1 + 0.4);
+    F("#app-ring1", { opacity: 1 }, { opacity: 0, duration: 0.1 }, s1);
+    F("#app-disc1", { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.42, ease: "back.out(2.2)" }, s1);
+    F("#app-tick1", { strokeDashoffset: 20 }, { strokeDashoffset: 0, duration: 0.32, ease: "power2.out" }, s1 + 0.14);
+    F("#app-t0", { opacity: 1 }, { opacity: 0, duration: 0.25 }, s1);
+    F("#app-t1", { opacity: 0 }, { opacity: 1, duration: 0.25 }, s1);
+    F("#app-d1a", { opacity: 1 }, { opacity: 0, duration: 0.14 }, s1);
+    F("#app-d1b", { opacity: 0 }, { opacity: 1, duration: 0.22 }, s1 + 0.14);
+    F("#app-ring2", { borderColor: "rgba(255,255,255,0.25)" }, { borderColor: "#c5fa09", duration: 0.2 }, s1);
+    F("#app-lb2", { color: "rgba(255,255,255,0.55)" }, { color: "#ffffff", duration: 0.2 }, s1);
+    F("#app-ring2", { opacity: 1 }, { opacity: 0.4, duration: 0.7, ease: "sine.inOut", yoyo: true, repeat: 1 }, s1 + 0.4);
+
+    // 2. Other end in (4.0): the bolt fills, glows and pops, check 2.
+    const s2 = 4.5;
+    F("#app-boltfill", { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" }, s2);
+    F("#app-bolt", { scale: 1, filter: "drop-shadow(0 0 0px rgba(197,250,9,0))" },
+      { scale: 1.14, filter: "drop-shadow(0 0 16px rgba(197,250,9,0.7))", duration: 0.18, ease: "power2.out" }, s2);
+    F("#app-bolt", { scale: 1.14 }, { scale: 1, duration: 0.4, ease: "back.out(2)" }, s2 + 0.18);
+    F("#app-ring2", { opacity: 1 }, { opacity: 0, duration: 0.1 }, s2);
+    F("#app-disc2", { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.42, ease: "back.out(2.2)" }, s2);
+    F("#app-tick2", { strokeDashoffset: 20 }, { strokeDashoffset: 0, duration: 0.32, ease: "power2.out" }, s2 + 0.14);
+    F("#app-t1", { opacity: 1 }, { opacity: 0, duration: 0.25 }, s2);
+    F("#app-t2", { opacity: 0 }, { opacity: 1, duration: 0.25 }, s2);
+    F("#app-d2a", { opacity: 1 }, { opacity: 0, duration: 0.14 }, s2);
+    F("#app-d2b", { opacity: 0 }, { opacity: 1, duration: 0.22 }, s2 + 0.14);
+
+    // 3. Hold 0.9 s, then the checklist cascades out top to bottom and the camera pulls back.
+    const out = s2 + 0.9;
+    F(["#app-illus", ".app-ctitle", "#app-list"], { opacity: 1, y: 0 },
+      { opacity: 0, y: -22, duration: 0.26, ease: "power3.in", stagger: 0.06 }, out);
+    F("#app-recent", { opacity: 1, y: 0 }, { opacity: 0, y: -22, duration: 0.26, ease: "power3.in" }, out);
+    F("#app-cam", { scale: 1.38, x: 264, y: -40 }, { scale: 1, x: 0, y: 0, duration: 0.6, ease: "power2.inOut" }, out);
+
+    // 4. The result builds line by line; the watts count up. (5.3)
+    const res = out + 0.4;
+    F("#app-result > *", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.5, ease: "expo.out", stagger: 0.07 }, res);
+    F("#app-insp > *", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: 0.5, ease: "expo.out", stagger: 0.07 }, res + 0.18);
+    const counter = { v: 0 };
+    F(counter, { v: 0 }, { v: 240, duration: 1.1, ease: "power3.out",
+      onUpdate: () => { document.querySelector("#app-num").textContent = Math.round(counter.v); } }, res + 0.3);
+    // Camera onto the watts and the Thunderbolt 5 line, then back.
+    tl.set("#app-cam", { transformOrigin: "420px 520px" }, res + 0.4);
+    F("#app-cam", { scale: 1, x: 0, y: 0 }, { scale: 1.3, x: 220, y: 20, duration: 0.6, ease: "power2.inOut" }, res + 0.45);
+    F("#app-cam", { scale: 1.3, x: 220, y: 20 }, { scale: 1, x: 0, y: 0, duration: 0.6, ease: "power2.inOut" }, res + 2.2);
+
+    // 5. Save (8.0): cursor to Save, the sheet drops, blue tie, Save, the button morphs.
+    const sv = res + 2.75;
+    move(2000, 1200, 240, 808, sv, 0.7);
+    click(sv + 0.75);
+    F("#app-save", { scale: 1 }, { scale: 0.96, duration: 0.07, yoyo: true, repeat: 1 }, sv + 0.75);
+    F("#app-sheet", { opacity: 0, y: -60 }, { opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, sv + 0.8);
+    move(240, 808, 974, 578, sv + 1.25, 0.6);
+    click(sv + 1.9);
+    F("#app-swring", { opacity: 0, scale: 0.7 }, { opacity: 1, scale: 1, duration: 0.25, ease: "back.out(2)" }, sv + 1.9);
+    F("#app-tieline", { opacity: 1 }, { opacity: 0, duration: 0.2 }, sv + 1.9);
+    move(974, 578, 1302, 796, sv + 2.1, 0.55);
+    click(sv + 2.7);
+    F("#app-ssave", { scale: 1 }, { scale: 0.95, duration: 0.07, yoyo: true, repeat: 1 }, sv + 2.7);
+    F("#app-sheet", { opacity: 1, y: 0 }, { opacity: 0, y: -60, duration: 0.28, ease: "power3.in" }, sv + 2.78);
+    F("#app-save-a", { opacity: 1 }, { opacity: 0, duration: 0.18 }, sv + 3.1);
+    F("#app-save-b", { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(1.8)" }, sv + 3.1);
+    F("#app-save", { backgroundColor: "#c5fa09" }, { backgroundColor: "#e9ffb0", duration: 0.3 }, sv + 3.1);
+
+    // 6. History (12.6): cursor to the clock, the Now screen lifts away, History cascades in.
+    const hi = sv + 3.85;
+    move(1302, 796, 1790, 92, hi, 0.65);
+    click(hi + 0.7);
+    F("#app-clock", { scale: 1 }, { scale: 0.92, duration: 0.07, yoyo: true, repeat: 1 }, hi + 0.7);
+    const sw = hi + 0.72;
+    F("#app-now", { opacity: 1, y: 0 }, { opacity: 0, y: -22, duration: 0.22, ease: "power3.in" }, sw);
+    F(["#app-side", "#app-clock"], { opacity: 1 }, { opacity: 0, duration: 0.15 }, sw);
+    F(["#app-back", "#app-hacts"], { opacity: 0 }, { opacity: 1, duration: 0.2 }, sw + 0.1);
+    F("#app-title", { x: 0 }, { x: 108, duration: 0.25, ease: "power2.out" }, sw + 0.05);
+    F("#app-cursor", { opacity: 1 }, { opacity: 0, duration: 0.2 }, sw + 0.3);
+    const hin = sw + 0.3;
+    F(["#app-hist .app-htitle", "#app-hist .app-hbar", "#app-hist .app-table", "#app-hist .app-foot"], { opacity: 0, y: 22 },
+      { opacity: 1, y: 0, duration: 0.5, ease: "expo.out", stagger: 0.045 }, hin);
+    F(".app-th", { opacity: 0 }, { opacity: 1, duration: 0.3 }, hin + 0.09);
+    F("#app-rows .app-tr", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.45, ease: "expo.out", stagger: 0.045 }, hin + 0.14);
+    F("#app-stripes .app-stripe", { opacity: 0 }, { opacity: 1, duration: 0.3, stagger: 0.09 }, hin + 0.18);
+    F("#app-newmark", { opacity: 0 }, { opacity: 1, duration: 0.4 }, hin + 0.6);
+    F("#app-newmark", { opacity: 1 }, { opacity: 0, duration: 0.6 }, hin + 1.8);
+
+    // 7. Thunderbolt filter (15.2): the other rows fade, the four Thunderbolt rows slide up.
+    const fl = hin + 1.9;
+    move(1790, 92, 1730, 262, fl - 0.05, 0.01);
+    F("#app-cursor", { opacity: 0 }, { opacity: 1, duration: 0.2 }, fl);
+    move(1730, 262, 1730, 262, fl, 0.01);
+    move(1500, 560, 1735, 252, fl, 0.6);
+    click(fl + 0.65);
+    F("#app-segpill", { x: 0 }, { x: 560, duration: 0.35, ease: "power3.out" }, fl + 0.68);
+    const tbRows = ROWS.map((r, i) => r[4] ? i : -1).filter(i => i >= 0);
+    const others = ROWS.map((r, i) => r[4] ? -1 : i).filter(i => i >= 0);
+    F(others.map(i => `#app-tr-${i}`), { opacity: 1 }, { opacity: 0, duration: 0.2, ease: "power2.in" }, fl + 0.7);
+    tbRows.forEach((i, k) => F(`#app-tr-${i}`, { y: 0 }, { y: (k - i) * ROW_H, duration: 0.5, ease: "expo.out" }, fl + 0.82));
+    F(ROWS.map((r, i) => i).filter(i => i % 2 === 1 && i > 3).map(i => `#app-stripe-${i}`), { opacity: 1 }, { opacity: 0, duration: 0.2 }, fl + 0.7);
+    F("#app-foot1", { opacity: 1 }, { opacity: 0, duration: 0.15 }, fl + 0.8);
+    F("#app-foot2", { opacity: 0 }, { opacity: 1, duration: 0.2 }, fl + 0.85);
+    F("#app-cursor", { opacity: 1 }, { opacity: 0, duration: 0.3 }, fl + 1.5);
+
+    // 8. Carry across (17.4): the window shrinks into the end card's icon position.
+    tl.set("#app-cam", { transformOrigin: "542px 500px" }, 17.3);
+    F("#app-cam", { scale: 1, x: 0, y: 0, opacity: 1, filter: "blur(0px)" },
+      { scale: 0.19, x: 0, y: 0, opacity: 0, filter: "blur(8px)", duration: 0.6, ease: "power3.in" }, 17.38);
+
+    window.__timelines["app"] = tl;
+  </script>
+</template>

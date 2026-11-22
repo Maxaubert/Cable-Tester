@@ -1,0 +1,30 @@
+<template>
+  <style>
+    @font-face { font-family: "SF Pro"; src: url("assets/fonts/SFNS.ttf") format("truetype"); font-weight: 100 1000; }
+    #root { position: absolute; inset: 0; background: #000; overflow: hidden; font-family: "SF Pro", sans-serif; }
+    #splash-icon { position: absolute; left: 765px; top: 228px; width: 390px; height: 390px; transform-origin: 30% 26%; }
+    #splash-name { position: absolute; left: 0; right: 0; top: 672px; text-align: center; color: #fff;
+      font-size: 84px; font-weight: 700; letter-spacing: -0.02em; }
+    #splash-name span { display: inline-block; }
+    #splash-fade { position: absolute; inset: 0; background: #000; opacity: 0; }
+  </style>
+  <div id="root" data-composition-id="splash" data-width="1920" data-height="1080">
+    <img id="splash-icon" class="clip" data-start="0" data-duration="3" src="assets/icon.png" alt="Cable Tester icon" />
+    <div id="splash-name" class="clip" data-start="0" data-duration="3"><span>C</span><span>a</span><span>b</span><span>l</span><span>e</span><span>&nbsp;</span><span>T</span><span>e</span><span>s</span><span>t</span><span>e</span><span>r</span></div>
+    <div id="splash-fade" class="clip" data-start="0" data-duration="3"></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // The icon lands, the name prints letter by letter.
+    tl.fromTo("#splash-icon", { scale: 0.84, opacity: 0.55, filter: "blur(10px)" },
+      { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.8, ease: "expo.out" }, 0);
+    tl.fromTo("#splash-name span", { opacity: 0.3, filter: "blur(4px)" },
+      { opacity: 1, filter: "blur(0px)", duration: 0.2, stagger: 0.05, ease: "power2.out" }, 0.55);
+    tl.fromTo("#splash-name", { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "none" }, 0.55);
+    // Zoom through the icon's black fill into the app.
+    tl.to("#splash-name", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power3.in" }, 2.25);
+    tl.to("#splash-icon", { scale: 9, duration: 0.65, ease: "power3.in" }, 2.35);
+    tl.to("#splash-fade", { opacity: 1, duration: 0.2, ease: "none" }, 2.78);
+    window.__timelines["splash"] = tl;
+  </script>
+</template>
