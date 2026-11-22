@@ -1,132 +1,70 @@
 <div align="center">
+  <img src="docs/icon.png" alt="Cable Tester icon" width="128">
 
-<img src="docs/icon.png" alt="Cable Tester icon" width="128">
+  # Cable Tester
 
-# Cable Tester
+  Plug in a USB-C cable. See its watts and data speed.
 
-**Plug in a USB-C cable. See its wattage and data speed.** A small native Mac app that reads the
-chip inside the cable, so you can label a drawer of cables without a hardware tester.
+  [![Latest release](https://img.shields.io/github/v/release/loftspace/cable-tester-releases?style=flat-square&color=a4de06&label=release)](https://github.com/loftspace/cable-tester-releases/releases/latest)
+  [![macOS 15+](https://img.shields.io/badge/macOS-15%2B-a4de06?style=flat-square)](#install)
+  [![Signed and notarized](https://img.shields.io/badge/signed-notarized-a4de06?style=flat-square)](#install)
 
-[![Latest release](https://img.shields.io/github/v/release/loftspace/cable-tester-releases?label=release&color=a4de06&labelColor=111014)](https://github.com/loftspace/cable-tester-releases/releases/latest)
-[![macOS](https://img.shields.io/badge/macOS-15%2B-a4de06?logo=apple&logoColor=white&labelColor=111014)](#requirements)
-[![Swift](https://img.shields.io/badge/Swift-6-a4de06?logo=swift&logoColor=white&labelColor=111014)](CableKit)
-[![Signed and notarized](https://img.shields.io/badge/signed-notarized-a4de06?labelColor=111014)](#install)
-
-**[Download for Mac](https://github.com/loftspace/cable-tester-releases/releases/latest)** · [Releases](https://github.com/loftspace/cable-tester-releases/releases) · [How it reads the chip](docs/emarker.md)
+  [Download](https://github.com/loftspace/cable-tester-releases/releases/latest) · [Releases](https://github.com/loftspace/cable-tester-releases/releases) · [How it reads the chip](docs/emarker.md)
+</div>
 
 <picture>
   <source srcset="docs/media/demo.avif" type="image/avif">
-  <img src="docs/media/demo-poster.png" alt="Cable Tester demo: plug in a cable, the checklist ticks off both ends, a Thunderbolt 5 cable counts up to 240 W at USB 4 v2 80 Gb/s, it is saved as #13 and shows up in History" width="860">
+  <img src="docs/media/demo-poster.png" alt="Cable Tester demo: plug in a cable, the checklist ticks off both ends, a Thunderbolt 5 cable counts up to 240 W at USB 4 v2 80 Gb/s, it is saved as #13 and shows up in History" width="100%">
 </picture>
 
-<sub>The real app, rebuilt frame for frame in <a href="video">HyperFrames</a>. <a href="docs/media/demo.mp4">Watch the MP4</a>.</sub>
+Cable Tester is a small native Mac app that reads the chip inside a USB-C cable, so you can sort and
+label a drawer of cables without a hardware tester. Plug a cable into the Mac, plug the other end
+into a charger, another Mac or any USB-C device, and it shows what the cable can do.
+[Watch the demo as MP4](docs/media/demo.mp4).
 
-</div>
+## Features
 
-## What it shows
-
-| Plugged into | Shows |
-|---|---|
-| **Another Mac** | Watts, USB generation, live speed (Thunderbolt icon when the link is Thunderbolt), chip data |
-| **Any small USB-C device** (earbuds case, flash drive) | Watts and rated speed from the cable's chip. The live speed is the device's, and the app says so. |
-| **A charger** | Watts only. Data speed is hidden: there is no data link. |
-| **Nothing yet** | A checklist: the Mac end ticks as soon as the cable is in; the chip is read once the other end is connected |
-
-Cables without a chip are basic USB 2 cables limited to 3 A, so they show **60 W est.** plus whatever
-speed the live link reaches.
-
-<table>
-<tr>
-<td><img src="docs/screenshots/charger.png" alt="Charger only: 240 W, no data line, charger offers in the side panel"></td>
-<td><img src="docs/screenshots/nochip.png" alt="No chip: 60 W est. with a note about the 3 A limit, USB 2 at 480 Mb/s"></td>
-</tr>
-<tr>
-<td><img src="docs/screenshots/history.png" alt="History table with tie colour, power, data, speed, vendor, length and test date"></td>
-<td><img src="docs/screenshots/save-chip.png" alt="Save sheet prefilled from the cable, every field editable"></td>
-</tr>
-</table>
-
-## How it works
-
-- **The cable's chip (e-marker).** USB-C cables rated for 5 A or fast data carry a chip that reports
-  their current, voltage, speed and length. macOS exposes it in the IORegistry (`SOP'` under each
-  USB-C port), and the app decodes it. Details and bit layout: [docs/emarker.md](docs/emarker.md).
-- **The live link.** Each port lists its active transports (USB 2, USB 3, USB 4/Thunderbolt) with the
-  negotiated speed and the name of the device at the other end.
-- **The charger.** On a MacBook, the charger's offer list (`AdapterDetails`) shows whether it offers
-  5 A or 28 V, which it only does when the cable allows it.
-- The app listens for IOKit plug events, so the result appears the moment a cable goes in.
-
-There is no serial number in a cable, so the app can only say "same model as #03". Number labels and
-coloured cable ties tell identical cables apart.
+- Reads the cable's e-marker chip: wattage (60, 100 or 240 W), USB generation, rated speed, EPR, length and vendor.
+- Shows the live link from the port: the speed it negotiated, Thunderbolt when the link is Thunderbolt, and the device at the other end.
+- Works with a Mac, a charger or any small USB-C device at the far end. A charger shows watts only, since there is no data link.
+- A plug-in checklist ticks off each end as it goes in; cables already connected when the app starts are ignored until you replug them.
+- Cables without a chip show **60 W est.**: they are USB 2 cables limited to 3 A.
+- Saves each cable with a number label and a tie colour. History edits every field in place, filters by 240/100/60 W and Thunderbolt, prints labels and exports CSV.
+- Signed, notarized and updates itself.
 
 ## Install
 
-Download the latest DMG from [cable-tester-releases](https://github.com/loftspace/cable-tester-releases/releases/latest),
-open it and drag **Cable Tester** into Applications. It is signed and notarized. The app updates
-itself (Sparkle): it checks once a day, and **Cable Tester → Check for Updates…** checks now.
+[Download the latest DMG](https://github.com/loftspace/cable-tester-releases/releases/latest),
+open it and drag **Cable Tester** into Applications.
 
-## Using it
+- Needs an Apple Silicon Mac with macOS 15 or later.
+- Signed with a Developer ID and notarized by Apple, so it opens without a warning.
+- Checks for updates once a day (Sparkle); **Cable Tester > Check for Updates…** checks now.
+- Saved cables stay in `~/Library/Application Support/Cable Tester/cables.json`.
 
-1. Plug the cable into the Mac, then the other end into a charger, another Mac or any USB-C device.
-   A checklist ticks off each end; cables that were already connected when the app started are
-   ignored until you replug them.
-2. Read the result once both ends are in. Press **Save** (⌘S): the sheet is prefilled from the cable; add the tie colour
-   and anything else you know. Empty fields stay blank.
-3. Write the label (`#07 240W USB4`) on the cable. The copy button puts it on the clipboard.
-4. **History** (⌘Y): every field is editable in place, with filters for 240/100/60 W and Thunderbolt,
-   label copy and print, and CSV export.
+## Usage
 
-Saved cables live in `~/Library/Application Support/Cable Tester/cables.json`. On first run the
-prototype's CSV log (`~/Documents/Claude/zz-Misc/cable-tester/cables.csv`) is imported.
+- **Plug in** one end into the Mac, then the other end into a charger, a Mac or a USB-C device. The result shows once both ends are in.
+- **Save** (⌘S) opens a sheet filled in from the cable. Add the tie colour and anything else you know; empty fields stay blank.
+- **Label** the cable with what the app gives you, for example `#13 240W USB4v2`. The copy button puts it on the clipboard.
+- **History** (⌘Y) lists every saved cable. Click any value to change it; right-click a row to copy or print its label or restore the measured values.
 
-## Requirements
+## Limits
 
-- Apple Silicon Mac, macOS 15 or later.
-- Charger readings need a Mac with a battery (MacBook). The cable chip and the live link work on any
-  Mac, including a Mac mini.
+- A cable has no serial number, so identical cables cannot be told apart by the app. It says "same model as #03"; the number label and tie colour do the rest.
+- The Mac reads the cable's chip only when something is plugged into the other end.
+- Charger readings need a Mac with a battery (a MacBook). The chip and the live link work on any Mac, including a Mac mini.
+- The data speed you see is the slower of the cable and the device at the other end; the app says when the device is the limit.
+- Telling a Thunderbolt cable from a plain USB 4 cable has not been verified on hardware yet.
 
-## Building
+## Development
 
-```sh
-xcodegen generate                       # creates CableTester.xcodeproj from project.yml
-xcodebuild -project CableTester.xcodeproj -scheme CableTester -configuration Debug \
-  -derivedDataPath build/dd build
-(cd CableKit && swift test)             # logic tests, with real readings as fixtures
-```
-
-Headless modes, no window opened:
-
-```sh
-APP="build/dd/Build/Products/Debug/Cable Tester.app/Contents/MacOS/Cable Tester"
-"$APP" --probe                # print what every USB-C port shows right now
-"$APP" --snapshot out/        # render every screen from demo data to PNGs
-"$APP" --demo nochip          # run on demo data: empty, mac, charger, nochip, cableonly, device, history
-```
-
-## Releasing
-
-Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml` in the PR, merge, then on a
-clean `master`:
-
-```sh
-scripts/release.sh --notes notes.md     # build, sign, notarize, DMG, publish, update the feed
-scripts/release.sh --dry-run            # everything up to the notarized DMG, nothing published
-```
-
-## Project layout
-
-| Path | What |
-|---|---|
-| [CableKit](CableKit) | Decoding, rules and storage, no UI. Fully unit tested. |
-| [App](App) | SwiftUI app, IOKit port monitor, demo and snapshot modes |
-| [docs/app-spec-and-plan.md](docs/app-spec-and-plan.md) | The spec this app follows |
-| [docs/emarker.md](docs/emarker.md) | Reading the cable chip on macOS, with test results |
-| [scripts/release.sh](scripts/release.sh) | Release: signed, notarized DMG and the Sparkle update feed |
-| [cable_tester.py](cable_tester.py) | The original command-line prototype |
-| `.impeccable/mocks` | Approved design mockups |
-
-## Prototype (command line)
-
-The original script still works: `./cable_tester.py` tests cables one by one from the terminal and
-logs to CSV; `./cable_tester.py --read` shows the current charger offers and links once.
+`xcodegen generate` creates the Xcode project from `project.yml`, then
+`xcodebuild -project CableTester.xcodeproj -scheme CableTester -configuration Debug -derivedDataPath build/dd build`
+builds the app. `cd CableKit && swift test` runs the logic tests, with real IORegistry readings as fixtures.
+The app has headless modes that never open a window: `--probe` prints what every USB-C port shows,
+`--snapshot <dir>` renders every screen from demo data, and `--demo <state>` runs on demo data.
+`scripts/release.sh` builds, signs, notarizes and publishes a release and its update feed.
+The spec is [docs/app-spec-and-plan.md](docs/app-spec-and-plan.md), the chip findings are
+[docs/emarker.md](docs/emarker.md), and the demo film is a [HyperFrames](video/README.md) project.
+The original command-line prototype, `cable_tester.py`, still works.
