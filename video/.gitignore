@@ -5,3 +5,4 @@ renders/
 assets/fonts/
 .hyperframes/artifacts/
 .hyperframes/render-outputs.json
+.hyperframes/cache/
