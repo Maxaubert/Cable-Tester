@@ -43,9 +43,11 @@ Rules for the result:
 - Number is assigned automatically (next free `#NN`).
 
 ### History
-- Native sortable table: `#`, Tie, Power, Data, Vendor, Length, Tested. No notes, no name.
+- Native sortable table: `#`, Tie, Power, Data, Speed, Vendor, Length, Tested. No notes, no name.
+  Data is the USB name (with the Thunderbolt icon when it applies); Speed is its own column
+  (`40 Gb/s`, `480 Mb/s`), sortable by real speed.
 - Search field, filter `All | 240 W | 100 W | 60 W | Thunderbolt` (filter by the icon's meaning), "N cables" status bar.
-- Power and Data are locked (lock icon). Tie, Vendor, Length are editable inline; empty ones show "Add".
+- Power, Data and Speed are locked (lock icon). Tie, Vendor, Length are editable inline; empty ones show "Add".
   Length uses the same typed field and validation as the sheet. A validation message floats over the
   row below (popover style); it never makes the row taller.
 - Toolbar: back to Now, copy label, print label, export (CSV). Delete via context menu.
