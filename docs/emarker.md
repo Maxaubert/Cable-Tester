@@ -31,5 +31,9 @@ passive, USB 2.0 only, 5 A, 50 V, EPR = a 240 W charge-only cable, ~2 m, Vendor 
   cables look the same, so "remembering" cables can only work per model (plus a physical label).
 - Cables without an e-marker (most 60 W USB 2 cables) have no `SOP'` data: treat them as 3 A / 60 W
   and use the live link test for data.
+- Far end plugged into nothing (tested 2026-11-22, 240 W no-name cable in MacBook port 1): the port
+  shows `ConnectionActive = Yes` and `TransportsActive = ("CC")`, but no `SOP` partner and no `SOP'`
+  node. So the Mac notices a cable was plugged in, but cannot read its chip. The app can say
+  "Cable detected, plug the other end into a charger or a Mac".
 - Untested: whether `SOP'` appears when the far end is a charger (the charger, not the Mac, may run
   the cable discovery). Confirmed with the Mac mini as the far end.
