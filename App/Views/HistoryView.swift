@@ -125,26 +125,41 @@ struct TieCell: View {
     private func set(_ t: TieColor?) { var r = record; r.tie = t; store.update(r) }
 }
 
+/// A small dot after a value the user changed; its tooltip gives the measured value.
+struct EditedMark: View {
+    var measured: String?
+    var body: some View {
+        Circle().fill(Palette.thunderbolt.opacity(0.8)).frame(width: 5, height: 5)
+            .help("Edited. Measured: \(measured ?? "nothing"). Right-click the row to restore.")
+            .accessibilityLabel("Edited")
+    }
+}
+
 struct PowerCell: View {
     @Environment(CableStore.self) private var store
     var record: CableRecord
     var body: some View {
-        Menu {
-            ForEach(wattTiers, id: \.self) { w in Button("\(w) W") { set(w) } }
-            Divider()
-            Button("Unknown") { set(nil) }
-        } label: {
-            if let w = record.values.watts { Text("\(w) W").foregroundStyle(Palette.power).monospacedDigit() } else { AddText() }
+        InlineTextCell(text: record.values.watts.map { "\($0) W" } ?? "", color: Palette.power,
+                       edited: record.editedFields.contains("watts") ? (record.measured.watts.map { "\($0) W" } ?? "nothing") : nil,
+                       message: "Enter watts from 1 to 240", validate: { Watts.parse($0) != nil }) { t in
+            var r = record; r.values.watts = Watts.parse(t); store.update(r)
         }
-        .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
     }
-    private func set(_ w: Int?) { var r = record; r.values.watts = w; store.update(r) }
 }
 
 struct DataCell: View {
     @Environment(CableStore.self) private var store
     var record: CableRecord
     var body: some View {
+        HStack(spacing: 4) {
+            if record.editedFields.contains("data") {
+                EditedMark(measured: record.measured.generation.map { $0.name + (record.measured.thunderbolt ? " (Thunderbolt)" : "") })
+            }
+            menu
+        }
+    }
+
+    @ViewBuilder private var menu: some View {
         Menu {
             ForEach(DataGeneration.allCases, id: \.self) { g in
                 Button { set(g) } label: { if record.values.generation == g { Label(g.name, systemImage: "checkmark") } else { Text(g.name) } }
@@ -172,6 +187,9 @@ struct InlineTextCell: View {
     var text: String
     var placeholderAdd = true
     var suffix: String? = nil
+    var color: Color? = nil
+    /// The measured value, when the user changed it.
+    var edited: String? = nil
     var message: String
     var validate: (String) -> Bool
     var commit: (String) -> Void
@@ -181,13 +199,15 @@ struct InlineTextCell: View {
     @FocusState private var focused: Bool
 
     var body: some View {
-        HStack(spacing: 3) {
+        HStack(spacing: 4) {
+            if let edited, !focused { EditedMark(measured: edited) }
             TextField("", text: $draft, prompt: placeholderAdd ? Text("Add").italic() : nil)
                 .textFieldStyle(.plain)
                 .monospacedDigit()
+                .foregroundStyle(color ?? .primary)
                 .focused($focused)
-                .onSubmit(apply)
-                .onChange(of: focused) { _, f in if !f { apply() } }
+                .onSubmit { apply(leaving: false) }
+                .onChange(of: focused) { _, f in if !f { apply(leaving: true) } }
             if let suffix, !draft.isEmpty { Text(suffix).foregroundStyle(.secondary) }
         }
         .padding(.horizontal, 4).padding(.vertical, 1)
@@ -199,13 +219,19 @@ struct InlineTextCell: View {
         .onChange(of: text) { _, t in if !focused { draft = t } }
     }
 
-    private func apply() {
+    /// Enter with bad input keeps the field open and shows why. Clicking away with bad input puts the
+    /// saved value back, so the cell never shows something that was not saved.
+    private func apply(leaving: Bool) {
         let t = draft.trimmingCharacters(in: .whitespaces)
         if t.isEmpty || validate(t) {
             invalid = false
             if t != text { commit(t) }
+        } else if leaving {
+            invalid = false
+            draft = text
         } else {
             invalid = true
+            focused = true
         }
     }
 }
@@ -214,7 +240,9 @@ struct SpeedCell: View {
     @Environment(CableStore.self) private var store
     var record: CableRecord
     var body: some View {
-        InlineTextCell(text: record.values.speed?.formatted ?? "", message: "Enter a speed like 40 Gb/s or 480 Mb/s",
+        InlineTextCell(text: record.values.speed?.formatted ?? "",
+                       edited: record.editedFields.contains("speed") ? (record.measured.speed?.formatted ?? "nothing") : nil,
+                       message: "Enter a speed like 40 Gb/s or 480 Mb/s",
                        validate: { DataSpeed.parse(cell: $0) != nil }) { t in
             var r = record; r.values.speed = DataSpeed.parse(cell: t); store.update(r)
         }
@@ -225,7 +253,9 @@ struct VendorCell: View {
     @Environment(CableStore.self) private var store
     var record: CableRecord
     var body: some View {
-        InlineTextCell(text: record.values.vendor ?? "", message: "", validate: { _ in true }) { t in
+        InlineTextCell(text: record.values.vendor ?? "",
+                       edited: record.editedFields.contains("vendor") ? (record.measured.vendor ?? "nothing") : nil,
+                       message: "", validate: { _ in true }) { t in
             var r = record; r.values.vendor = t.isEmpty ? nil : t; store.update(r)
         }
     }
@@ -236,6 +266,7 @@ struct LengthCell: View {
     var record: CableRecord
     var body: some View {
         InlineTextCell(text: record.values.lengthMetres.map(Length.format) ?? "",
+                       edited: record.editedFields.contains("length") ? (record.measured.lengthMetres.map(Length.format) ?? "nothing") : nil,
                        message: "Enter metres, like 0.13", validate: { Length.parse($0) != nil }) { t in
             var r = record; r.values.lengthMetres = Length.parse(t); store.update(r)
         }

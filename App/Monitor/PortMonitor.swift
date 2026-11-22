@@ -15,8 +15,19 @@ final class PortMonitor {
     private(set) var pluggedAt: Date?
 
     var result: CableResult? {
-        guard let n = focusedPort, let p = ports.first(where: { $0.number == n }) else { return nil }
-        return CableResult.make(port: p, charger: charger)
+        guard let n = focusedPort, var p = ports.first(where: { $0.number == n }) else { return nil }
+        // Fill in a Thunderbolt speed the port node does not report.
+        if let i = p.links.firstIndex(where: { $0.kind == .cio && $0.speed == nil }), let s = cioSpeed[n] {
+            p.links[i].speed = s
+        }
+        return CableResult.make(port: p, charger: chargerBelongs(to: n) ? charger : nil)
+    }
+
+    /// The charger reading is machine-wide (no port number), so only tie it to this port when the
+    /// charger and this cable were connected at about the same time.
+    private func chargerBelongs(to port: Int) -> Bool {
+        guard charger != nil, let since = chargerSince, let plugged = plugTimes[port] else { return demo }
+        return abs(since.timeIntervalSince(plugged)) < 10
     }
 
     var focusedPortState: PortState? { ports.first { $0.number == focusedPort } }
@@ -25,6 +36,10 @@ final class PortMonitor {
     private var iterators: [io_iterator_t] = []
     private var timer: Timer?
     private var knownConnections: [Int: String] = [:]
+    private var plugTimes: [Int: Date] = [:]
+    private var chargerSince: Date?
+    private var cioSpeed: [Int: DataSpeed] = [:]
+    private var cioLookups: Set<String> = []
     private var demo = false
 
     init() {}
@@ -82,26 +97,89 @@ final class PortMonitor {
     func refresh(initial: Bool) {
         guard !demo else { return }
         let new = IORegistryReader.ports()
-        charger = IORegistryReader.charger()
+        let newCharger = IORegistryReader.charger()
+        if newCharger == nil { chargerSince = nil } else if charger == nil || chargerSince == nil { chargerSince = Date() }
+        if newCharger != charger { charger = newCharger }
         // A port whose connection changed is where the user just plugged a cable.
         for p in new {
             let key = p.connectionActive ? (p.connectionUUID ?? "on") : ""
             let old = knownConnections[p.number]
-            if !initial, key != old, p.connectionActive {
-                focusedPort = p.number; pluggedAt = Date()
+            if key != old {
+                cioSpeed[p.number] = nil
+                if p.connectionActive {
+                    if !initial { focusedPort = p.number; pluggedAt = Date(); plugTimes[p.number] = pluggedAt }
+                } else {
+                    plugTimes[p.number] = nil
+                }
             }
             knownConnections[p.number] = key
         }
         if initial {
             // On launch, show a port that has a cable chip; permanent hubs and displays stay out of the way.
             if let p = new.first(where: { $0.connectionActive && $0.cable != nil }) {
-                focusedPort = p.number; pluggedAt = Date()
+                focusedPort = p.number; pluggedAt = Date(); plugTimes[p.number] = pluggedAt
             }
         }
         if let f = focusedPort, !(new.first { $0.number == f }?.connectionActive ?? false) {
-            focusedPort = nil; pluggedAt = nil
+            // Fall back to the most recently plugged cable that is still connected.
+            let active = Set(new.filter(\.connectionActive).map(\.number))
+            if let (n, t) = plugTimes.filter({ active.contains($0.key) }).max(by: { $0.value < $1.value }) {
+                focusedPort = n; pluggedAt = t
+            } else {
+                focusedPort = nil; pluggedAt = nil
+            }
         }
         if new != ports { ports = new }
+        lookUpThunderboltSpeedIfNeeded()
+    }
+}
+
+extension PortMonitor {
+    /// The port node may not report a Thunderbolt link's speed. Ask system_profiler once per connection,
+    /// off the main thread.
+    fileprivate func lookUpThunderboltSpeedIfNeeded() {
+        guard let n = focusedPort, let p = ports.first(where: { $0.number == n }),
+              p.links.contains(where: { $0.kind == .cio && $0.speed == nil }), cioSpeed[n] == nil else { return }
+        let key = "\(n)-\(p.connectionUUID ?? "")"
+        guard !cioLookups.contains(key) else { return }
+        cioLookups.insert(key)
+        Task.detached(priority: .utility) {
+            let speed = ThunderboltProfiler.linkSpeed()
+            await MainActor.run { [weak self] in
+                if let speed { self?.cioSpeed[n] = speed }
+            }
+        }
+    }
+}
+
+/// `system_profiler SPThunderboltDataType -json`: the slowest connected receptacle's current speed.
+enum ThunderboltProfiler {
+    static func linkSpeed() -> DataSpeed? {
+        let task = Process()
+        task.executableURL = URL(fileURLWithPath: "/usr/sbin/system_profiler")
+        task.arguments = ["SPThunderboltDataType", "-json"]
+        let pipe = Pipe()
+        task.standardOutput = pipe
+        task.standardError = FileHandle.nullDevice
+        do { try task.run() } catch { return nil }
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        task.waitUntilExit()
+        guard let json = try? JSONSerialization.jsonObject(with: data) else { return nil }
+        var speeds: [DataSpeed] = []
+        func walk(_ o: Any) {
+            if let d = o as? [String: Any] {
+                for (k, v) in d {
+                    if k.hasPrefix("receptacle"), let r = v as? [String: Any],
+                       !((r["receptacle_status_key"] as? String) ?? "").contains("no_devices"),
+                       let s = (r["current_speed_key"] as? String).flatMap(DataSpeed.parse(description:)) {
+                        speeds.append(s)
+                    }
+                    walk(v)
+                }
+            } else if let a = o as? [Any] { a.forEach(walk) }
+        }
+        walk(json)
+        return speeds.min()
     }
 }
 

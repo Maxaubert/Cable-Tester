@@ -170,11 +170,13 @@ struct ResultView: View {
                 }
             }
 
-            if result.showsData, let speed = result.shownSpeed {
+            if result.showsData {
                 HStack(spacing: 10) {
                     DataName(generation: result.generation, thunderbolt: result.thunderbolt, glyphSize: 30)
-                    Text("·").foregroundStyle(.secondary)
-                    Text(speed.formatted).monospacedDigit()
+                    if let speed = result.shownSpeed {
+                        Text("·").foregroundStyle(.secondary)
+                        Text(speed.formatted).monospacedDigit()
+                    }
                 }
                 .font(.system(size: 38, weight: .regular))
                 .foregroundStyle(.secondary)
@@ -247,7 +249,7 @@ struct ResultView: View {
             if result.showsData, let note = result.limitNote {
                 Text(note).font(.system(size: 13)).foregroundStyle(.secondary)
             }
-            if let same = store.sameModel(as: result.cable?.fingerprint) {
+            if let same = store.sameModel(as: result.cable?.fingerprint, before: monitor.pluggedAt ?? .distantFuture) {
                 Label("Same model as #\(same.numberText) (\(CableLabel.make(number: same.number, watts: same.values.watts, generation: same.values.generation).split(separator: " ").dropFirst().joined(separator: " ")))", systemImage: "clock.arrow.circlepath")
                     .font(.system(size: 13)).foregroundStyle(.secondary)
             }

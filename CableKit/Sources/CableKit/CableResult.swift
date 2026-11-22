@@ -77,8 +77,9 @@ public struct CableResult: Hashable, Sendable {
 
         let liveSpeed = link?.speed
         var generation = p.cable?.generation
-        if let s = liveSpeed {
-            let liveGen = link?.kind == .cio ? max(.usb4, DataGeneration.from(speed: s)) : DataGeneration.from(speed: s)
+        var liveGen: DataGeneration? = liveSpeed.map(DataGeneration.from(speed:))
+        if p.hasThunderboltLink { liveGen = max(.usb4, liveGen ?? .usb4) }
+        if let liveGen {
             if generation == nil || p.cable == nil { generation = liveGen }
             // A real link proves at least this generation, even when the chip says less.
             if let g = generation, liveGen > g { generation = liveGen }
@@ -86,7 +87,7 @@ public struct CableResult: Hashable, Sendable {
 
         return CableResult(
             port: p.number, farEnd: farEnd, cable: p.cable, watts: watts, wattsSource: source,
-            generation: generation, thunderbolt: link?.kind == .cio,
+            generation: generation, thunderbolt: p.hasThunderboltLink,
             ratedSpeed: p.cable?.ratedSpeed, liveSpeed: liveSpeed, liveLink: link)
     }
 }

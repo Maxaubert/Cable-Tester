@@ -48,7 +48,7 @@ struct RootView: View {
             }
         }
         .sheet(item: $savingResult) { r in SaveSheet(result: r) }
-        .alert("Could not save", isPresented: Binding(get: { store.lastError != nil }, set: { if !$0 { store.lastError = nil } })) {
+        .alert("Saved cables", isPresented: Binding(get: { store.lastError != nil }, set: { if !$0 { store.lastError = nil } })) {
             Button("OK") { store.lastError = nil }
         } message: { Text(store.lastError ?? "") }
         .onAppear { monitor.start() }

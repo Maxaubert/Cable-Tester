@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Shared editing state for a cable's values, used by the save sheet.
 struct CableDraft {
-    var watts: Int?
+    var wattsText: String
     var generation: DataGeneration?
     var thunderbolt: Bool
     var speedText: String
@@ -13,7 +13,7 @@ struct CableDraft {
     var tie: TieColor?
 
     init(values v: CableRecord.Values, tie: TieColor?) {
-        watts = v.watts; generation = v.generation; thunderbolt = v.thunderbolt
+        wattsText = v.watts.map(String.init) ?? ""; generation = v.generation; thunderbolt = v.thunderbolt
         speedUnit = v.speed?.naturalUnit ?? .gbps
         speedText = v.speed.map { DataSpeed.trim($0.value(in: $0.naturalUnit)) } ?? ""
         vendor = v.vendor ?? ""
@@ -23,11 +23,12 @@ struct CableDraft {
 
     var lengthValid: Bool { lengthText.trimmingCharacters(in: .whitespaces).isEmpty || Length.parse(lengthText) != nil }
     var speedValid: Bool { speedText.trimmingCharacters(in: .whitespaces).isEmpty || DataSpeed.parse(typed: speedText, unit: speedUnit) != nil }
-    var isValid: Bool { lengthValid && speedValid }
+    var wattsValid: Bool { wattsText.trimmingCharacters(in: .whitespaces).isEmpty || Watts.parse(wattsText) != nil }
+    var isValid: Bool { lengthValid && speedValid && wattsValid }
 
     var values: CableRecord.Values {
         CableRecord.Values(
-            watts: watts, generation: generation, thunderbolt: generation != nil && thunderbolt,
+            watts: Watts.parse(wattsText), generation: generation, thunderbolt: generation != nil && thunderbolt,
             speed: DataSpeed.parse(typed: speedText, unit: speedUnit),
             vendor: vendor.trimmingCharacters(in: .whitespaces).isEmpty ? nil : vendor.trimmingCharacters(in: .whitespaces),
             lengthMetres: Length.parse(lengthText))
@@ -62,13 +63,21 @@ struct SaveSheet: View {
                 .fixedSize(horizontal: false, vertical: true)
 
             VStack(alignment: .leading, spacing: 0) {
-                row("Power", empty: draft.watts == nil) {
-                    Picker("Power", selection: $draft.watts) {
-                        Text("Unknown").tag(Int?.none)
-                        ForEach(Array(Set(wattTiers + [draft.watts].compactMap { $0 })).sorted(), id: \.self) {
-                            Text("\($0) W").tag(Int?.some($0))
+                row("Power", empty: draft.wattsText.isEmpty) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 6) {
+                            TextField("e.g. 100", text: $draft.wattsText).textFieldStyle(.roundedBorder).frame(width: 80)
+                            Text("W").foregroundStyle(.secondary)
+                            Menu {
+                                ForEach(wattTiers, id: \.self) { w in Button("\(w) W") { draft.wattsText = String(w) } }
+                            } label: { Image(systemName: "chevron.up.chevron.down") }
+                            .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+                            .help("Common ratings")
                         }
-                    }.labelsHidden().fixedSize()
+                        if !draft.wattsValid {
+                            Text("Enter watts from 1 to 240").font(.system(size: 11)).foregroundStyle(.red)
+                        }
+                    }
                 }
                 row("Data", empty: draft.generation == nil) {
                     HStack(spacing: 14) {

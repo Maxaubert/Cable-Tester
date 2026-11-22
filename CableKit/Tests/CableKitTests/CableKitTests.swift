@@ -97,6 +97,15 @@ func le(_ v: UInt32) -> Data { withUnsafeBytes(of: v.littleEndian) { Data($0) } 
         #expect(r.generation == .usb4)
         #expect(r.showsData)
         #expect(r.wattsSource == .estimate)
+
+        // Speed not reported yet, plus a tunnelled USB 3 link: still Thunderbolt, still USB 4.
+        let q = PortState(number: 2, connectionActive: true, connectionUUID: "y", transportsActive: ["CC", "CIO", "USB3"],
+                          cable: nil, partnerVendorID: nil, partnerName: nil,
+                          links: [LiveLink(kind: .usb3, speed: .gbps(10), deviceName: "Dock"), LiveLink(kind: .cio, speed: nil, deviceName: nil)])
+        let rq = CableResult.make(port: q, charger: nil)!
+        #expect(rq.thunderbolt)
+        #expect(rq.generation == .usb4)
+        #expect(rq.showsData)
     }
 
     @Test func chargerHidesData() {
@@ -160,6 +169,15 @@ func le(_ v: UInt32) -> Data { withUnsafeBytes(of: v.littleEndian) { Data($0) } 
         #expect(DataSpeed.parse(cell: "fast") == nil)
     }
 
+    @Test func watts() {
+        #expect(Watts.parse("240") == 240)
+        #expect(Watts.parse("65 W") == 65)
+        #expect(Watts.parse("45w") == 45)
+        #expect(Watts.parse("0") == nil)
+        #expect(Watts.parse("300") == nil)
+        #expect(Watts.parse("lots") == nil)
+    }
+
     @Test func labels() {
         #expect(CableLabel.make(number: 7, watts: 240, generation: .usb4) == "#07 240W USB4")
         #expect(CableLabel.make(number: 12, watts: 60, generation: nil) == "#12 60W")
@@ -176,6 +194,10 @@ func le(_ v: UInt32) -> Data { withUnsafeBytes(of: v.littleEndian) { Data($0) } 
         #expect(lib.nextNumber == 6)
         #expect(lib.sameModel(as: "a")?.number == 3)
         #expect(lib.sameModel(as: "b") == nil)
+        #expect(lib.sameModel(as: "a", before: .distantPast) == nil)
+        // Deleting the highest number never hands it out again.
+        lib.delete(id: lib.records.first { $0.number == 5 }!.id)
+        #expect(lib.nextNumber == 6)
     }
 
     @Test func editedFieldsAndRoundTrip() throws {
@@ -186,8 +208,12 @@ func le(_ v: UInt32) -> Data { withUnsafeBytes(of: v.littleEndian) { Data($0) } 
         var lib = CableLibrary(records: [r])
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("cables-\(UUID()).json")
         try lib.save(to: url)
-        let back = CableLibrary.load(from: url)
+        guard case .loaded(let back) = CableLibrary.load(from: url) else { Issue.record("not loaded"); return }
         #expect(back.records == lib.records)
+        try Data("{broken".utf8).write(to: url)
+        guard case .unreadable = CableLibrary.load(from: url) else { Issue.record("damaged file must not load"); return }
+        let missing = FileManager.default.temporaryDirectory.appendingPathComponent("none-\(UUID()).json")
+        guard case .missing = CableLibrary.load(from: missing) else { Issue.record("missing"); return }
         lib.delete(id: r.id)
         #expect(lib.records.isEmpty)
     }
@@ -198,9 +224,13 @@ func le(_ v: UInt32) -> Data { withUnsafeBytes(of: v.littleEndian) { Data($0) } 
         1,2026-11-22,100W,USB2,20.0,5.0,96,USB 2 link only,"blue, braided"
         2,2026-11-22,60W,,20.0,3.0,60,skipped,
         3,2026-11-22,240W,TB,28.0,5.0,140,40 Gb/s,
+        4,2026-11-22,<=60W? (max 15V),USB2,15.0,0.0,45,USB 2 link only,
+        5,2026-11-22,unknown,,,,,,
         """
         let recs = CableCSV.importPrototypeLog(log)
-        #expect(recs.count == 3)
+        #expect(recs.count == 5)
+        #expect(recs[3].values.watts == 60)
+        #expect(recs[4].values.watts == nil)
         #expect(recs[0].values.watts == 100 && recs[0].values.generation == .usb2)
         #expect(recs[1].values.generation == nil)
         #expect(recs[2].values.thunderbolt && recs[2].values.speed == .gbps(40))

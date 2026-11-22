@@ -1,66 +1,104 @@
 <div align="center">
 
-# cable-tester
+# Cable Tester
 
-Label a drawer full of USB-C cables by **wattage** and **data speed**, using a MacBook instead of a hardware tester.
+**Plug in a USB-C cable. See its wattage and data speed.** A small native Mac app that reads the
+chip inside the cable, so you can label a drawer of cables without a hardware tester.
 
-![macOS](https://img.shields.io/badge/macOS-Apple%20Silicon-2f6fde?logo=apple&logoColor=white)
-![Python](https://img.shields.io/badge/python-3-2f6fde?logo=python&logoColor=white)
-![No dependencies](https://img.shields.io/badge/dependencies-none-2f6fde)
+[![macOS](https://img.shields.io/badge/macOS-15%2B-2f6fde?logo=apple&logoColor=white)](#requirements)
+[![Swift](https://img.shields.io/badge/Swift-6-2f6fde?logo=swift&logoColor=white)](CableKit)
+[![SwiftUI](https://img.shields.io/badge/UI-SwiftUI-2f6fde)](App)
+[![Tests](https://img.shields.io/badge/tests-swift%20test-2f6fde)](CableKit/Tests)
+
+<img src="docs/screenshots/mac.png" alt="Cable Tester showing a 240 W USB 4 cable at 40 Gb/s, with the cable's chip data in the side panel" width="820">
 
 </div>
 
-## What it tells you
+## What it shows
 
-| Label | Meaning |
+| Plugged into | Shows |
 |---|---|
-| `60W` | 3 A cable (no e-marker or a 3 A one) |
-| `100W` | 5 A cable, 20 V max |
-| `240W` | EPR cable (28 V and up) |
-| `TB` | Thunderbolt/USB4 link at 40 Gb/s or more |
-| `20G`, `10G` | USB4 link at a lower speed |
-| `USB3` | USB 3 link but no Thunderbolt |
-| `USB2` | Only a USB 2 link: the cable has no high-speed wires |
-| `?` | No link at all (faulty cable, Mini asleep, or front port) |
+| **Another Mac** | Watts, USB generation, live speed (Thunderbolt icon when the link is Thunderbolt), chip data |
+| **Any small USB-C device** (earbuds case, flash drive) | Watts and rated speed from the cable's chip. The live speed is the device's, and the app says so. |
+| **A charger** | Watts only. Data speed is hidden: there is no data link. |
+| **Nothing** | "Plug in the other end": the Mac sees the cable but cannot read it yet |
 
-Each cable gets a number and a line in a CSV log, so a label like `#07 240W TB` can be looked up later.
+Cables without a chip are basic USB 2 cables limited to 3 A, so they show **60 W est.** plus whatever
+speed the live link reaches.
+
+<table>
+<tr>
+<td><img src="docs/screenshots/charger.png" alt="Charger only: 240 W, no data line, charger offers in the side panel"></td>
+<td><img src="docs/screenshots/nochip.png" alt="No chip: 60 W est. with a note about the 3 A limit, USB 2 at 480 Mb/s"></td>
+</tr>
+<tr>
+<td><img src="docs/screenshots/history.png" alt="History table with tie colour, power, data, speed, vendor, length and test date"></td>
+<td><img src="docs/screenshots/save-chip.png" alt="Save sheet prefilled from the cable, every field editable"></td>
+</tr>
+</table>
 
 ## How it works
 
-**Power, no load needed.** When a cable is plugged in, the charger reads the cable's e-marker and then
-sends the Mac a list of what it will supply. It only offers 5 A when the cable allows 5 A, and only offers
-28 V (EPR) when the cable is a 240 W cable. macOS stores that list in `AdapterDetails`
-(`ioreg -rn AppleSmartBattery`), and the script rates the cable from it. What the Mac actually draws
-does not matter.
+- **The cable's chip (e-marker).** USB-C cables rated for 5 A or fast data carry a chip that reports
+  their current, voltage, speed and length. macOS exposes it in the IORegistry (`SOP'` under each
+  USB-C port), and the app decodes it. Details and bit layout: [docs/emarker.md](docs/emarker.md).
+- **The live link.** Each port lists its active transports (USB 2, USB 3, USB 4/Thunderbolt) with the
+  negotiated speed and the name of the device at the other end.
+- **The charger.** On a MacBook, the charger's offer list (`AdapterDetails`) shows whether it offers
+  5 A or 28 V, which it only does when the cable allows it.
+- The app listens for IOKit plug events, so the result appears the moment a cable goes in.
 
-**Data.** The same cable is then plugged between the MacBook and another Thunderbolt Mac. The
-script reads which links are active on the port (`TransportsActive` in `ioreg`: `CIO` is
-Thunderbolt/USB4, `USB2` alone means a USB 2 cable) and the Thunderbolt speed from
-`system_profiler SPThunderboltDataType`. Tested 2026-11-22: a USB 2 charging cable to the Mac mini
-showed `CC, USB2` only.
+There is no serial number in a cable, so the app can only say "same model as #03". Number labels and
+coloured cable ties tell identical cables apart.
 
-> [!IMPORTANT]
-> The result can never be higher than the weakest part. A 100 W charger makes a 240 W cable read
-> `100W`; a Thunderbolt 4 Mac makes a TB5 cable read `TB` (40 Gb/s).
+## Using it
 
-## Setup used
+1. Plug the cable into the Mac, and the other end into a charger, another Mac or any USB-C device.
+2. Read the result. Press **Save** (⌘S): the sheet is prefilled from the cable; add the tie colour
+   and anything else you know. Empty fields stay blank.
+3. Write the label (`#07 240W USB4`) on the cable. The copy button puts it on the clipboard.
+4. **History** (⌘Y): every field is editable in place, with filters for 240/100/60 W and Thunderbolt,
+   label copy and print, and CSV export.
 
-- MacBook Pro M5 Pro (140 W USB-C charging, Thunderbolt 5)
-- Apple 140 W USB-C charger (EPR), plugged into a **USB-C port, not MagSafe**
-- Mac mini M6 (Thunderbolt 4, 40 Gb/s). Use a **back** port: the front USB-C ports are USB 3 only
-  (10 Gb/s). Source: [Apple Mac mini specs](https://www.apple.com/mac-mini/specs/), checked 2026-11-22.
+Saved cables live in `~/Library/Application Support/Cable Tester/cables.json`. On first run the
+prototype's CSV log (`~/Documents/Claude/zz-Misc/cable-tester/cables.csv`) is imported.
 
-macOS does not expose any cable ID or serial number (only `ActiveCable` and `OpticalCable` flags),
-so cables cannot be recognised automatically. Physical labels plus the log are the way to go.
+## Requirements
 
-## Usage
+- Apple Silicon Mac, macOS 15 or later.
+- Charger readings need a Mac with a battery (MacBook). The cable chip and the live link work on any
+  Mac, including a Mac mini.
+
+## Building
 
 ```sh
-./cable_tester.py          # test cables one by one
-./cable_tester.py --read   # show the current power offers and Thunderbolt links once
+xcodegen generate                       # creates CableTester.xcodeproj from project.yml
+xcodebuild -project CableTester.xcodeproj -scheme CableTester -configuration Debug \
+  -derivedDataPath build/dd build
+(cd CableKit && swift test)             # logic tests, with real readings as fixtures
 ```
 
-Per cable: unplug power, plug the cable charger to MacBook, wait for the power reading, move the
-cable to MacBook to Mac mini (or press Enter to skip), add an optional note, write the label on the cable.
+Headless modes, no window opened:
 
-The log goes to `~/Documents/Claude/zz-Misc/cable-tester/cables.csv`. Override with `CABLE_LOG=/path/file.csv`.
+```sh
+APP="build/dd/Build/Products/Debug/Cable Tester.app/Contents/MacOS/Cable Tester"
+"$APP" --probe                # print what every USB-C port shows right now
+"$APP" --snapshot out/        # render every screen from demo data to PNGs
+"$APP" --demo nochip          # run on demo data: empty, mac, charger, nochip, cableonly, device, history
+```
+
+## Project layout
+
+| Path | What |
+|---|---|
+| [CableKit](CableKit) | Decoding, rules and storage, no UI. Fully unit tested. |
+| [App](App) | SwiftUI app, IOKit port monitor, demo and snapshot modes |
+| [docs/app-spec-and-plan.md](docs/app-spec-and-plan.md) | The spec this app follows |
+| [docs/emarker.md](docs/emarker.md) | Reading the cable chip on macOS, with test results |
+| [cable_tester.py](cable_tester.py) | The original command-line prototype |
+| `.impeccable/mocks` | Approved design mockups |
+
+## Prototype (command line)
+
+The original script still works: `./cable_tester.py` tests cables one by one from the terminal and
+logs to CSV; `./cable_tester.py --read` shows the current charger offers and links once.

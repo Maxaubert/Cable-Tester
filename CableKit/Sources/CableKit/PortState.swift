@@ -37,10 +37,15 @@ public struct PortState: Codable, Hashable, Sendable {
         links.contains { $0.kind == .cio } || (partnerVendorID == 0x05AC && partnerName == "Macintosh")
     }
 
-    /// Fastest live data link, if any (DisplayPort ignored).
+    /// The live data link to show: a Thunderbolt/USB 4 (CIO) link wins even when its speed is not
+    /// reported yet (USB links tunnel through it); otherwise the fastest. DisplayPort is ignored.
     public var bestDataLink: LiveLink? {
-        links.filter { $0.kind != .displayPort }.max { ($0.speed ?? .mbps(0)) < ($1.speed ?? .mbps(0)) }
+        let data = links.filter { $0.kind != .displayPort }
+        if let cio = data.first(where: { $0.kind == .cio }) { return cio }
+        return data.max { ($0.speed ?? .mbps(0)) < ($1.speed ?? .mbps(0)) }
     }
+
+    public var hasThunderboltLink: Bool { links.contains { $0.kind == .cio } }
 
     // MARK: Parsing
 

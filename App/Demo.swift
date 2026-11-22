@@ -63,13 +63,15 @@ enum Demo {
                         values: .init(watts: w, generation: g, thunderbolt: tb, speed: s, vendor: vendor, lengthMetres: len),
                         fingerprint: n == 3 ? appleUSB4.fingerprint : nil)
         }
+        var two = r(2, .gray, 100, .usb4, .gbps(40), "Anker", 0.8, day + 1200)
+        two.measured.watts = 60   // the user corrected the wattage: shows the edited mark
         return [
             r(7, .blue, 240, .usb4, tb: true, .gbps(40), "Apple", 1, 600),
             r(6, .purple, 240, .usb2, .mbps(480), nil, 2, 1800),
             r(5, .yellow, 60, .usb2, .mbps(480), nil, nil, 3600),
             r(4, .green, 100, .usb3, .gbps(10), "Belkin", 1, day),
             r(3, .blue, 240, .usb4v2, tb: true, .gbps(80), "Apple", 1, day + 600),
-            r(2, .gray, 100, .usb4, .gbps(40), "Anker", 0.8, day + 1200),
+            two,
             r(1, .orange, 100, .usb2, .mbps(480), "Anker", 0.13, day + 1800),
         ]
     }()

@@ -79,6 +79,16 @@ label via the system print dialog.
 - Screenshots of each state rendered offscreen (`ImageRenderer`), compared by eye against the mockups.
 - Hardware check on the MacBook at the end: the real cables, charger and Mac mini.
 
+## Decisions made while building (2026-11-22, from the code review)
+- The charger reading has no port number, so it is only tied to a port when the charger and the cable
+  were connected within 10 s of each other. Otherwise a chipless cable shows the 60 W estimate.
+- A Thunderbolt (CIO) link wins over tunnelled USB links; when the port node gives no speed, the app
+  asks `system_profiler SPThunderboltDataType` once per connection.
+- Cable numbers are never reused, even after a delete (stored high-water mark).
+- A saved-cables file that cannot be read is left untouched; the app runs in memory and says so.
+- Power is typed (1 to 240 W) with a menu of common ratings. Edited values show a small dot whose
+  tooltip gives the measured value; "Restore Measured Values" is in the row menu.
+
 ## Open questions to settle while building
 - Whether `SOP'` (the chip) is readable when the far end is a charger. If not, the charger screen shows
   watts from the charger's offers and says so.

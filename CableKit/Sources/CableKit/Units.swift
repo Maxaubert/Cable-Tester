@@ -94,6 +94,18 @@ public enum DataGeneration: String, Codable, CaseIterable, Comparable, Sendable 
     }
 }
 
+/// Power in watts, typed by the user: "240", "240 W", "65w". Range 1 to 240.
+public enum Watts {
+    public static let range = 1...240
+
+    public static func parse(_ text: String) -> Int? {
+        var t = text.trimmingCharacters(in: .whitespaces).lowercased()
+        if t.hasSuffix("w") { t = String(t.dropLast()).trimmingCharacters(in: .whitespaces) }
+        guard !t.isEmpty, t.allSatisfy(\.isNumber), let v = Int(t), range.contains(v) else { return nil }
+        return v
+    }
+}
+
 /// Cable length in metres, typed by the user.
 public enum Length {
     public static let range = 0.01...10.0

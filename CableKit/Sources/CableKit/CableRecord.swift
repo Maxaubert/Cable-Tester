@@ -97,7 +97,7 @@ public enum CableCSV {
         return rows.dropFirst().compactMap { row in
             func at(_ i: Int?) -> String { i.flatMap { $0 < row.count ? row[$0] : nil } ?? "" }
             guard let number = Int(at(idC)) else { return nil }
-            let watts = Int(at(powerC).filter(\.isNumber))
+            let watts = CableCSV.watts(fromPrototypeLabel: at(powerC))
             let data = at(col("data")).uppercased()
             let speed = DataSpeed.parse(description: at(col("link_speed")))
             var gen: DataGeneration? = nil
@@ -112,6 +112,16 @@ public enum CableCSV {
             let values = CableRecord.Values(watts: watts, generation: gen, thunderbolt: tb, speed: speed)
             return CableRecord(number: number, tested: df.date(from: at(col("date"))) ?? Date(), values: values)
         }
+    }
+
+    /// "240W" -> 240, "<=60W? (max 15V)" -> 60, "unknown" -> nil.
+    static func watts(fromPrototypeLabel label: String) -> Int? {
+        let t = label.trimmingCharacters(in: .whitespaces)
+        if t.hasPrefix("<=60W") { return 60 }
+        guard let re = try? NSRegularExpression(pattern: #"^(\d+)\s*W"#),
+              let m = re.firstMatch(in: t, range: NSRange(t.startIndex..., in: t)),
+              let r = Range(m.range(at: 1), in: t) else { return nil }
+        return Int(t[r])
     }
 
     /// Minimal RFC 4180 parser.
