@@ -33,7 +33,8 @@ Rules for the result:
 - Opens on every Save, even when only one thing is missing.
 - Top row: power and data, read-only, each with a lock icon.
 - Editable rows, prefilled with everything already known (from the chip or earlier): tie colour,
-  length, vendor. Rows still missing a value are gently highlighted. Each row has Skip.
+  length, vendor. Rows still missing a value are gently highlighted. No Skip buttons: Save saves
+  whatever is filled in and leaves empty fields blank (Max, 2026-11-22).
 - Length is typed, in metres, with validation: accepts `0.13`, `2`, `1,5` (comma ok), range 0.01 to 10 m.
   Invalid input shows a red hint ("Enter a length in metres, like 0.13 or 2") and disables Save.
 - No name field, no notes field.
