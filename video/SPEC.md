@@ -24,10 +24,10 @@ MOTION:  arrivals expo.out / power4.out; camera power2.inOut 0.5 s; exits power3
 
 SHOTS:
   1  0.0-3.0   splash: icon lands 0.84 -> 1 with 10 px blur -> 0 (expo.out 0.8 s), "Cable Tester"
-               letters 0.3 -> 1 opacity 0.06 s apart. 2.35-3.0 zoom through the icon (power3.in,
-               scale to 9): its black fill becomes the app's ground.
-  2  3.0-4.6   app settles from 1.06 to 1 (match cut on the zoom). Checklist: "Plug in a cable you
-               want to test". Camera pushes 1.4x onto the illustration and checklist.
+               letters 0.3 -> 1 opacity 0.05 s apart. 2.1-2.8 the icon's rounded square opens into
+               the app window (clip-path, power3.inOut), black with its 1.5 px #1d1d1f border.
+  2  3.0-5.3   the app fills in inside the window (toolbar, then body). Checklist: "Plug in a cable
+               you want to test". No camera moves anywhere in the app (Max, 2026-11-22).
   3  4.6-7.3   Mac end in: plug rises, ledge lime, bolt outline draws, check 1 springs + tick draws,
                title swaps. Other end in (Mac): bolt fills and pops, check 2, "Reading the cable...".
   4  7.3-8.3   0.9 s hold, checklist cascades out, camera back to 1x.
@@ -42,7 +42,7 @@ SHOTS:
   10 21.0-26.0 end card: icon lands, "Cable Tester" wipes in beside it, one line, then the GitHub chip
                "github.com/Maxaubert/cable-tester". Held 2.5 s.
 
-BANNED:  glow except the app's own bolt glow; floating particles; glass cards; a title over a dimmed
+BANNED:  zoom-ins and punch-ins; history rows visible before their cascade; glow except the app's own bolt glow; floating particles; glass cards; a title over a dimmed
          screenshot; the logo docked in a corner; invented UI (every control is in the app); text
          moving while it is read; breathing loops other than the app's own pulsing ring.
 QA:      0.8 splash; 3.2 settle; 5.6 check 1; 7.0 both checks; 9.4 count-up; 11.4 sheet; 13.6 saved;
