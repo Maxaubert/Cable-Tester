@@ -89,6 +89,15 @@ label via the system print dialog.
 - Power is typed (1 to 240 W) with a menu of common ratings. Edited values show a small dot whose
   tooltip gives the measured value; "Restore Measured Values" is in the row menu.
 
+## Plug-in flow (2026-11-22, v0.3.0, Max)
+- One cable at a time, plugged in then and there. On launch the app ignores everything already
+  connected and says "Plug in a cable you want to test" (a note mentions ignored cables).
+- A checklist ticks off "One end into this Mac" (port number: the Mac sees CC but cannot read the chip
+  yet) and "Other end into a charger, Mac or device" (its name). Both ticked: hold ~0.9 s, then the result.
+- Unplugging returns to the checklist; it never jumps to another connected cable.
+- The charger is tied to the port when it appears within 10 s of the cable or of the port's far end.
+- Rejected: port strip, port sidebar, toolbar pills for several cables at once.
+
 ## Open questions to settle while building
 - Whether `SOP'` (the chip) is readable when the far end is a charger. If not, the charger screen shows
   watts from the charger's offers and says so.

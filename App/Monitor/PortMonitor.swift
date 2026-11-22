@@ -3,7 +3,8 @@ import Foundation
 import IOKit
 import Observation
 
-/// Watches the Mac's USB-C ports and the charger, and publishes the cable that was plugged in last.
+/// Watches the Mac's USB-C ports and the charger, and publishes the cable the user plugs in to test.
+/// Cables that were already connected when the app started are ignored until they are replugged.
 /// Reacts to IOKit add/remove notifications, with a slow poll as a safety net (some changes, like a
 /// link speed settling, publish no notification).
 @MainActor @Observable
@@ -24,19 +25,28 @@ final class PortMonitor {
     }
 
     /// The charger reading is machine-wide (no port number), so only tie it to this port when the
-    /// charger and this cable were connected at about the same time.
+    /// charger appeared at about the same time as this cable, or as the device on its other end
+    /// (people plug the Mac end first, then the charger).
     private func chargerBelongs(to port: Int) -> Bool {
-        guard charger != nil, let since = chargerSince, let plugged = plugTimes[port] else { return demo }
-        return abs(since.timeIntervalSince(plugged)) < 10
+        guard charger != nil, let since = chargerSince else { return demo }
+        return [plugTimes[port], partnerTimes[port]].compactMap { $0 }
+            .contains { abs(since.timeIntervalSince($0)) < 10 }
     }
 
     var focusedPortState: PortState? { ports.first { $0.number == focusedPort } }
+
+    /// Connected ports other than the one being tested (already plugged in at launch, hubs, displays).
+    var otherConnectedCount: Int { ports.filter { $0.connectionActive && $0.number != focusedPort }.count }
+
+    var isDemo: Bool { demo }
 
     private var notifyPort: IONotificationPortRef?
     private var iterators: [io_iterator_t] = []
     private var timer: Timer?
     private var knownConnections: [Int: String] = [:]
     private var plugTimes: [Int: Date] = [:]
+    private var partnerTimes: [Int: Date] = [:]
+    private var hadPartner: [Int: Bool] = [:]
     private var chargerSince: Date?
     private var cioSpeed: [Int: DataSpeed] = [:]
     private var cioLookups: Set<String> = []
@@ -113,21 +123,15 @@ final class PortMonitor {
                 }
             }
             knownConnections[p.number] = key
+            // When the far end (charger or device) shows up.
+            let partner = p.connectionActive && p.hasPartner
+            if partner, !(hadPartner[p.number] ?? false), !initial { partnerTimes[p.number] = Date() }
+            if !partner { partnerTimes[p.number] = nil }
+            hadPartner[p.number] = partner
         }
-        if initial {
-            // On launch, show a port that has a cable chip; permanent hubs and displays stay out of the way.
-            if let p = new.first(where: { $0.connectionActive && $0.cable != nil }) {
-                focusedPort = p.number; pluggedAt = Date(); plugTimes[p.number] = pluggedAt
-            }
-        }
+        // Unplugging the cable under test goes back to "plug in a cable"; it never jumps to another one.
         if let f = focusedPort, !(new.first { $0.number == f }?.connectionActive ?? false) {
-            // Fall back to the most recently plugged cable that is still connected.
-            let active = Set(new.filter(\.connectionActive).map(\.number))
-            if let (n, t) = plugTimes.filter({ active.contains($0.key) }).max(by: { $0.value < $1.value }) {
-                focusedPort = n; pluggedAt = t
-            } else {
-                focusedPort = nil; pluggedAt = nil
-            }
+            focusedPort = nil; pluggedAt = nil
         }
         if new != ports { ports = new }
         lookUpThunderboltSpeedIfNeeded()
