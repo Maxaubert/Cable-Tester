@@ -1,5 +1,6 @@
 import AppKit
 import CableKit
+import Sparkle
 import SwiftUI
 
 /// Entry point. Besides the normal app there are three headless modes:
@@ -26,6 +27,8 @@ struct CableTesterApp: App {
     @State private var monitor: PortMonitor
     @State private var store: CableStore
     private let startMode: Mode
+    /// Sparkle: checks the feed in the public releases repo on launch and daily. Off in demo mode.
+    private let updater: SPUStandardUpdaterController?
 
     init() {
         let args = CommandLine.arguments
@@ -33,10 +36,12 @@ struct CableTesterApp: App {
             _monitor = State(initialValue: Demo.monitor(d))
             _store = State(initialValue: CableStore(demo: Demo.records))
             startMode = d == .history ? .history : .now
+            updater = nil
         } else {
             _monitor = State(initialValue: PortMonitor())
             _store = State(initialValue: CableStore())
             startMode = .now
+            updater = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
         }
         NSApplication.shared.appearance = NSAppearance(named: .darkAqua)
     }
@@ -49,7 +54,39 @@ struct CableTesterApp: App {
         }
         .defaultSize(width: 1100, height: 700)
         .windowToolbarStyle(.unified)
-        .commands { CommandGroup(replacing: .newItem) {} }
+        .commands {
+            CommandGroup(replacing: .newItem) {}
+            CommandGroup(after: .appInfo) {
+                if let updater { CheckForUpdatesButton(updater: updater.updater) }
+            }
+        }
+    }
+}
+
+/// "Check for Updates…" in the app menu, enabled when Sparkle can check.
+struct CheckForUpdatesButton: View {
+    @State private var model: UpdaterModel
+    init(updater: SPUUpdater) { _model = State(initialValue: UpdaterModel(updater: updater)) }
+
+    var body: some View {
+        Button("Check for Updates…") { model.updater.checkForUpdates() }
+            .disabled(!model.canCheck)
+    }
+}
+
+@MainActor @Observable
+final class UpdaterModel {
+    let updater: SPUUpdater
+    var canCheck = false
+    @ObservationIgnored private var observation: NSKeyValueObservation?
+
+    init(updater: SPUUpdater) {
+        self.updater = updater
+        canCheck = updater.canCheckForUpdates
+        observation = updater.observe(\.canCheckForUpdates, options: [.new]) { [weak self] u, _ in
+            let value = u.canCheckForUpdates
+            Task { @MainActor in self?.canCheck = value }
+        }
     }
 }
 

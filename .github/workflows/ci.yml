@@ -1,0 +1,18 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [master]
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit tests (CableKit)
+        run: cd CableKit && swift test
+      - name: Build the app (unsigned)
+        run: |
+          brew install xcodegen
+          xcodegen generate
+          xcodebuild -project CableTester.xcodeproj -scheme CableTester -configuration Debug \
+            -derivedDataPath build/dd CODE_SIGNING_ALLOWED=NO build -quiet
