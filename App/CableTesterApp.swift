@@ -83,9 +83,12 @@ final class UpdaterModel {
     init(updater: SPUUpdater) {
         self.updater = updater
         canCheck = updater.canCheckForUpdates
-        observation = updater.observe(\.canCheckForUpdates, options: [.new]) { [weak self] u, _ in
-            let value = u.canCheckForUpdates
-            Task { @MainActor in self?.canCheck = value }
+        // KVO calls back off the main actor; read the property on it (Xcode 16.4 rejects reading it here).
+        observation = updater.observe(\.canCheckForUpdates, options: [.new]) { [weak self] _, _ in
+            Task { @MainActor in
+                guard let self else { return }
+                self.canCheck = self.updater.canCheckForUpdates
+            }
         }
     }
 }
