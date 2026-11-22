@@ -9,6 +9,8 @@ final class CableStore {
     private(set) var library: CableLibrary
     private let url: URL?
     var lastError: String?
+    /// The number and time of the last cable saved from the save sheet (drives the "Saved #08" button).
+    var lastSaved: (number: Int, at: Date)?
 
     var records: [CableRecord] { library.records }
     var nextNumber: Int { library.nextNumber }

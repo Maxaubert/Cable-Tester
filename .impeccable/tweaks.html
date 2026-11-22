@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Design Tweaks</title>
+<style>
+:root {
+  --page: #111113; --card: #1b1b1e; --line: rgba(255,255,255,.08);
+  --text: #f5f5f7; --sec: rgba(235,235,245,.6); --ter: rgba(235,235,245,.32);
+  --win: #1e1e1e; --group: rgba(255,255,255,.05); --stroke: rgba(255,255,255,.09);
+  --green: #32d74b; --blue: #0a84ff; --teal: #64d2ff; --amber: #ff9f0a; --purple: #bf5af2; --yellow: #ffd60a; --gray: #98989d; --pink: #ff6fae;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+header { max-width: 1280px; margin: 0 auto; padding: 36px 16px 8px; }
+header h1 { margin: 0; font-size: 28px; letter-spacing: -.02em; }
+header p { margin: 6px 0 0; color: var(--sec); max-width: 720px; }
+section { max-width: 1280px; margin: 0 auto; padding: 26px 16px 8px; }
+section > h2 { font-size: 20px; margin: 0 0 4px; letter-spacing: -.01em; }
+section > p { margin: 0 0 16px; color: var(--sec); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 16px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+.card.liked { border-color: rgba(255,55,95,.7); box-shadow: 0 0 0 1px rgba(255,55,95,.35); }
+.pv { --fill: rgba(255,255,255,.06); --fill2: rgba(255,255,255,.09); --fill3: rgba(255,255,255,.16); --line: rgba(255,255,255,.07); --line2: rgba(255,255,255,.1);
+  --zebra: rgba(255,255,255,.03); --dots: #4a4a4c; --accent: #0a84ff; --onaccent: #fff; --font: -apple-system, system-ui, sans-serif; --numfont: var(--font); --radius: 1;
+  container-type: inline-size; aspect-ratio: 16 / 10.4; position: relative; overflow: hidden; background: #0c0c0e; }
+.meta { padding: 12px 14px 14px; display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; }
+.meta h3 { margin: 0; font-size: 15px; font-weight: 600; }
+.meta h3 small { color: var(--ter); font-weight: 500; margin-right: 6px; font-variant-numeric: tabular-nums; }
+.meta p { grid-column: 1 / -1; margin: 0; color: var(--sec); font-size: 13px; }
+.like { grid-row: 1; grid-column: 2; background: none; border: 1px solid var(--line); color: var(--sec); border-radius: 999px; padding: 2px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+.liked .like { color: #ff375f; border-color: rgba(255,55,95,.5); }
+.bar { position: sticky; bottom: 0; background: rgba(17,17,19,.85); backdrop-filter: blur(14px); border-top: 1px solid var(--line); margin-top: 30px; }
+.bar div { max-width: 1280px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.bar span { color: var(--sec); flex: 1; min-width: 200px; }
+.bar button { font: inherit; color: #fff; background: var(--blue); border: 0; border-radius: 8px; padding: 7px 14px; cursor: pointer; }
+
+/* ---------- mini window (all sizes in cqw of the preview) ---------- */
+.win { position: absolute; inset: 0; background: var(--win); color: var(--text); display: flex; flex-direction: column; font-family: var(--font); }
+.w { font-family: var(--numfont); }
+.tb { height: 7.5cqw; display: flex; align-items: center; gap: 1cqw; padding: 0 2.2cqw; border-bottom: 1px solid var(--line); flex: none; }
+.tb i { width: 1.6cqw; height: 1.6cqw; border-radius: 50%; background: var(--dots); }
+.tb span { margin-left: 2cqw; font-size: 2.1cqw; font-weight: 600; color: var(--sec); }
+.tb .ic { margin-left: auto; width: 4.4cqw; height: 4.4cqw; border-radius: 50%; display: grid; place-items: center; background: var(--fill); color: var(--sec); }
+.tb .ic svg { width: 2.4cqw; height: 2.4cqw; }
+.wb { flex: 1; display: flex; min-height: 0; }
+.L { flex: 1; padding: 4cqw 4.6cqw; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.R { width: 33%; border-left: 1px solid var(--line); padding: 3cqw 2.4cqw; font-size: 1.55cqw; }
+.st { font-size: 1.9cqw; color: var(--sec); display: flex; align-items: center; gap: .8cqw; }
+.st svg { width: 2.2cqw; height: 2.2cqw; }
+.w { font-size: 12.5cqw; font-weight: 700; letter-spacing: -.02em; line-height: 1; margin-top: 1.6cqw; font-variant-numeric: tabular-nums; }
+.d { font-size: 4cqw; color: var(--sec); margin-top: .6cqw; display: flex; align-items: center; gap: .9cqw; white-space: nowrap; }
+.d .tbg { color: var(--blue); display: inline-flex; align-items: center; gap: .5cqw; }
+.d svg { width: 3.2cqw; height: 3.2cqw; }
+.chips { display: flex; gap: 1cqw; margin-top: 2.2cqw; }
+.chips span { font-size: 1.9cqw; font-weight: 600; padding: .7cqw 1.6cqw; border-radius: calc(1.2cqw * var(--radius)); background: var(--fill2); display: inline-flex; gap: .6cqw; align-items: center; }
+.chips svg { width: 2cqw; height: 2cqw; }
+.btns { display: flex; gap: 1.2cqw; margin-top: 3cqw; }
+.save { font-size: 2cqw; font-weight: 600; color: var(--onaccent); background: var(--accent); padding: 1.1cqw 2.4cqw; border-radius: calc(1.4cqw * var(--radius)); }
+.cp { width: 5.4cqw; border-radius: calc(1.4cqw * var(--radius)); background: var(--fill2); display: grid; place-items: center; color: var(--sec); }
+.cp svg { width: 2.4cqw; height: 2.4cqw; }
+.ih { font-size: 1.8cqw; font-weight: 600; margin: 0 0 1cqw; }
+.grp { background: var(--group); border: 1px solid var(--stroke); border-radius: calc(1.2cqw * var(--radius)); margin-bottom: 2.4cqw; }
+.grp p { margin: 0; display: flex; justify-content: space-between; padding: .8cqw 1.2cqw; gap: 1cqw; white-space: nowrap; }
+.grp p + p { border-top: 1px solid var(--stroke); }
+.grp p span { color: var(--sec); }
+.grp p b { font-weight: 500; }
+
+/* liquid glass */
+.wall { position: absolute; inset: 0; background:
+  radial-gradient(40% 55% at 18% 25%, #ff6a3d 0, transparent 70%),
+  radial-gradient(45% 60% at 85% 20%, #7a5cff 0, transparent 70%),
+  radial-gradient(50% 60% at 60% 95%, #00b3ff 0, transparent 70%), #20142e; }
+.glass .win { inset: 3cqw 4cqw; border-radius: 2.4cqw; background: rgba(28,28,32,.55); backdrop-filter: blur(22px) saturate(1.7); -webkit-backdrop-filter: blur(22px) saturate(1.7);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 0 0 1px rgba(255,255,255,.08), 0 2cqw 5cqw rgba(0,0,0,.45); overflow: hidden; }
+.glass .tb { border-bottom: 0; }
+.glass .tb .ic, .glass .cp, .glass .chips span { background: rgba(255,255,255,.12); box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.15); backdrop-filter: blur(10px); }
+.glass .save { background: linear-gradient(180deg, #3d9bff, #0a6fe0); box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 .6cqw 1.6cqw rgba(10,132,255,.45); }
+.glass .R { border-left: 0; background: rgba(255,255,255,.04); }
+
+.rounded .w, .rounded .d, .rounded .save, .rounded .chips span { font-family: ui-rounded, "SF Pro Rounded", -apple-system, sans-serif; }
+.rounded .w { font-weight: 800; letter-spacing: -.01em; }
+.tier .w { color: var(--green); text-shadow: 0 0 3cqw rgba(50,215,75,.45); }
+.tier .legend { display: flex; gap: 1.2cqw; margin-top: 2cqw; font-size: 1.7cqw; color: var(--sec); }
+.tier .legend b { display: inline-block; width: 1.4cqw; height: 1.4cqw; border-radius: 50%; margin-right: .5cqw; vertical-align: -.15cqw; }
+.gauge { display: flex; align-items: center; gap: 3cqw; }
+.gauge svg.ring { width: 22cqw; height: 22cqw; flex: none; }
+.gauge .w { font-size: 9cqw; margin: 0; }
+.tie .win { box-shadow: inset 0 .9cqw 0 var(--purple); background: radial-gradient(70% 60% at 20% 0%, rgba(191,90,242,.16), transparent 70%), var(--win); }
+.tie .save { background: var(--purple); }
+.tie .tiedot { display: inline-block; width: 1.8cqw; height: 1.8cqw; border-radius: 50%; background: var(--purple); box-shadow: 0 0 1.4cqw var(--purple); }
+.spec .R { font-family: ui-monospace, "SF Mono", monospace; font-size: 1.45cqw; }
+.spec .grp p span { text-transform: uppercase; letter-spacing: .08em; font-family: -apple-system, sans-serif; font-size: 1.2cqw; }
+.spec .d { font-family: ui-monospace, "SF Mono", monospace; font-size: 3.3cqw; }
+.spec .st { text-transform: uppercase; letter-spacing: .12em; font-size: 1.5cqw; }
+.tag { margin-top: 2.6cqw; display: inline-flex; align-items: center; align-self: flex-start; }
+.tag .t { font: 600 2.2cqw ui-monospace, "SF Mono", monospace; background: #f2efe6; color: #1b1b1b; padding: 1cqw 2.2cqw 1cqw 3.2cqw; clip-path: polygon(0 50%, 1.8cqw 0, 100% 0, 100% 100%, 1.8cqw 100%); position: relative; }
+.tag .t::before { content: ""; position: absolute; left: 1.4cqw; top: 50%; width: 1cqw; height: 1cqw; margin-top: -.5cqw; border-radius: 50%; background: var(--win); }
+.tag .wire { width: 8cqw; height: .5cqw; background: var(--blue); border-radius: 1cqw; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6cqw; margin-top: 2.4cqw; }
+.tiles div { background: var(--group); border: 1px solid var(--stroke); border-radius: 1.6cqw; padding: 1.8cqw; }
+.tiles small { display: block; color: var(--sec); font-size: 1.6cqw; text-transform: uppercase; letter-spacing: .08em; }
+.tiles b { display: block; font-size: 5cqw; letter-spacing: -.02em; margin-top: .6cqw; white-space: nowrap; }
+.tiles i { display: block; font-style: normal; font-size: 1.6cqw; color: var(--sec); margin-top: .3cqw; }
+.tri { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); }
+.tri > div { container-type: inline-size; position: relative; overflow: hidden; }
+.tri .w { font-size: 20cqw; } .tri .d { font-size: 7cqw; } .tri .d svg { width: 6cqw; height: 6cqw; }
+.tri .L { padding: 8cqw; } .tri .tb { height: 14cqw; padding: 0 4cqw; } .tri .tb i { width: 3cqw; height: 3cqw; } .tri .tb span { display: none; }
+.tri .save { font-size: 4cqw; padding: 2cqw 4cqw; border-radius: 2.6cqw; } .tri .btns { margin-top: 6cqw; }
+.tri .lbl { position: absolute; bottom: 4cqw; left: 8cqw; font-size: 5cqw; color: var(--sec); }
+.th-light { --win: #f5f5f7; --text: #1d1d1f; --sec: rgba(60,60,67,.65); }
+.th-light .tb { border-color: rgba(0,0,0,.08); } .th-light .tb i { background: #d1d1d6; }
+.th-mid { --win: #0f1626; --sec: rgba(200,215,255,.6); }
+.th-mid .w { color: #e8efff; }
+.th-graph { --win: #1e1e1e; }
+
+/* ---------- history ---------- */
+.h { position: absolute; inset: 0; background: var(--win); color: var(--text); font-family: var(--font); display: flex; flex-direction: column; }
+.h .ttl { font-size: 4cqw; font-weight: 700; padding: 2.2cqw 3cqw 1cqw; display: flex; align-items: baseline; gap: 2cqw; }
+.h .filters { display: flex; gap: .6cqw; padding: 0 3cqw 1.6cqw; }
+.h .filters span { font-size: 1.6cqw; padding: .5cqw 1.6cqw; border-radius: calc(1cqw * var(--radius)); background: var(--fill); color: var(--sec); }
+.h .filters span.on { background: var(--fill3); color: var(--text); }
+table.ht { width: 100%; border-collapse: collapse; font-size: 1.75cqw; font-variant-numeric: tabular-nums; }
+.ht th { text-align: left; font-weight: 600; color: var(--sec); padding: .9cqw 1.2cqw; border-bottom: 1px solid var(--line2); font-size: 1.55cqw; }
+.ht td { padding: 1.05cqw 1.2cqw; white-space: nowrap; }
+.ht tr:nth-child(even) td { background: var(--zebra); }
+.ht th:first-child, .ht td:first-child { padding-left: 3cqw; }
+.dot { display: inline-block; width: 1.5cqw; height: 1.5cqw; border-radius: 50%; vertical-align: -.2cqw; }
+.pw { color: var(--green); }
+.tbl { color: var(--blue); }
+.tbl svg { width: 1.6cqw; height: 1.6cqw; vertical-align: -.25cqw; }
+.muted { color: var(--ter); }
+.h.glassy { background: transparent; }
+.h.glassy .ttl, .h.glassy table { position: relative; }
+.h .float { position: absolute; left: 50%; bottom: 2.4cqw; transform: translateX(-50%); display: flex; gap: .4cqw; padding: .6cqw; border-radius: 3cqw;
+  background: rgba(40,40,46,.5); backdrop-filter: blur(16px) saturate(1.8); box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 1cqw 3cqw rgba(0,0,0,.4); }
+.h .float span { white-space: nowrap; font-size: 1.6cqw; padding: .6cqw 1.8cqw; border-radius: 2cqw; color: var(--sec); }
+.h .float span.on { background: rgba(255,255,255,.2); color: #fff; }
+.stripe td:first-child { box-shadow: inset .7cqw 0 0 var(--c); }
+.pill { font-size: 1.5cqw; font-weight: 600; padding: .3cqw 1.1cqw; border-radius: 2cqw; }
+.p240 { background: rgba(50,215,75,.16); color: var(--green); } .p100 { background: rgba(100,210,255,.15); color: var(--teal); } .p60 { background: rgba(255,159,10,.16); color: var(--amber); }
+.sb { display: inline-block; width: 9cqw; height: .8cqw; background: rgba(255,255,255,.08); border-radius: 1cqw; vertical-align: middle; margin-left: .8cqw; overflow: hidden; }
+.sb i { display: block; height: 100%; background: linear-gradient(90deg, var(--blue), var(--teal)); border-radius: 1cqw; }
+.sect td { padding-top: 1.6cqw !important; font-weight: 700; font-size: 1.6cqw; color: var(--sec); background: none !important; text-transform: uppercase; letter-spacing: .08em; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6cqw; padding: 0 3cqw; }
+.cards div { background: var(--group); border: 1px solid var(--stroke); border-radius: 1.6cqw; padding: 1.6cqw; position: relative; overflow: hidden; }
+.cards div::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: .6cqw; background: var(--c); }
+.cards b { display: block; font: 600 1.5cqw ui-monospace, "SF Mono", monospace; color: var(--sec); }
+.cards strong { display: block; font-size: 3.4cqw; margin-top: .4cqw; }
+.cards small { display: block; font-size: 1.5cqw; color: var(--sec); }
+.lt { font: 600 1.6cqw ui-monospace, "SF Mono", monospace; background: #f2efe6; color: #1b1b1b; padding: .35cqw 1.2cqw; border-radius: .6cqw; }
+.dense table.ht { font-size: 1.5cqw; font-family: ui-monospace, "SF Mono", monospace; }
+.dense .ht td { padding: .55cqw 1.2cqw; border-bottom: 1px solid rgba(255,255,255,.05); }
+.dense .ht tr:nth-child(even) td { background: none; }
+.rel { font-size: 1.45cqw; padding: .25cqw 1cqw; border-radius: 2cqw; background: rgba(255,255,255,.08); color: var(--sec); }
+.rel.today { background: rgba(10,132,255,.18); color: #7cc0ff; }
+.newdot { display: inline-block; width: 1cqw; height: 1cqw; border-radius: 50%; background: var(--blue); box-shadow: 0 0 1.2cqw var(--blue); margin-right: .8cqw; vertical-align: .1cqw; animation: breathe 1.6s ease-in-out infinite alternate; }
+@keyframes breathe { from { opacity: .45 } to { opacity: 1 } }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2cqw; padding: 0 3cqw 1.6cqw; }
+.stats div { background: var(--group); border: 1px solid var(--stroke); border-radius: 1.4cqw; padding: 1.2cqw 1.4cqw; }
+.stats b { font-size: 3.4cqw; display: block; letter-spacing: -.02em; }
+.stats small { font-size: 1.4cqw; color: var(--sec); }
+.stats .mini { display: flex; gap: .3cqw; height: 1cqw; margin-top: .6cqw; }
+.stats .mini i { flex: var(--f); border-radius: .4cqw; background: var(--c); }
+
+/* ---------- animation scenes ---------- */
+.scene { position: absolute; inset: 0; background: var(--win); color: var(--text); font-family: var(--font); display: grid; place-items: center; }
+.list { width: 70cqw; background: var(--group); border: 1px solid var(--stroke); border-radius: calc(2.4cqw * var(--radius)); }
+.row { display: flex; align-items: center; gap: 2.6cqw; padding: 2.4cqw 2.8cqw; }
+.row + .row { border-top: 1px solid var(--stroke); }
+.row .mk { width: 4.6cqw; height: 4.6cqw; position: relative; flex: none; }
+.row .lb { font-size: 2.8cqw; font-weight: 500; }
+.row .dt { font-size: 2.1cqw; color: var(--sec); }
+.ringE { position: absolute; inset: .3cqw; border-radius: 50%; border: .35cqw solid var(--ter); }
+.ck { position: absolute; inset: 0; color: var(--green); }
+.ck svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.dur { --t: 4.5s; }
+/* A1 */
+.a1 .ck { animation: pop var(--t) infinite cubic-bezier(.3,1.8,.5,1); }
+.a1 .ck path { stroke-dasharray: 20; animation: draw var(--t) infinite ease-out; }
+.a1 .r2 .ck, .a1 .r2 .ck path { animation-delay: .9s; }
+@keyframes pop { 0%, 18% { opacity: 0; transform: scale(.3) } 26% { opacity: 1; transform: scale(1.12) } 32%, 88% { opacity: 1; transform: scale(1) } 96%, 100% { opacity: 0; transform: scale(1) } }
+@keyframes draw { 0%, 24% { stroke-dashoffset: 20 } 36%, 100% { stroke-dashoffset: 0 } }
+/* A2 */
+.a2 .prog { stroke-dasharray: 63; animation: fillring var(--t) infinite ease-in-out; transform: rotate(-90deg); transform-origin: 12px 12px; }
+.a2 .ck { animation: pop2 var(--t) infinite cubic-bezier(.3,1.6,.5,1); }
+.a2 .r2 .prog, .a2 .r2 .ck { animation-delay: 1s; }
+@keyframes fillring { 0%, 5% { stroke-dashoffset: 63; opacity: 1 } 30% { stroke-dashoffset: 0; opacity: 1 } 34%, 100% { stroke-dashoffset: 0; opacity: 0 } }
+@keyframes pop2 { 0%, 30% { opacity: 0; transform: scale(.6) } 37% { opacity: 1; transform: scale(1.08) } 42%, 88% { opacity: 1; transform: scale(1) } 96%, 100% { opacity: 0 } }
+/* A3 */
+.portscene { position: relative; width: 70cqw; height: 34cqw; }
+.portscene .wire { position: absolute; left: 0; top: 50%; height: 1cqw; margin-top: -.5cqw; width: 24cqw; background: rgba(235,235,245,.45); border-radius: 1cqw; transform-origin: left; animation: wire var(--t) infinite cubic-bezier(.3,1.25,.5,1); }
+.portscene .plug { position: absolute; left: 22cqw; top: 50%; width: 16cqw; height: 10cqw; margin-top: -5cqw; border: .4cqw solid rgba(235,235,245,.6); border-radius: 2cqw; animation: plug var(--t) infinite cubic-bezier(.3,1.25,.5,1); }
+.portscene .port { position: absolute; right: 0; top: 50%; width: 22cqw; height: 22cqw; margin-top: -11cqw; border: .3cqw solid rgba(235,235,245,.3); border-radius: 3.4cqw; }
+.portscene .slot { position: absolute; right: 15cqw; top: 50%; width: 5cqw; height: 2cqw; margin-top: -1cqw; border-radius: 2cqw; background: var(--blue); animation: slot var(--t) infinite; }
+.portscene .rip { position: absolute; right: 9cqw; top: 50%; width: 18cqw; height: 18cqw; margin: -9cqw -9cqw 0 0; border-radius: 50%; border: .4cqw solid var(--green); opacity: 0; animation: rip var(--t) infinite ease-out; }
+.portscene .rip.b { animation-delay: .25s; }
+@keyframes plug { 0%, 15% { transform: translateX(0) } 28%, 85% { transform: translateX(14cqw) } 100% { transform: translateX(0) } }
+@keyframes wire { 0%, 15% { transform: scaleX(1) } 28%, 85% { transform: scaleX(1.58) } 100% { transform: scaleX(1) } }
+@keyframes slot { 0%, 27% { background: var(--blue) } 30%, 85% { background: var(--green); box-shadow: 0 0 3cqw var(--green) } 100% { background: var(--blue) } }
+@keyframes rip { 0%, 27% { opacity: 0; transform: scale(.3) } 30% { opacity: .8 } 60%, 100% { opacity: 0; transform: scale(1.8) } }
+/* A4 count up */
+.count .w { font-size: 20cqw; }
+.count .w .u { font-size: 9cqw; color: var(--sec); margin-left: 1cqw; }
+/* A5 morph */
+.morph { position: relative; width: 78cqw; height: 46cqw; }
+.morph > div { position: absolute; inset: 0; display: grid; place-items: center; }
+.morph .m1 { animation: out var(--t) infinite ease-in-out; }
+.morph .m2 { animation: in var(--t) infinite cubic-bezier(.2,1.2,.4,1); }
+.morph .m2 .big { width: 100%; height: 100%; border-radius: 3cqw; padding: 4cqw 5cqw; background: rgba(255,255,255,.05); box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 0 0 1px rgba(255,255,255,.07); display: flex; flex-direction: column; justify-content: center; }
+.morph .m2 .w { font-size: 15cqw; margin: 0; } .morph .m2 .d { font-size: 5cqw; }
+@keyframes out { 0%, 32% { opacity: 1; transform: scale(1); filter: blur(0) } 45%, 92% { opacity: 0; transform: scale(1.12); filter: blur(1.4cqw) } 100% { opacity: 1; transform: scale(1); filter: blur(0) } }
+@keyframes in { 0%, 34% { opacity: 0; transform: scale(.86); filter: blur(1.4cqw); border-radius: 6cqw } 50%, 86% { opacity: 1; transform: scale(1); filter: blur(0) } 95%, 100% { opacity: 0; transform: scale(.95) } }
+/* A6 cable draw */
+.cd { width: 80cqw; height: 40cqw; }
+.cd .ln { stroke-dasharray: 100; animation: ln var(--t) infinite ease-in-out; }
+.cd .rgt { animation: lit var(--t) infinite; }
+.cd .badge { animation: pop var(--t) infinite cubic-bezier(.3,1.8,.5,1); animation-delay: .5s; transform-box: fill-box; transform-origin: center; }
+@keyframes ln { 0%, 12% { stroke-dashoffset: 100 } 45%, 88% { stroke-dashoffset: 0 } 100% { stroke-dashoffset: 100 } }
+@keyframes lit { 0%, 44% { color: rgba(235,235,245,.35) } 48%, 88% { color: var(--green) } 100% { color: rgba(235,235,245,.35) } }
+/* A7 speed bar */
+.spd { width: 72cqw; }
+.spd .d { font-size: 5.2cqw; color: var(--text); }
+.spd .track { height: 2.4cqw; border-radius: 2cqw; background: rgba(255,255,255,.08); margin-top: 2.4cqw; overflow: hidden; position: relative; }
+.spd .fill { position: absolute; inset: 0 auto 0 0; width: 50%; border-radius: 2cqw; background: linear-gradient(90deg, #0a84ff, #64d2ff); transform-origin: left; animation: fill var(--t) infinite cubic-bezier(.2,.9,.3,1); overflow: hidden; }
+.spd .fill::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent); width: 40%; animation: shimmer 1.2s infinite linear; }
+.spd .ticks { display: flex; justify-content: space-between; font-size: 1.9cqw; color: var(--ter); margin-top: 1cqw; }
+@keyframes fill { 0%, 12% { transform: scaleX(0) } 50%, 88% { transform: scaleX(1) } 100% { transform: scaleX(0) } }
+@keyframes shimmer { from { transform: translateX(-100%) } to { transform: translateX(260%) } }
+/* A8 stagger */
+.stag .L > * { animation: rise var(--t) infinite cubic-bezier(.2,1,.3,1) both; }
+.stag .L > :nth-child(2) { animation-delay: .08s } .stag .L > :nth-child(3) { animation-delay: .16s } .stag .L > :nth-child(4) { animation-delay: .24s } .stag .L > :nth-child(5) { animation-delay: .32s }
+@keyframes rise { 0%, 8% { opacity: 0; transform: translateY(3cqw) } 22%, 86% { opacity: 1; transform: none } 96%, 100% { opacity: 0 } }
+/* A9 save morph */
+.sv { position: relative; width: 80cqw; height: 44cqw; }
+.sv .hist { position: absolute; right: 0; top: 0; width: 7cqw; height: 7cqw; border-radius: 50%; background: var(--fill2); display: grid; place-items: center; color: var(--sec); animation: bump var(--t) infinite; }
+.sv .hist svg { width: 3.6cqw; height: 3.6cqw; }
+.sv .btn { position: absolute; left: 0; bottom: 4cqw; height: 8cqw; border-radius: 2.2cqw; color: #fff; font-size: 3.2cqw; font-weight: 600; display: grid; place-items: center; overflow: hidden; animation: btn var(--t) infinite cubic-bezier(.3,1.3,.5,1); }
+.sv .btn span { grid-area: 1 / 1; white-space: nowrap; display: flex; align-items: center; gap: 1cqw; }
+.sv .btn .b1 { animation: fadeA var(--t) infinite; } .sv .btn .b2 { animation: fadeB var(--t) infinite; }
+.sv .btn svg { width: 3.4cqw; height: 3.4cqw; }
+.sv .fly { position: absolute; left: 6cqw; bottom: 6cqw; font: 600 2.6cqw ui-monospace, "SF Mono", monospace; background: #f2efe6; color: #1b1b1b; padding: .8cqw 1.8cqw; border-radius: 1cqw; opacity: 0; animation: fly var(--t) infinite cubic-bezier(.5,0,.3,1); }
+.sv .w { position: absolute; left: 0; top: 2cqw; font-size: 14cqw; margin: 0; }
+@keyframes btn { 0%, 20% { width: 30cqw; background: var(--blue) } 30%, 80% { width: 22cqw; background: #30b94d } 92%, 100% { width: 30cqw; background: var(--blue) } }
+@keyframes fadeA { 0%, 22% { opacity: 1 } 26%, 86% { opacity: 0 } 94%, 100% { opacity: 1 } }
+@keyframes fadeB { 0%, 24% { opacity: 0; transform: scale(.7) } 30%, 84% { opacity: 1; transform: none } 90%, 100% { opacity: 0 } }
+@keyframes fly { 0%, 32% { opacity: 0; transform: none } 36% { opacity: 1; transform: translate(0, -3cqw) } 62% { opacity: 1; transform: translate(64cqw, -32cqw) scale(.4) } 66%, 100% { opacity: 0; transform: translate(66cqw, -33cqw) scale(.2) } }
+@keyframes bump { 0%, 62% { transform: none; color: var(--sec) } 66% { transform: scale(1.25); color: var(--green) } 74%, 100% { transform: none; color: var(--sec) } }
+/* A10 unplug */
+.unp { position: relative; width: 82cqw; height: 46cqw; }
+.unp > div { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; }
+.unp .res { animation: slideout var(--t) infinite cubic-bezier(.5,0,.2,1); }
+.unp .res .w { font-size: 15cqw; margin: 0; } .unp .res .d { font-size: 5cqw; }
+.unp .back { align-items: center; animation: backin var(--t) infinite ease-out; }
+.unp .back h4 { margin: 0; font-size: 4.4cqw; }
+.unp .back p { margin: 1cqw 0 0; color: var(--sec); font-size: 2.4cqw; }
+@keyframes slideout { 0%, 40% { opacity: 1; transform: none; filter: none } 55%, 92% { opacity: 0; transform: translateX(-12cqw) scale(.96); filter: blur(.6cqw) } 100% { opacity: 1; transform: none } }
+@keyframes backin { 0%, 50% { opacity: 0; transform: translateY(2cqw) } 62%, 88% { opacity: 1; transform: none } 96%, 100% { opacity: 0 } }
+
+h3.sub .refs { text-transform: none; letter-spacing: 0; font-weight: 500; margin-left: 10px; display: inline-flex; gap: 6px; align-items: center; }
+h3.sub .refs img { width: 28px; height: 28px; }
+h3.sub { font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--sec); margin: 22px 0 10px; font-weight: 600; }
+.sw { display: flex; gap: 4px; grid-column: 1 / -1; margin-top: 4px; }
+.sw i { width: 18px; height: 18px; border-radius: 5px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.15); }
+
+/* ---------- themes: from the app icons (lime #c5fa09 / #a4de06, black #111014, charcoal #333339, steel #787678) ---------- */
+.t-icon, .t-black, .t-neon, .t-tint, .t-charcoal, .t-steel, .t-gradient, .t-forest, .t-mono {
+  --green: #c5fa09; --accent: #c5fa09; --onaccent: #111014; --oncheck: #111014; --teal: #8fe3c8; --amber: #ffcf4a;
+  --text: #f4f5f0; --sec: rgba(232,236,222,.58); --ter: rgba(232,236,222,.3); }
+.t-icon { --win: #111014; --group: #18181b; --stroke: rgba(255,255,255,.07); --fill: #1c1c20; --fill2: #232328; --fill3: #34343b; --line: rgba(255,255,255,.06); --line2: rgba(255,255,255,.1); --zebra: rgba(255,255,255,.025); --dots: #2c2c31; --blue: #c9cbd0; }
+.t-black { --win: #000; --group: #0a0a0a; --stroke: rgba(255,255,255,.07); --fill: #111; --fill2: #161616; --fill3: #262626; --line: #141414; --line2: #1e1e1e; --zebra: #060606; --dots: #222; --blue: #c5fa09; --text: #fff; }
+.t-neon { --win: #0a0a0b; --group: #121213; --stroke: rgba(197,250,9,.16); --fill: #141416; --fill2: #1a1a1d; --fill3: #2a2d1f; --line: rgba(197,250,9,.1); --line2: rgba(197,250,9,.18); --zebra: rgba(197,250,9,.02); --dots: #2a2a2e; --blue: #e6ff9a; }
+.t-neon .w, .t-neon .pw { text-shadow: 0 0 3cqw rgba(197,250,9,.55), 0 0 .6cqw rgba(197,250,9,.5); color: #d8ff4a; }
+.t-neon .save { box-shadow: 0 0 2.4cqw rgba(197,250,9,.55); }
+.t-neon .ck svg { filter: drop-shadow(0 0 1.2cqw rgba(197,250,9,.7)); }
+.t-neon .tb i:first-child { background: #c5fa09; box-shadow: 0 0 1cqw #c5fa09; }
+.t-tint { --win: #0c1208; --group: rgba(197,250,9,.045); --stroke: rgba(197,250,9,.13); --fill: rgba(197,250,9,.07); --fill2: rgba(197,250,9,.1); --fill3: rgba(197,250,9,.2); --line: rgba(197,250,9,.09); --line2: rgba(197,250,9,.16); --zebra: rgba(197,250,9,.025); --dots: #1f2a14;
+  --text: #f0fbe2; --sec: rgba(214,236,184,.62); --ter: rgba(214,236,184,.3); --blue: #a9ecff; }
+.t-charcoal { --win: #1a1b1e; --group: #222327; --stroke: rgba(255,255,255,.06); --fill: #26272b; --fill2: #2c2d32; --fill3: #3a3b41; --line: rgba(255,255,255,.05); --line2: rgba(255,255,255,.09); --zebra: rgba(255,255,255,.02); --dots: #333339; --blue: #b8bcc4; }
+.t-charcoal .save { background: transparent; color: #c5fa09; box-shadow: inset 0 0 0 .25cqw #c5fa09; }
+.t-charcoal .win, .t-charcoal .h, .t-charcoal .scene { background: linear-gradient(180deg, #202125, #17181a); }
+.t-steel { --win: #121214; --group: linear-gradient(180deg, #1f1f23, #18181b); --stroke: rgba(255,255,255,.09); --fill: #1d1d21; --fill2: #26262b; --fill3: #3a3a40; --line: rgba(255,255,255,.07); --line2: rgba(255,255,255,.12); --zebra: rgba(255,255,255,.025); --dots: #4a4a50; --blue: #d6d8dc; }
+.t-steel .w { background: linear-gradient(180deg, #ffffff 10%, #a9a9ae 55%, #e8e8ea 70%, #8d8d92); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.t-steel .tb { background: linear-gradient(180deg, #2b2b30, #1c1c20); }
+.t-steel .save { background: linear-gradient(180deg, #d9ff4d, #a4de06); }
+.t-gradient { --win: #0d0d0f; --group: #151517; --stroke: rgba(255,255,255,.07); --fill: #18181b; --fill2: #202024; --fill3: #2f3324; --line: rgba(255,255,255,.06); --line2: rgba(255,255,255,.1); --zebra: rgba(255,255,255,.02); --dots: #2a2a2e; --blue: #7ff0c4; }
+.t-gradient .w { background: linear-gradient(90deg, #c5fa09, #52e07a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.t-gradient .save { background: linear-gradient(90deg, #c5fa09, #52e07a); }
+.t-gradient .win, .t-gradient .h, .t-gradient .scene { background: radial-gradient(80% 70% at 15% 0%, rgba(164,222,6,.12), transparent 60%), #0d0d0f; }
+.t-forest { --win: #07130b; --group: rgba(140,255,170,.045); --stroke: rgba(140,255,170,.11); --fill: rgba(140,255,170,.06); --fill2: rgba(140,255,170,.09); --fill3: rgba(140,255,170,.18); --line: rgba(140,255,170,.08); --line2: rgba(140,255,170,.14); --zebra: rgba(140,255,170,.025); --dots: #163222;
+  --text: #e6f7ea; --sec: rgba(190,230,200,.6); --ter: rgba(190,230,200,.3); --blue: #7fe6c0; --accent: #a4de06; }
+.t-mono { --win: #0f0f10; --group: #161617; --stroke: rgba(255,255,255,.07); --fill: #19191a; --fill2: #202021; --fill3: #303031; --line: rgba(255,255,255,.06); --line2: rgba(255,255,255,.1); --zebra: rgba(255,255,255,.02); --dots: #2a2a2b; --blue: #f4f5f0; }
+.t-black .w, .t-mono .w { color: #c5fa09; }
+.t-mono .chips span, .t-mono .cp { background: transparent; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
+.t-day { --win: #f1f3ea; --group: #fff; --stroke: rgba(17,16,20,.1); --fill: rgba(17,16,20,.05); --fill2: rgba(17,16,20,.08); --fill3: rgba(17,16,20,.14); --line: rgba(17,16,20,.08); --line2: rgba(17,16,20,.12); --zebra: rgba(17,16,20,.025); --dots: #d5d8cc;
+  --text: #111014; --sec: rgba(17,16,20,.6); --ter: rgba(17,16,20,.32); --green: #4a8a00; --blue: #111014; --accent: #111014; --onaccent: #c5fa09; --teal: #1d7a6a; --amber: #a86400; }
+.t-day .ck { color: #111014; } .t-day { --oncheck: #c5fa09; }
+
+@media (prefers-reduced-motion: reduce) { .pv * { animation-duration: 0s !important; animation-iteration-count: 1 !important; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Cable Tester: design tweaks</h1>
+  <p>Ideas to mix and match, not either-or. UI tweaks are shown in today's theme. The themes are new, built from the app icon colors: black, lime, charcoal and steel.
+     Click ♡ on the ones you like, then "Copy my picks" at the bottom.</p>
+</header>
+
+<section><h2>Main screen</h2><p>The result after both ends are plugged in.</p>
+  <h3 class="sub">UI tweaks</h3><div class="grid" id="main"></div>
+  <h3 class="sub">Themes <span class="refs">from the icons <img src="mocks/icon-ref-1.png" alt=""><img src="mocks/icon-ref-2.png" alt=""></span></h3><div class="grid" id="mainT"></div></section>
+<section><h2>History</h2><p>The saved-cables table.</p>
+  <h3 class="sub">UI tweaks</h3><div class="grid" id="hist"></div>
+  <h3 class="sub">Themes <span class="refs">from the icons <img src="mocks/icon-ref-1.png" alt=""><img src="mocks/icon-ref-2.png" alt=""></span></h3><div class="grid" id="histT"></div></section>
+<section><h2>Animation</h2><p>All of these play on a loop.</p>
+  <h3 class="sub">UI tweaks</h3><div class="grid" id="anim"></div>
+  <h3 class="sub">Themes <span class="refs">from the icons <img src="mocks/icon-ref-1.png" alt=""><img src="mocks/icon-ref-2.png" alt=""></span></h3><div class="grid" id="animT"></div></section>
+
+<div class="bar"><div><span id="picked">No picks yet.</span><button id="copy">Copy my picks</button></div></div>
+
+<script>
+const I = {
+  bolt: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4.5 13.5h6.5L9.5 22l9-11.5H12z"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/><path d="M12 7.5V12l3 2"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>',
+  laptop: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/></svg>',
+  plug: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="6" y="4" width="12" height="10" rx="3"/><path d="M12 14v6M9 8h.01M15 8h.01"/></svg>',
+  gauge: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 16a8 8 0 1 1 16 0"/><path d="m12 16 4-5"/></svg>',
+  cable: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h4v4H4zM16 13h4v4h-4zM8 9h3a3 3 0 0 1 3 3v0a3 3 0 0 0 3 3"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M7 12.5l3.3 3.3L17 9" fill="none" stroke="var(--oncheck, #fff)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+};
+const tb = '<div class="tb"><i></i><i></i><i></i><span>Cable Tester</span><b class="ic">' + I.clock + '</b></div>';
+const data = (txt = 'USB 4 · 40 Gb/s') => `<div class="d"><span class="tbg">${I.bolt}USB 4</span><span>· 40 Gb/s</span></div>`;
+const insp = `<div class="R"><div class="ih">Cable e-marker</div><div class="grp"><p><span>Vendor</span><b>Apple</b></p><p><span>Max VBUS</span><b>50 V</b></p><p><span>Current</span><b>5 A</b></p><p><span>Length</span><b>~1 m</b></p></div>
+  <div class="ih">Live connection</div><div class="grp"><p><span>Far end</span><b>Mac mini</b></p><p><span>Link</span><b>USB 4</b></p></div></div>`;
+const result = (o = {}) => `<div class="st">${o.st || 'Plugged in 2 seconds ago'}</div><div class="w">${o.w || '240 W'}</div>${o.d || data()}
+  ${o.mid || ''}<div class="chips">${o.chips || '<span>EPR</span><span>5 A</span>'}</div>
+  <div class="btns"><span class="save">Save as #08</span><span class="cp">${I.copy}</span></div>`;
+const win = (left, right = insp) => `<div class="win">${tb}<div class="wb"><div class="L">${left}</div>${right}</div></div>`;
+
+const MAIN = [
+  ['Liquid glass', 'Translucent window, toolbar and buttons pick up the desktop behind them, with a soft specular edge (macOS 26 style).',
+    `<div class="glass"><div class="wall"></div>${win(result())}</div>`],
+  ['Rounded numerals', 'SF Pro Rounded, extra bold, for the wattage and data line. Friendlier, very Apple.',
+    `<div class="rounded">${win(result())}</div>`],
+  ['Power-tier color', 'Watts in the tier color with a faint glow: green 240, teal 100, amber 60. Same colors as History.',
+    `<div class="tier">${win(result({ mid: '<div class="legend"><span><b style="background:var(--green)"></b>240 W</span><span><b style="background:var(--teal)"></b>100 W</span><span><b style="background:var(--amber)"></b>60 W</span></div>' }))}</div>`],
+  ['Wattage gauge', 'A ring around the number shows 240 of 240 W. A 60 W cable reads as a quarter-full ring at a glance.',
+    `<div>${win(`<div class="st">Plugged in 2 seconds ago</div><div class="gauge" style="margin-top:1.6cqw"><svg class="ring" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="3.4"/><circle cx="20" cy="20" r="16" fill="none" stroke="#32d74b" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="100.5" stroke-dashoffset="0" transform="rotate(-90 20 20)"/><text x="20" y="23" text-anchor="middle" font-size="7" font-weight="700" fill="#32d74b">MAX</text></svg><div><div class="w">240 W</div>${data()}</div></div><div class="btns"><span class="save">Save as #08</span><span class="cp">${I.copy}</span></div>`)}</div>`],
+  ['Tie-color accent', 'Once you pick a tie color, the window takes a thin accent stripe and the Save button matches it.',
+    `<div class="tie">${win(result({ st: '<span class="tiedot"></span>Purple tie · plugged in 2 seconds ago' }))}</div>`],
+  ['Icons for context', 'Small SF-Symbol-style icons: what is on the far end, and icons inside the EPR and amp chips.',
+    `<div>${win(result({ st: I.laptop + 'Mac mini · 2 seconds ago', chips: `<span>${I.bolt}EPR</span><span>${I.gauge}5 A</span><span>${I.cable}~1 m</span>` }))}</div>`],
+  ['Spec-sheet type', 'Monospaced values and small-caps labels in the details panel. Feels like a lab instrument.',
+    `<div class="spec">${win(result({ st: 'Plugged in · 2 s', d: '<div class="d"><span class="tbg">' + I.bolt + 'USB4</span><span>40 Gb/s</span></div>' }))}</div>`],
+  ['Focus mode', 'The details panel tucks away and the result centers, bigger. Details slide in on demand.',
+    `<div>${win(`<div style="text-align:center;display:flex;flex-direction:column;align-items:center">${result({ w: '<span style="font-size:15cqw">240 W</span>' })}</div>`, '')}</div>`],
+  ['Label preview', 'Shows the label exactly as it goes on the cable: a little tag, so you know what to write.',
+    `<div>${win(result({ chips: '<span>EPR</span><span>5 A</span>', mid: '<div class="tag"><span class="wire"></span><span class="t">#08 240W USB4</span></div>' }))}</div>`],
+  ['Tiles', 'Power, data and length as three even tiles under a smaller headline. Scans like a dashboard.',
+    `<div>${win(`<div class="st">${I.laptop} Mac mini · 2 seconds ago</div><div class="tiles"><div><small>Power</small><b style="color:var(--green)">240 W</b><i>EPR · 5 A</i></div><div><small>Data</small><b>USB 4</b><i>40 Gb/s · Thunderbolt</i></div><div><small>Length</small><b>~1 m</b><i>Passive</i></div></div><div class="btns"><span class="save">Save as #08</span><span class="cp">${I.copy}</span></div>`)}</div>`],
+];
+
+const ROWS = [
+  ['07', 'var(--blue)', 240, 'USB 4', true, '40 Gb/s', 50, 'Apple', '1 m', 'Today 08:00', 'today', true],
+  ['06', 'var(--purple)', 240, 'USB 2', false, '480 Mb/s', 1, '', '2 m', 'Today 07:40', 'today', true],
+  ['05', 'var(--yellow)', 60, 'USB 2', false, '480 Mb/s', 1, '', '', 'Today 07:10', 'today', false],
+  ['04', 'var(--green)', 100, 'USB 3', false, '10 Gb/s', 13, 'Belkin', '1 m', 'Yesterday', '', false],
+  ['03', 'var(--blue)', 240, 'USB 4 v2', true, '80 Gb/s', 100, 'Apple', '1 m', 'Yesterday', '', false],
+  ['02', 'var(--gray)', 100, 'USB 4', false, '40 Gb/s', 50, 'Anker', '0.8 m', 'Yesterday', '', false],
+];
+const dataCell = r => r[4] ? `<span class="tbl">${I.bolt} ${r[3]}</span>` : r[3];
+const label = r => `#${r[0]} ${r[2]}W ${r[3].replace(/ /g, '').replace('v2', 'v2')}`;
+function hist(o = {}) {
+  const head = o.head || '<tr><th>#</th><th>Tie</th><th>Power</th><th>Data</th><th>Speed</th><th>Vendor</th><th>Length</th><th>Tested</th></tr>';
+  const row = o.row || (r => `<tr class="${o.stripe ? 'stripe' : ''}" style="--c:${r[1]}"><td>${r[0]}</td><td>${o.stripe ? '' : `<span class="dot" style="background:${r[1]}"></span>`}</td>
+    <td>${o.pills ? `<span class="pill p${r[2]}">${r[2]} W</span>` : `<span class="pw">${r[2]} W</span>`}</td><td>${dataCell(r)}</td>
+    <td>${r[5]}${o.bars ? `<span class="sb"><i style="width:${r[6]}%"></i></span>` : ''}</td><td>${r[7] || '<span class="muted">Add</span>'}</td><td>${r[8] || '<span class="muted">Add</span>'}</td>
+    <td class="muted">${r[9]}</td></tr>`);
+  let body = '';
+  if (o.groups) {
+    for (const w of [240, 100, 60]) {
+      const rs = ROWS.filter(r => r[2] === w);
+      body += `<tr class="sect"><td colspan="8">${w} W · ${rs.length} cable${rs.length > 1 ? 's' : ''}</td></tr>` + rs.map(row).join('');
+    }
+  } else body = ROWS.map(row).join('');
+  return `<div class="h ${o.cls || ''}">${o.pre || ''}<div class="ttl">History${o.ttlx || ''}</div>${o.stats || ''}${o.nofilters ? '' : '<div class="filters"><span class="on">All</span><span>240 W</span><span>100 W</span><span>60 W</span><span>Thunderbolt</span></div>'}
+    ${o.body || `<table class="ht"><thead>${head}</thead><tbody>${body}</tbody></table>`}${o.post || ''}</div>`;
+}
+
+const HIST = [
+  ['Liquid glass bar', 'Filters move into a floating glass capsule at the bottom; the table scrolls under it.',
+    `<div class="glass"><div class="wall"></div><div class="win" style="inset:3cqw 4cqw">${tb}<div style="position:relative;flex:1">${hist({ cls: 'glassy', nofilters: true, post: '<div class="float"><span class="on">All</span><span>240 W</span><span>100 W</span><span>60 W</span><span>Thunderbolt</span></div>' })}</div></div></div>`],
+  ['Tie-color edge', 'The tie color becomes a stripe on the row edge instead of a dot. Easier to match to the real cable.',
+    hist({ stripe: true, head: '<tr><th>#</th><th></th><th>Power</th><th>Data</th><th>Speed</th><th>Vendor</th><th>Length</th><th>Tested</th></tr>' })],
+  ['Power pills', 'Wattage as tinted pills in the tier colors.',
+    hist({ pills: true })],
+  ['Speed bars', 'A thin bar next to the speed, scaled to 80 Gb/s, so fast cables stand out.',
+    hist({ bars: true })],
+  ['Grouped by power', 'Sections for 240, 100 and 60 W with counts, like Finder\'s grouped list.',
+    hist({ groups: true, nofilters: true })],
+  ['Tag grid', 'A second view: every cable as a small card with its label, tie stripe and key facts.',
+    hist({ body: `<div class="cards">${ROWS.map(r => `<div style="--c:${r[1]}"><b>${label(r)}</b><strong class="${r[2] === 240 ? 'pw' : ''}">${r[2]} W</strong><small>${r[4] ? '⚡ ' : ''}${r[3]} · ${r[5]}</small><small>${r[7] || '-'} · ${r[8] || '-'}</small></div>`).join('')}</div>` })],
+  ['Label column', 'The label you wrote on the cable, as a paper tag, is the first column.',
+    hist({ head: '<tr><th>Label</th><th>Tie</th><th>Speed</th><th>Vendor</th><th>Length</th><th>Tested</th></tr>',
+      row: r => `<tr><td><span class="lt">${label(r)}</span></td><td><span class="dot" style="background:${r[1]}"></span></td><td>${r[5]}</td><td>${r[7] || '<span class="muted">Add</span>'}</td><td>${r[8] || '<span class="muted">Add</span>'}</td><td class="muted">${r[9]}</td></tr>` })],
+  ['Dense mono', 'Compact rows, hairline dividers and monospaced numbers. Fits twice as many cables.',
+    `<div class="dense">${hist({})}</div>`],
+  ['Relative dates + new dot', 'Today and Yesterday badges, and a breathing dot on cables saved in the last 15 minutes.',
+    hist({ row: r => `<tr><td>${r[11] ? '<span class="newdot"></span>' : '<span style="display:inline-block;width:1.8cqw"></span>'}${r[0]}</td><td><span class="dot" style="background:${r[1]}"></span></td><td><span class="pw">${r[2]} W</span></td><td>${dataCell(r)}</td><td>${r[5]}</td><td>${r[7] || '<span class="muted">Add</span>'}</td><td>${r[8] || '<span class="muted">Add</span>'}</td><td><span class="rel ${r[10]}">${r[9].split(' ')[0]}</span></td></tr>` })],
+  ['Summary header', 'Totals above the table: how many cables, how many can do 240 W, how many Thunderbolt.',
+    hist({ nofilters: true, stats: `<div class="stats"><div><b>7</b><small>cables</small><div class="mini"><i style="--f:3;--c:var(--green)"></i><i style="--f:3;--c:var(--teal)"></i><i style="--f:1;--c:var(--amber)"></i></div></div><div><b class="pw">3</b><small>240 W</small></div><div><b class="tbl">2</b><small>Thunderbolt</small></div><div><b>4</b><small>need a length</small></div></div>` })],
+];
+
+const rows2 = (cls = '') => `<div class="list ${cls}">
+  <div class="row r1"><div class="mk"><div class="ringE"></div>%CK%</div><div><div class="lb">One end into this Mac</div><div class="dt">Port 1</div></div></div>
+  <div class="row r2"><div class="mk"><div class="ringE"></div>%CK%</div><div><div class="lb">Other end into a charger, Mac or device</div><div class="dt">Arctis GameBuds</div></div></div></div>`;
+const ck = `<div class="ck">${I.check}</div>`;
+const ck2 = `<div class="ck">${I.check}</div><svg class="ck" viewBox="0 0 24 24" style="overflow:visible"><circle class="prog" cx="12" cy="12" r="10" fill="none" stroke="#0a84ff" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+
+const ANIM = [
+  ['Drawn checkmark', 'The check pops with a spring and its tick draws itself. The second follows 0.9 s later. (Today, refined.)',
+    `<div class="scene dur a1">${rows2().replaceAll('%CK%', ck)}</div>`],
+  ['Filling ring', 'The empty ring fills like progress while the Mac reads the port, then turns into the check.',
+    `<div class="scene dur a2">${rows2().replaceAll('%CK%', ck2)}</div>`],
+  ['Port ripple', 'The plug clicks in with a little overshoot and a green ripple spreads from the port.',
+    `<div class="scene dur"><div class="portscene"><div class="wire"></div><div class="plug"></div><div class="port"></div><div class="slot"></div><div class="rip"></div><div class="rip b"></div></div></div>`],
+  ['Count-up watts', 'The wattage rolls up from 0 to 240 with ease-out, like a fuel gauge.',
+    `<div class="scene count"><div style="text-align:center"><div class="w" data-count="240">0<span class="u">W</span></div>${data()}</div></div>`],
+  ['Glass morph', 'The checklist melts into the result card: blur, scale and a glassy edge instead of a plain fade.',
+    `<div class="scene dur"><div class="morph"><div class="m1">${rows2().replaceAll('%CK%', `<div class="ck">${I.check}</div>`)}</div><div class="m2"><div class="big"><div class="st">Plugged in just now</div><div class="w">240 W</div>${data()}</div></div></div></div>`],
+  ['Cable draws across', 'A line draws from the Mac to the device; the far end lights up and gets a check.',
+    `<div class="scene dur"><svg class="cd" viewBox="0 0 200 100"><g color="rgba(235,235,245,.8)"><rect x="12" y="34" width="44" height="28" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M6 68h56" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></g><path class="ln" pathLength="100" d="M60 52 C 95 52, 105 52, 140 52" fill="none" stroke="#32d74b" stroke-width="2.6" stroke-linecap="round"/><g class="rgt"><rect x="144" y="36" width="32" height="32" rx="7" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M161 43l-6 10h6l-2 8 7-11h-6z" fill="currentColor"/></g><g class="badge"><circle cx="176" cy="34" r="8" fill="#32d74b"/><path d="M172 34.5l2.6 2.6 5-5.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></g><text x="34" y="86" fill="rgba(235,235,245,.5)" font-size="7" text-anchor="middle">This Mac</text><text x="160" y="86" fill="rgba(235,235,245,.5)" font-size="7" text-anchor="middle">Charger</text></svg></div>`],
+  ['Speed bar fill', 'Data speed fills a bar against the 80 Gb/s maximum, with a quick shimmer.',
+    `<div class="scene dur"><div class="spd">${data()}<div class="track"><div class="fill"></div></div><div class="ticks"><span>0</span><span>40</span><span>80 Gb/s</span></div></div></div>`],
+  ['Staggered reveal', 'The result builds line by line: status, watts, data, chips, button, 80 ms apart.',
+    `<div class="stag dur">${win(result(), '')}</div>`],
+  ['Save morph', 'Save turns into a green "Saved #08" and the label flies into the History button.',
+    `<div class="scene dur"><div class="sv"><div class="w">240 W</div><div class="hist">${I.clock}</div><div class="btn"><span class="b1">Save as #08</span><span class="b2"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Saved #08</span></div><div class="fly">#08 240W USB4</div></div></div>`],
+  ['Unplug slide', 'Unplugging slides the result away to the left and the checklist floats back in.',
+    `<div class="scene dur"><div class="unp"><div class="res"><div class="st">Plugged in 2 minutes ago</div><div class="w">240 W</div>${data()}</div><div class="back"><h4>Plug in a cable you want to test</h4><p>Cable unplugged</p></div></div></div>`],
+];
+
+const THEMES = [
+  ['icon', 'Icon', 'Straight from the icon: near-black, charcoal panels, lime for power and the Save button, silver for data.', ['#111014', '#232328', '#f4f5f0', '#c5fa09', '#c9cbd0']],
+  ['black', 'Pure Black Lime', 'True black and lime only: power, data, Thunderbolt and buttons all share the one green.', ['#000', '#161616', '#fff', '#c5fa09', '#c5fa09']],
+  ['neon', 'Neon', 'Like the glowing pulse on the plug: the lime glows on the wattage, buttons and checks.', ['#0a0a0b', '#1a1a1d', '#d8ff4a', '#c5fa09', '#e6ff9a']],
+  ['tint', 'Lime Tint', 'Black with a faint green tint in the background, panels and lines.', ['#0c1208', '#1a2412', '#f0fbe2', '#c5fa09', '#a9ecff']],
+  ['charcoal', 'Charcoal', 'Matte charcoal like the plug body, lime used only as thin outlines and highlights.', ['#1a1b1e', '#2c2d32', '#f4f5f0', '#c5fa09', '#b8bcc4']],
+  ['steel', 'Brushed Steel', 'Silver metal wattage like the USB-C shell, dark panels, a lime Save button.', ['#121214', '#26262b', '#e8e8ea', '#a4de06', '#d6d8dc']],
+  ['gradient', 'Lime Gradient', 'Lime-to-green gradient on the wattage and buttons, with a soft lime glow in the corner.', ['#0d0d0f', '#202024', '#f4f5f0', '#c5fa09', '#52e07a']],
+  ['forest', 'Deep Green', 'Very dark green base with mint data and a deeper cable-green accent.', ['#07130b', '#122a19', '#e6f7ea', '#a4de06', '#7fe6c0']],
+  ['mono', 'Mono Lime', 'Everything grayscale and outlined; lime is the only color, on the wattage and the Save button.', ['#0f0f10', '#202021', '#f4f5f0', '#c5fa09', '#f4f5f0']],
+  ['day', 'Daylight', 'The light version: pale gray-green, black buttons with lime text, like the icon inverted.', ['#f1f3ea', '#ffffff', '#111014', '#111014', '#c5fa09']],
+];
+function renderThemes(id, prefix, build) {
+  const el = document.getElementById(id);
+  THEMES.forEach(([cls, name, desc, sw], k) => {
+    const key = prefix + (k + 1);
+    const c = document.createElement('article');
+    c.className = 'card'; c.dataset.key = key;
+    c.innerHTML = `<div class="pv t-${cls}">${build()}</div><div class="meta"><h3><small>${key}</small>${name}</h3><button class="like" aria-pressed="false">♡ Like</button><p>${desc}</p><div class="sw">${sw.map(c => `<i style="background:${c}"></i>`).join('')}</div></div>`;
+    el.appendChild(c);
+  });
+}
+
+function render(id, list, prefix) {
+  const el = document.getElementById(id);
+  list.forEach(([title, desc, html], k) => {
+    const key = prefix + (k + 1);
+    const c = document.createElement('article');
+    c.className = 'card'; c.dataset.key = key;
+    c.innerHTML = `<div class="pv">${html}</div><div class="meta"><h3><small>${key}</small>${title}</h3><button class="like" aria-pressed="false">♡ Like</button><p>${desc}</p></div>`;
+    el.appendChild(c);
+  });
+}
+render('main', MAIN, 'M'); render('hist', HIST, 'H'); render('anim', ANIM, 'A');
+renderThemes('mainT', 'MT', () => win(result()));
+renderThemes('histT', 'HT', () => hist({}));
+renderThemes('animT', 'AT', () => `<div class="scene dur a1"><div style="display:flex;flex-direction:column;align-items:center;gap:3cqw"><div style="font-size:4.4cqw;font-weight:700;font-family:var(--numfont)">Plug in a cable you want to test</div>${rows2().replaceAll('%CK%', ck)}</div></div>`);
+
+// likes (remembered in this browser only)
+let likes = new Set();
+try { likes = new Set(JSON.parse(localStorage.getItem('ct-likes') || '[]')); } catch (e) {}
+function sync() {
+  document.querySelectorAll('.card').forEach(c => {
+    const on = likes.has(c.dataset.key); c.classList.toggle('liked', on);
+    const b = c.querySelector('.like'); b.textContent = on ? '♥ Liked' : '♡ Like'; b.setAttribute('aria-pressed', on);
+  });
+  const list = [...document.querySelectorAll('.card')].filter(c => likes.has(c.dataset.key)).map(c => c.dataset.key + ' ' + c.querySelector('h3').lastChild.textContent);
+  document.getElementById('picked').textContent = list.length ? 'Picks: ' + list.join(', ') : 'No picks yet.';
+  try { localStorage.setItem('ct-likes', JSON.stringify([...likes])); } catch (e) {}
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('.like'); if (!b) return;
+  const k = b.closest('.card').dataset.key; likes.has(k) ? likes.delete(k) : likes.add(k); sync();
+});
+document.getElementById('copy').onclick = () => {
+  const t = document.getElementById('picked').textContent;
+  navigator.clipboard?.writeText(t).then(() => { document.getElementById('copy').textContent = 'Copied'; setTimeout(() => document.getElementById('copy').textContent = 'Copy my picks', 1400); });
+};
+sync();
+
+// count-up
+document.querySelectorAll('[data-count]').forEach(el => {
+  const to = +el.dataset.count, unit = '<span class="u">W</span>';
+  const run = () => {
+    const t0 = performance.now();
+    const step = now => {
+      const p = Math.min(1, (now - t0) / 1300), e = 1 - Math.pow(1 - p, 3);
+      el.innerHTML = Math.round(to * e) + unit;
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+  run(); setInterval(run, 3600);
+});
+</script>
+</body>
+</html>
