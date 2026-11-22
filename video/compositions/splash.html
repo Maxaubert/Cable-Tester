@@ -1,0 +1,34 @@
+<template>
+  <style>
+    @font-face { font-family: "SF Pro"; src: url("assets/fonts/SFNS.ttf") format("truetype"); font-weight: 100 1000; }
+    #root { position: absolute; inset: 0; background: #000; overflow: hidden; font-family: "SF Pro", sans-serif; }
+    #splash-icon { position: absolute; left: 765px; top: 228px; width: 390px; height: 390px; transform-origin: 30% 26%; }
+    #splash-name { position: absolute; left: 0; right: 0; top: 672px; text-align: center; color: #fff;
+      font-size: 84px; font-weight: 700; letter-spacing: -0.02em; }
+    #splash-name span { display: inline-block; }
+    /* The app window, clipped to the icon's rounded square; it opens to full size. */
+    #splash-win { position: absolute; left: 80px; top: 45px; width: 1760px; height: 990px; background: #000;
+      border: 1.5px solid #1d1d1f; border-radius: 22px; opacity: 0; clip-path: inset(206px 715px 454px 715px round 75px); }
+  </style>
+  <div id="root" data-composition-id="splash" data-width="1920" data-height="1080">
+    <img id="splash-icon" class="clip" style="z-index:2" data-start="0" data-duration="3" src="assets/icon.png" alt="Cable Tester icon" />
+    <div id="splash-name" class="clip" data-start="0" data-duration="3"><span>C</span><span>a</span><span>b</span><span>l</span><span>e</span><span>&nbsp;</span><span>T</span><span>e</span><span>s</span><span>t</span><span>e</span><span>r</span></div>
+    <div id="splash-win" class="clip" data-start="0" data-duration="3"></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // The icon lands, the name prints letter by letter.
+    tl.fromTo("#splash-icon", { scale: 0.84, opacity: 0.55, filter: "blur(10px)" },
+      { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.8, ease: "expo.out" }, 0);
+    tl.fromTo("#splash-name span", { opacity: 0.3, filter: "blur(4px)" },
+      { opacity: 1, filter: "blur(0px)", duration: 0.2, stagger: 0.05, ease: "power2.out" }, 0.55);
+    tl.fromTo("#splash-name", { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "none" }, 0.55);
+    // The icon's rounded square opens into the app window.
+    tl.to("#splash-name", { opacity: 0, filter: "blur(8px)", duration: 0.2, ease: "power3.in" }, 1.95);
+    tl.fromTo("#splash-win", { opacity: 0 }, { opacity: 1, duration: 0.1, immediateRender: false }, 2.05);
+    tl.to("#splash-icon", { opacity: 0, scale: 1.03, duration: 0.3, ease: "power2.out" }, 2.08);
+    tl.fromTo("#splash-win", { clipPath: "inset(206px 715px 454px 715px round 75px)" },
+      { clipPath: "inset(0px 0px 0px 0px round 22px)", duration: 0.7, ease: "power3.inOut", immediateRender: false }, 2.12);
+    window.__timelines["splash"] = tl;
+  </script>
+</template>
