@@ -196,8 +196,8 @@ struct StepRow: View {
     }
 }
 
-/// A USB-C plug seen from the front under the app icon's bolt. Stage 1 (Mac end in): the plug rises and the
-/// bolt's outline draws in lime. Stage 2 (other end in): the bolt fills, glows and pops.
+/// A USB-C plug seen from the front under the app icon's bolt. Stage 1 (Mac end in): the collar around the tip
+/// lights up and the bolt's outline draws in lime. Stage 2 (other end in): the bolt fills, glows and pops.
 struct BoltPlugIllustration: View {
     var stage: Int
     @State private var pop = false
@@ -226,15 +226,16 @@ struct BoltPlugIllustration: View {
                 RoundedRectangle(cornerRadius: 10, style: .continuous).fill(steel)
                     .frame(width: 54, height: 32)
                     .overlay(Capsule().fill(Color(white: 0.1)).frame(width: 32, height: 6).offset(y: -2))
-                RoundedRectangle(cornerRadius: 2).fill(stage >= 1 ? Palette.lime : Color(white: 0.13))
-                    .frame(width: 66, height: 6)
-                    .animation(.easeOut(duration: 0.3).delay(0.3), value: stage)
-                UnevenRoundedRectangle(topLeadingRadius: 6, topTrailingRadius: 6).fill(Color(white: 0.16))
-                    .frame(width: 66, height: 46)
+                // The collar wraps the base of the metal tip, like the lime ring on the app icon.
+                // It is the only thing that changes when the Mac end goes in; the plug stays still.
+                UnevenRoundedRectangle(topLeadingRadius: 6, topTrailingRadius: 6)
+                    .fill(stage >= 1 ? Palette.lime : Color(white: 0.2))
+                    .frame(width: 66, height: 9)
+                    .padding(.top, -4)
+                    .animation(.easeOut(duration: 0.3), value: stage)
+                Rectangle().fill(Color(white: 0.16))
+                    .frame(width: 66, height: 45)
             }
-            .offset(y: stage >= 1 || reduceMotion ? 0 : 18)
-            .opacity(stage >= 1 ? 1 : 0.8)
-            .animation(.spring(response: 0.6, dampingFraction: 0.62), value: stage)
         }
         .frame(maxHeight: .infinity, alignment: .top)
         .mask(LinearGradient(stops: [.init(color: .black, location: 0.8), .init(color: .clear, location: 1)],
