@@ -51,6 +51,12 @@ speed the live link reaches.
 There is no serial number in a cable, so the app can only say "same model as #03". Number labels and
 coloured cable ties tell identical cables apart.
 
+## Install
+
+Download the latest DMG from [cable-tester-releases](https://github.com/loftspace/cable-tester-releases/releases/latest),
+open it and drag **Cable Tester** into Applications. It is signed and notarized. The app updates
+itself (Sparkle): it checks once a day, and **Cable Tester → Check for Updates…** checks now.
+
 ## Using it
 
 1. Plug the cable into the Mac, and the other end into a charger, another Mac or any USB-C device.
@@ -87,6 +93,16 @@ APP="build/dd/Build/Products/Debug/Cable Tester.app/Contents/MacOS/Cable Tester"
 "$APP" --demo nochip          # run on demo data: empty, mac, charger, nochip, cableonly, device, history
 ```
 
+## Releasing
+
+Bump `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in `project.yml` in the PR, merge, then on a
+clean `master`:
+
+```sh
+scripts/release.sh --notes notes.md     # build, sign, notarize, DMG, publish, update the feed
+scripts/release.sh --dry-run            # everything up to the notarized DMG, nothing published
+```
+
 ## Project layout
 
 | Path | What |
@@ -95,6 +111,7 @@ APP="build/dd/Build/Products/Debug/Cable Tester.app/Contents/MacOS/Cable Tester"
 | [App](App) | SwiftUI app, IOKit port monitor, demo and snapshot modes |
 | [docs/app-spec-and-plan.md](docs/app-spec-and-plan.md) | The spec this app follows |
 | [docs/emarker.md](docs/emarker.md) | Reading the cable chip on macOS, with test results |
+| [scripts/release.sh](scripts/release.sh) | Release: signed, notarized DMG and the Sparkle update feed |
 | [cable_tester.py](cable_tester.py) | The original command-line prototype |
 | `.impeccable/mocks` | Approved design mockups |
 

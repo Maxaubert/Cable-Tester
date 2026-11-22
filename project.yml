@@ -7,11 +7,14 @@ options:
 packages:
   CableKit:
     path: CableKit
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    majorVersion: 2.6.0
 settings:
   base:
     SWIFT_VERSION: "6.0"
-    MARKETING_VERSION: "0.1.0"
-    CURRENT_PROJECT_VERSION: "1"
+    MARKETING_VERSION: "0.2.0"
+    CURRENT_PROJECT_VERSION: "2"
     DEVELOPMENT_TEAM: WV7BY8CUM8
 targets:
   CableTester:
@@ -20,6 +23,7 @@ targets:
     sources: [App]
     dependencies:
       - package: CableKit
+      - package: Sparkle
     info:
       path: App/Info.plist
       properties:
@@ -28,6 +32,12 @@ targets:
         LSApplicationCategoryType: public.app-category.utilities
         LSMinimumSystemVersion: "15.0"
         NSHumanReadableCopyright: "© 2026 loftspace"
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        SUFeedURL: https://raw.githubusercontent.com/loftspace/cable-tester-releases/main/appcast.xml
+        SUPublicEDKey: UaniswKnZUBel/GQZASoYORJtyFTTNK9VWGRC2v5p/8=
+        SUEnableAutomaticChecks: true
+        SUScheduledCheckInterval: 86400
     settings:
       base:
         PRODUCT_NAME: Cable Tester
@@ -38,6 +48,8 @@ targets:
         ENABLE_APP_SANDBOX: NO
         GENERATE_INFOPLIST_FILE: NO
       configs:
+        Release:
+          OTHER_CODE_SIGN_FLAGS: "--timestamp"
         Debug:
           CODE_SIGN_IDENTITY: "-"
           CODE_SIGN_STYLE: Manual
