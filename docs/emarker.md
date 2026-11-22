@@ -35,5 +35,9 @@ passive, USB 2.0 only, 5 A, 50 V, EPR = a 240 W charge-only cable, ~2 m, Vendor 
   shows `ConnectionActive = Yes` and `TransportsActive = ("CC")`, but no `SOP` partner and no `SOP'`
   node. So the Mac notices a cable was plugged in, but cannot read its chip. The app can say
   "Cable detected, plug the other end into a charger or a Mac".
+- Small USB device at the far end works (tested 2026-11-22): same 240 W cable, MacBook port 1 to a
+  SteelSeries Arctis GameBuds (USB 2 full speed, 12 Mb/s). `SOP'` was read with the full cable VDO.
+  So any small powered device lets the Mac read the chip. The live link then shows the device's
+  speed (12 Mb/s here), not the cable's: the app must say "limited by the device".
 - Untested: whether `SOP'` appears when the far end is a charger (the charger, not the Mac, may run
   the cable discovery). Confirmed with the Mac mini as the far end.
