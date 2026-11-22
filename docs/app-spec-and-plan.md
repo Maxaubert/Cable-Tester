@@ -14,7 +14,7 @@ No clicks needed to get a result. Dark, Apple-like, two panes: result on the lef
 | State | Mockup | What shows |
 |---|---|---|
 | Nothing plugged in | `round2-n2-empty-illustration` | Plug illustration, "Plug in a cable", recent cables list on the right |
-| Cable to a Mac, chip read | `round2-g2-main-copy-icon` | Big watts, "Thunderbolt 4 · 40 Gb/s", chips, Save + copy icon, inspector (e-marker + live connection) |
+| Cable to a Mac, chip read | `round2-g2-main-copy-icon` | Big watts, "USB 4 · 40 Gb/s" with the Thunderbolt icon, chips, Save + copy icon, inspector (e-marker + live connection) |
 | Cable to a charger | `r3-c1-charger` | Big watts, no data line (only "Plug it into another Mac to see data speed."), inspector (e-marker + charger, Max row shows watts: "28 V × 5 A · 140 W") |
 | No chip in the cable | `round2-x1-no-chip-inspector` | "60 W est.", live data speed, amber note on the 3 A limit, inspector says "Not present" |
 | Save | `r4-sheet-*` | Always a sheet (see below) |
@@ -25,7 +25,9 @@ Rules for the result:
 - Watts come from the e-marker when present; otherwise from the charger's offers; with no chip and no
   charger, "60 W est." (no chip means 3 A max).
 - Say why a number is limited, in plain words ("Mac mini limits to 40 Gb/s").
-- Data type uses icons: Thunderbolt glyph (blue), USB SuperSpeed trident (teal), USB 2 trident (gray).
+- Data type text is the USB name, never "TB" or "Thunderbolt": `USB 2`, `USB 3`, `USB 4`, `USB 4 v2`.
+  Only Thunderbolt-capable links get an icon (the Thunderbolt glyph, blue); plain USB 4, USB 3 and
+  USB 2 have no icon (Max, 2026-11-22).
 - "Seen this model": when VID + PID + cable VDO match an earlier cable, a quiet line "Same model as #03".
   There is no serial number, so this is per model only.
 
@@ -42,14 +44,15 @@ Rules for the result:
 
 ### History
 - Native sortable table: `#`, Tie, Power, Data, Vendor, Length, Tested. No notes, no name.
-- Search field, filter `All | 240 W | 100 W | 60 W | Thunderbolt`, "N cables" status bar.
+- Search field, filter `All | 240 W | 100 W | 60 W | Thunderbolt` (filter by the icon's meaning), "N cables" status bar.
 - Power and Data are locked (lock icon). Tie, Vendor, Length are editable inline; empty ones show "Add".
-  Length uses the same typed field and validation as the sheet.
+  Length uses the same typed field and validation as the sheet. A validation message floats over the
+  row below (popover style); it never makes the row taller.
 - Toolbar: back to Now, copy label, print label, export (CSV). Delete via context menu.
 - Imports the existing CSV log (`~/Documents/Claude/zz-Misc/cable-tester/cables.csv`) on first run.
 
 ### Label
-`#07 240W TB` (number, watts, data short form). Copy puts it on the clipboard; Print prints a small
+`#07 240W USB4` (number, watts, USB name; no "TB"). Copy puts it on the clipboard; Print prints a small
 label via the system print dialog.
 
 ## Architecture
@@ -76,6 +79,8 @@ label via the system print dialog.
 - Whether `SOP'` (the chip) is readable when the far end is a charger. If not, the charger screen shows
   watts from the charger's offers and says so.
 - Which IORegistry key carries the Thunderbolt link speed.
+- How to tell a Thunderbolt cable from a plain USB 4 one: likely the Thunderbolt alt mode (Intel SVID
+  0x8087) in the cable's SOP' identity; confirm on real cables.
 
 ## Build plan
 1. Branch `app`, scaffold: `project.yml`, app target, `CableKit` package, test target, `.gitignore`.
