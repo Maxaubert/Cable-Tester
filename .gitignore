@@ -6,3 +6,11 @@ DerivedData/
 *.xcodeproj/
 .swiftpm/
 CableKit/.build/
+
+# HyperFrames film (video/): Apple SF Pro must never be committed; renders and scratch output stay local
+video/assets/fonts/
+video/renders/
+video/.hyperframes/artifacts/
+video/.hyperframes/cache/
+video/.hyperframes/render-outputs.json
+video/node_modules/
