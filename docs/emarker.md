@@ -1,6 +1,7 @@
 # Reading the cable's e-marker on macOS
 
-Found 2026-11-22 on the MacBook Pro (Mac18,5), cable plugged MacBook to Mac mini.
+Found 2026-11-22 on the **Mac mini** (Mac18,5, Apple M6, no battery), cable plugged Mac mini to MacBook.
+All tests below ran on the Mac mini: a desktop Mac reads the cable chip too.
 
 macOS exposes the cable's own e-marker (USB-PD Discover Identity on SOP') in the IORegistry:
 node `SOP'` (class `IOPortTransportComponentCCUSBPDSOPp`) under `Port-USB-C@N/CC`, property
@@ -31,11 +32,11 @@ passive, USB 2.0 only, 5 A, 50 V, EPR = a 240 W charge-only cable, ~2 m, Vendor 
   cables look the same, so "remembering" cables can only work per model (plus a physical label).
 - Cables without an e-marker (most 60 W USB 2 cables) have no `SOP'` data: treat them as 3 A / 60 W
   and use the live link test for data.
-- Far end plugged into nothing (tested 2026-11-22, 240 W no-name cable in MacBook port 1): the port
+- Far end plugged into nothing (tested 2026-11-22, 240 W no-name cable in Mac mini port 1): the port
   shows `ConnectionActive = Yes` and `TransportsActive = ("CC")`, but no `SOP` partner and no `SOP'`
   node. So the Mac notices a cable was plugged in, but cannot read its chip. The app can say
   "Cable detected, plug the other end into a charger or a Mac".
-- Small USB device at the far end works (tested 2026-11-22): same 240 W cable, MacBook port 1 to a
+- Small USB device at the far end works (tested 2026-11-22): same 240 W cable, Mac mini port 1 to a
   SteelSeries Arctis GameBuds (USB 2 full speed, 12 Mb/s). `SOP'` was read with the full cable VDO.
   So any small powered device lets the Mac read the chip. The live link then shows the device's
   speed (12 Mb/s here), not the cable's: the app must say "limited by the device".

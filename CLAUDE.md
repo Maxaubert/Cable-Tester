@@ -3,9 +3,9 @@
 USB-C cable labeller. See README.md for how it works and the tested setup.
 
 ## Facts that are easy to get wrong
-- Must RUN on the MacBook Pro (M5 Pro). Power readings come from `AdapterDetails` in
-  `ioreg -rn AppleSmartBattery`, which only exists on a Mac with a battery. The Mac mini (M6,
-  Thunderbolt 4) is only the far end for the data test, but code can be edited anywhere.
+- Charger readings (`AdapterDetails` in `ioreg -rn AppleSmartBattery`) need a Mac with a battery
+  (the MacBook Pro M5 Pro). The cable chip (`SOP'`) and the live link are readable on the Mac mini
+  too (M6, Mac18,5, Thunderbolt 4, 2.5 GbE), which is where the 2026-11-22 chip tests ran.
 - Power label comes from the charger's offer list (`UsbHvcMenu`), not from live draw: no load needed.
   Reading is the lower of charger and cable, so test with the Apple 140 W charger on USB-C, not MagSafe.
 - Data label comes from `TransportsActive` in `ioreg -l` (`CIO` = Thunderbolt/USB4, `USB2` alone =
