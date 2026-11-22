@@ -24,6 +24,12 @@ the overview; docs/app-spec-and-plan.md is the spec; docs/emarker.md the chip fi
 - macOS exposes no cable ID or serial, so cables are tracked by number labels plus the CSV log
   (`~/Documents/Claude/zz-Misc/cable-tester/cables.csv`, outside the repo).
 
+## Release (notarized 2026-11-22, v0.1.0)
+- Xcode's Release build has no secure timestamp: re-sign with `codesign --force --options runtime
+  --timestamp -s "Developer ID Application: MAX AUBERT (WV7BY8CUM8)"`, `ditto -c -k --keepParent` to a zip,
+  `xcrun notarytool submit <zip> --keychain-profile notary --wait`, then `xcrun stapler staple` the app.
+- Notarized copies go to `~/Documents/Claude/zz-Misc/cable-tester/release/` (app + zip).
+
 ## Status (2026-11-22)
 - v1 app built on branch `app`. Verified on the Mac mini: chip read with a Mac or a small USB device at
   the far end; far end unplugged gives no chip. Untested: charger path on the MacBook, a Thunderbolt
