@@ -11,6 +11,8 @@ USB-C cable labeller. See README.md for how it works and the tested setup.
 - Data label comes from `TransportsActive` in `ioreg -l` (`CIO` = Thunderbolt/USB4, `USB2` alone =
   USB 2 cable), speed from `system_profiler SPThunderboltDataType -json`.
 - `ioreg -l` output is not valid UTF-8: decode with errors="replace".
+- The cable e-marker (watts, speed, EPR, length, vendor) IS readable from the `SOP'` node in
+  ioreg, see docs/emarker.md. Still no serial, so it identifies a model, not one cable.
 - macOS exposes no cable ID or serial, so cables are tracked by number labels plus the CSV log
   (`~/Documents/Claude/zz-Misc/cable-tester/cables.csv`, outside the repo).
 
