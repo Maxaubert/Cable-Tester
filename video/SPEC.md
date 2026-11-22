@@ -28,7 +28,7 @@ SHOTS:
                the app window (clip-path, power3.inOut), black with its 1.5 px #1d1d1f border.
   2  3.0-5.3   the app fills in inside the window (toolbar, then body). Checklist: "Plug in a cable
                you want to test". No camera moves anywhere in the app (Max, 2026-11-22).
-  3  4.6-7.3   Mac end in: plug rises, ledge lime, bolt outline draws, check 1 springs + tick draws,
+  3  4.6-7.3   Mac end in: the plug stays still, its collar turns lime, bolt outline draws, check 1 springs + tick draws,
                title swaps. Other end in (Mac): bolt fills and pops, check 2, "Reading the cable...".
   4  7.3-8.3   0.9 s hold, checklist cascades out, camera back to 1x.
   5  8.3-10.6  result cascades in; watts count 0 -> 240; "bolt USB 4 v2 . 80 Gb/s" (Thunderbolt 5);

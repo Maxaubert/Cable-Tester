@@ -1,7 +1,7 @@
 {
   "version": 1,
   "historyId": "1979de4e-c1fb-4daf-943a-b4e22d15e829",
-  "currentRevision": "d5c01a1b-a8b9-4585-81f8-ce1855e99f0e",
+  "currentRevision": "f634e533-0559-4ff9-a3a1-0e78edeec150",
   "pendingChanges": false,
   "files": {
     "AGENTS.md": {
@@ -13,12 +13,12 @@
       "content": "/Users/maxaubert/.cache/hyperframes/history/1979de4e-c1fb-4daf-943a-b4e22d15e829/blobs/72/729e31835a21c7b42ee006e2aacc63016abc05d26883f871ad3bf206943f2cfb"
     },
     "SPEC.md": {
-      "hash": "ed31233eff1c2910ccedd8e63f02a049610796d993625acde2eb7068074e8e6b",
-      "content": "/Users/maxaubert/.cache/hyperframes/history/1979de4e-c1fb-4daf-943a-b4e22d15e829/blobs/ed/ed31233eff1c2910ccedd8e63f02a049610796d993625acde2eb7068074e8e6b"
+      "hash": "c3f96724badaeb19530734a51cd4bd4c6cd9f53b00f5aea70c582610dca96cbb",
+      "content": "/Users/maxaubert/.cache/hyperframes/history/1979de4e-c1fb-4daf-943a-b4e22d15e829/blobs/c3/c3f96724badaeb19530734a51cd4bd4c6cd9f53b00f5aea70c582610dca96cbb"
     },
     "compositions/app.html": {
-      "hash": "bbe531548976a2e48c707e479f4a222dd5f9cc33fb9e147f1b69d536a949e45c",
-      "content": "/Users/maxaubert/.cache/hyperframes/history/1979de4e-c1fb-4daf-943a-b4e22d15e829/blobs/bb/bbe531548976a2e48c707e479f4a222dd5f9cc33fb9e147f1b69d536a949e45c"
+      "hash": "22f40dd8f81e83b9674f739b87540ab1e7e4ab0d88f4abd6cd1a94eac78528ce",
+      "content": "/Users/maxaubert/.cache/hyperframes/history/1979de4e-c1fb-4daf-943a-b4e22d15e829/blobs/22/22f40dd8f81e83b9674f739b87540ab1e7e4ab0d88f4abd6cd1a94eac78528ce"
     },
     "compositions/endcard.html": {
       "hash": "a5c92f000d768da5ebbef8dd802045fca742de72bdbd5c4390bc33a7d14522a5",
@@ -201,13 +201,29 @@
           "after": "/Users/maxaubert/.cache/hyperframes/history/1979de4e-c1fb-4daf-943a-b4e22d15e829/blobs/ed/ed31233eff1c2910ccedd8e63f02a049610796d993625acde2eb7068074e8e6b"
         }
       }
+    },
+    "f634e533-0559-4ff9-a3a1-0e78edeec150": {
+      "actor": {
+        "kind": "outside",
+        "name": "Outside"
+      },
+      "label": "Changed outside the app",
+      "startedAt": 1795386609283,
+      "endedAt": 1795386609285,
+      "files": {
+        "compositions/app.html": {
+          "before": "/Users/maxaubert/.cache/hyperframes/history/1979de4e-c1fb-4daf-943a-b4e22d15e829/blobs/bb/bbe531548976a2e48c707e479f4a222dd5f9cc33fb9e147f1b69d536a949e45c",
+          "after": "/Users/maxaubert/.cache/hyperframes/history/1979de4e-c1fb-4daf-943a-b4e22d15e829/blobs/22/22f40dd8f81e83b9674f739b87540ab1e7e4ab0d88f4abd6cd1a94eac78528ce"
+        },
+        "SPEC.md": {
+          "before": "/Users/maxaubert/.cache/hyperframes/history/1979de4e-c1fb-4daf-943a-b4e22d15e829/blobs/ed/ed31233eff1c2910ccedd8e63f02a049610796d993625acde2eb7068074e8e6b",
+          "after": "/Users/maxaubert/.cache/hyperframes/history/1979de4e-c1fb-4daf-943a-b4e22d15e829/blobs/c3/c3f96724badaeb19530734a51cd4bd4c6cd9f53b00f5aea70c582610dca96cbb"
+        }
+      }
     }
   },
   "checks": {
-    "latest": {
-      "revision": "ab322554-5b60-45fe-bea5-0ef16c2086f2",
-      "id": "96ab4904-64ec-4762-88c5-a8cb95f4434b"
-    },
+    "latest": null,
     "revisions": {
       "ee149cb4-888f-44bb-9d5e-f7a525048ea5": [],
       "00e2becb-bfc2-4b39-9ae5-b20e1c4edb94": [
@@ -288,7 +304,6 @@
         {
           "id": "96ab4904-64ec-4762-88c5-a8cb95f4434b",
           "scope": "project",
-          "report": "/Users/maxaubert/Documents/Claude/Github/cable-tester/video/.hyperframes/artifacts/checks/96ab4904-64ec-4762-88c5-a8cb95f4434b.json",
           "metadata": {
             "ok": true,
             "browserSkipped": false,
@@ -318,14 +333,19 @@
           "revision": "ab322554-5b60-45fe-bea5-0ef16c2086f2",
           "inputFingerprint": "841743ea6370b147e824cafa5bf010e42816880458ed4ac1b73efe5b968b6540",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "d971e61b-7034-457f-afc5-6d91ed8a9299"
         }
       ]
     },
     "unversioned": []
   },
   "snapshots": {
-    "latest": null,
+    "latest": {
+      "revision": "f634e533-0559-4ff9-a3a1-0e78edeec150",
+      "id": "2763aaea-7851-4aa5-bbd0-4522387ca6b7-1"
+    },
     "revisions": {
       "aa0a02ac-723b-4c8b-88bc-af1a89fb13e3": [
         {
@@ -1293,21 +1313,143 @@
           "status": "cleaned",
           "cleanedAfterRender": "611c708b-3b41-48ec-975b-f2575a18a52b"
         }
+      ],
+      "f634e533-0559-4ff9-a3a1-0e78edeec150": [
+        {
+          "scope": "crop",
+          "id": "787bfc2e-04be-44ac-b93a-63fd82d2e35f-0",
+          "image": "/Users/maxaubert/Documents/Claude/Github/cable-tester/video/.hyperframes/artifacts/snapshots/d90b31ec-365f-4774-bd4d-06e82afba564/frame-00-at-4s.png",
+          "time": 4,
+          "metadata": {
+            "width": 1392,
+            "height": 864,
+            "crop": {
+              "x": 465,
+              "y": 277.5,
+              "width": 464,
+              "height": 288
+            },
+            "zoom": {
+              "kind": "selector",
+              "selector": "#app-illus"
+            },
+            "zoomScale": 3,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1795386611231,
+          "contentHash": "0414519f7e1648085f428dc6f038cdc1f538f758f71f71ecd6740ea322c045ca",
+          "revision": "f634e533-0559-4ff9-a3a1-0e78edeec150",
+          "inputFingerprint": "6278a0cb3f4c77843f27e770d78923ba8d091aaa4092503d53bdb59b5941a96d",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        },
+        {
+          "scope": "crop",
+          "id": "787bfc2e-04be-44ac-b93a-63fd82d2e35f-1",
+          "image": "/Users/maxaubert/Documents/Claude/Github/cable-tester/video/.hyperframes/artifacts/snapshots/d90b31ec-365f-4774-bd4d-06e82afba564/frame-01-at-25.75s.png",
+          "time": 25.75,
+          "metadata": {
+            "width": 381,
+            "height": 282,
+            "crop": {
+              "x": 507.92999267578125,
+              "y": 429.92498779296875,
+              "width": 127.0400390625,
+              "height": 93.60000610351562
+            },
+            "zoom": {
+              "kind": "selector",
+              "selector": "#app-illus"
+            },
+            "zoomScale": 3,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1795386611231,
+          "contentHash": "40c053d70d6f18d5a16efa20645d45f45cc91d667a0613538d3956f181a74794",
+          "revision": "f634e533-0559-4ff9-a3a1-0e78edeec150",
+          "inputFingerprint": "6278a0cb3f4c77843f27e770d78923ba8d091aaa4092503d53bdb59b5941a96d",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        },
+        {
+          "scope": "crop",
+          "id": "2763aaea-7851-4aa5-bbd0-4522387ca6b7-0",
+          "image": "/Users/maxaubert/Documents/Claude/Github/cable-tester/video/.hyperframes/artifacts/snapshots/9a7c0ff9-47c9-4c09-b25e-be190b62d1fa/frame-00-at-6.6s.png",
+          "time": 6.6,
+          "metadata": {
+            "width": 1392,
+            "height": 864,
+            "crop": {
+              "x": 465,
+              "y": 277.5,
+              "width": 464,
+              "height": 288
+            },
+            "zoom": {
+              "kind": "selector",
+              "selector": "#app-illus"
+            },
+            "zoomScale": 3,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1795386613785,
+          "contentHash": "98bf5f67ad803db06f57997a51c36fb3a4f61d8bfedd79862c1d1995f137de61",
+          "revision": "f634e533-0559-4ff9-a3a1-0e78edeec150",
+          "inputFingerprint": "6278a0cb3f4c77843f27e770d78923ba8d091aaa4092503d53bdb59b5941a96d",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        },
+        {
+          "scope": "crop",
+          "id": "2763aaea-7851-4aa5-bbd0-4522387ca6b7-1",
+          "image": "/Users/maxaubert/Documents/Claude/Github/cable-tester/video/.hyperframes/artifacts/snapshots/9a7c0ff9-47c9-4c09-b25e-be190b62d1fa/frame-01-at-25.75s.png",
+          "time": 25.75,
+          "metadata": {
+            "width": 381,
+            "height": 282,
+            "crop": {
+              "x": 507.92999267578125,
+              "y": 429.92498779296875,
+              "width": 127.0400390625,
+              "height": 93.60000610351562
+            },
+            "zoom": {
+              "kind": "selector",
+              "selector": "#app-illus"
+            },
+            "zoomScale": 3,
+            "browserGpuMode": "auto",
+            "warnings": [],
+            "partial": false
+          },
+          "createdAt": 1795386613785,
+          "contentHash": "40c053d70d6f18d5a16efa20645d45f45cc91d667a0613538d3956f181a74794",
+          "revision": "f634e533-0559-4ff9-a3a1-0e78edeec150",
+          "inputFingerprint": "6278a0cb3f4c77843f27e770d78923ba8d091aaa4092503d53bdb59b5941a96d",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        }
       ]
     },
     "unversioned": []
   },
   "renders": {
     "latest": {
-      "id": "d0647276-cade-4349-b770-04690b50c6e1",
-      "completedAt": 1795386414227,
+      "id": "d971e61b-7034-457f-afc5-6d91ed8a9299",
+      "completedAt": 1795386639372,
       "output": "/Users/maxaubert/Documents/Claude/Github/cable-tester/video/renders/cable-tester-demo.mp4",
       "status": "completed",
-      "revision": "d5c01a1b-a8b9-4585-81f8-ce1855e99f0e"
+      "revision": "f634e533-0559-4ff9-a3a1-0e78edeec150"
     },
     "retainedRevisions": [
-      "d5c01a1b-a8b9-4585-81f8-ce1855e99f0e",
-      "ab322554-5b60-45fe-bea5-0ef16c2086f2"
+      "f634e533-0559-4ff9-a3a1-0e78edeec150",
+      "d5c01a1b-a8b9-4585-81f8-ce1855e99f0e"
     ]
   },
   "pendingArtifactCleanup": []

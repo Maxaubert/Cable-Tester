@@ -38,8 +38,9 @@
     .app-tip { margin: 0 auto; width: 86px; height: 51px; border-radius: 16px; position: relative;
       background: linear-gradient(90deg, #6e6e6e 0%, #e6e6e6 50%, #787878 100%); }
     .app-tip::after { content: ""; position: absolute; left: 17px; right: 17px; top: 17px; height: 10px; border-radius: 5px; background: #1a1a1a; }
-    #app-ledge { height: 10px; border-radius: 3px; background: #212121; }
-    .app-house { height: 74px; border-radius: 10px 10px 0 0; background: #292929; }
+    /* The collar wraps the base of the metal tip, like the lime ring on the icon. */
+    #app-ledge { position: relative; z-index: 1; height: 14px; margin-top: -7px; border-radius: 9px 9px 0 0; background: #343434; }
+    .app-house { height: 72px; background: #292929; }
     .app-ctitle { position: relative; width: 900px; height: 58px; text-align: center; font-size: 48px; font-weight: 700; letter-spacing: -0.01em; }
     .app-ctitle span { position: absolute; left: 0; right: 0; top: 0; }
     #app-t1, #app-t2 { opacity: 0; }
@@ -303,10 +304,9 @@
     // The first ring pulses, as in the app.
     F("#app-ring1", { opacity: 1 }, { opacity: 0.4, duration: 0.7, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0.2);
 
-    // 1. Mac end in (1.6): the plug rises, the ledge lights, the bolt outline draws, check 1.
+    // 1. Mac end in: the collar lights up, the bolt outline draws, check 1. The plug itself stays still.
     const s1 = 2.3;
-    F("#app-plug", { y: 29, opacity: 0.8 }, { y: 0, opacity: 1, duration: 0.6, ease: "back.out(1.6)" }, s1);
-    F("#app-ledge", { backgroundColor: "#212121" }, { backgroundColor: "#c5fa09", duration: 0.3, ease: "none" }, s1 + 0.3);
+    F("#app-ledge", { backgroundColor: "#343434" }, { backgroundColor: "#c5fa09", duration: 0.3, ease: "power2.out" }, s1);
     F("#app-boltline", { strokeDashoffset: 100 }, { strokeDashoffset: 0, duration: 0.7, ease: "power2.out" }, s1 + 0.4);
     F("#app-ring1", { opacity: 1 }, { opacity: 0, duration: 0.1 }, s1);
     F("#app-disc1", { scale: 0.3, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.42, ease: "back.out(2.2)" }, s1);
