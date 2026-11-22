@@ -98,6 +98,17 @@ label via the system print dialog.
 - The charger is tied to the port when it appears within 10 s of the cable or of the port's far end.
 - Rejected: port strip, port sidebar, toolbar pills for several cables at once.
 
+## Visual design (2026-11-22, v0.4.0, Max)
+- Theme "Pure Black Lime" from the app icon: black window and toolbar, lime #C5FA09 for the wattage,
+  the Save button (ink #111014 text) and the Thunderbolt bolt; everything else white or gray.
+  History text stays white; only the Thunderbolt bolt is lime. Tie dots keep their cable colors.
+- Plug-in: a USB-C plug (front view) rises and the icon's bolt outline draws in lime for the Mac end;
+  the bolt fills, glows and pops for the other end. Checks are a lime disc that springs in with a
+  drawn tick. After both, a 0.9 s hold, then the checklist cascades out and the result cascades in.
+- Result: watts count up from 0; Save morphs into "✓ Saved #08" after saving.
+- Now and History switch with the same cascade (History rows via a fading row curtain over the table).
+- Mockups: .impeccable/tweaks.html (ideas), plug-anim-v3.html (handoff, picked H5), history-v1.html.
+
 ## Open questions to settle while building
 - Whether `SOP'` (the chip) is readable when the far end is a charger. If not, the charger screen shows
   watts from the charger's offers and says so.

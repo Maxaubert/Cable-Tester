@@ -32,6 +32,7 @@ struct HistoryView: View {
     @State private var filter = HistoryFilter.all
     @Binding var selection: Set<CableRecord.ID>
     @State private var sortOrder = [KeyPathComparator(\CableRecord.tested, order: .reverse)]
+    @State private var shown = false
 
     private var rows: [CableRecord] {
         let q = search.trimmingCharacters(in: .whitespaces).lowercased()
@@ -47,6 +48,7 @@ struct HistoryView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("History").font(.system(size: 28, weight: .bold)).padding(.horizontal, 24).padding(.top, 18)
+                .cascade(0, shown: shown, base: 0.18)
             HStack(spacing: 14) {
                 TextField("Search", text: $search)
                     .textFieldStyle(.roundedBorder)
@@ -58,6 +60,7 @@ struct HistoryView: View {
                 .pickerStyle(.segmented).labelsHidden().frame(maxWidth: 440)
             }
             .padding(.horizontal, 24).padding(.vertical, 14)
+            .cascade(1, shown: shown, base: 0.18)
 
             Table(rows, selection: $selection, sortOrder: $sortOrder) {
                 TableColumn("#", value: \.number) { r in Text(r.numberText).monospacedDigit() }
@@ -91,12 +94,43 @@ struct HistoryView: View {
                 }
             }
             .onDeleteCommand { for i in selection { store.delete(i) } }
+            .scrollContentBackground(.hidden)
+            .background(Palette.background)
+            .offset(y: shown || reduceMotion ? 0 : 10)
+            .animation(.spring(response: 0.5, dampingFraction: 0.9).delay(shown ? 0.27 : 0), value: shown)
+            // Rows appear one by one: a black band per row fades away, top to bottom.
+            .overlay(alignment: .top) { if !reduceMotion { RowCurtain(shown: shown, base: 0.27) } }
 
             Divider()
             Text("\(rows.count) \(rows.count == 1 ? "cable" : "cables")")
                 .font(.system(size: 12)).foregroundStyle(.secondary)
                 .padding(.horizontal, 24).padding(.vertical, 8)
         }
+        .onAppear { shown = true }
+    }
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+}
+
+/// Black bands the height of a table row that fade away one after another, so the native table's rows
+/// look like they cascade in.
+struct RowCurtain: View {
+    var shown: Bool
+    var base: Double
+    var rowHeight: CGFloat = 26
+
+    var body: some View {
+        GeometryReader { g in
+            VStack(spacing: 0) {
+                ForEach(0..<(Int(g.size.height / rowHeight) + 1), id: \.self) { i in
+                    Palette.background.frame(height: rowHeight)
+                        .opacity(shown ? 0 : 1)
+                        .animation(.easeOut(duration: 0.3).delay(shown ? base + Double(i) * 0.045 : 0), value: shown)
+                }
+            }
+        }
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
 
@@ -139,7 +173,7 @@ struct PowerCell: View {
     @Environment(CableStore.self) private var store
     var record: CableRecord
     var body: some View {
-        InlineTextCell(text: record.values.watts.map { "\($0) W" } ?? "", color: Palette.power,
+        InlineTextCell(text: record.values.watts.map { "\($0) W" } ?? "",
                        edited: record.editedFields.contains("watts") ? (record.measured.watts.map { "\($0) W" } ?? "nothing") : nil,
                        message: "Enter watts from 1 to 240", validate: { Watts.parse($0) != nil }) { t in
             var r = record; r.values.watts = Watts.parse(t); store.update(r)
@@ -172,9 +206,11 @@ struct DataCell: View {
         } label: {
             if record.values.generation != nil {
                 DataName(generation: record.values.generation, thunderbolt: record.values.thunderbolt, glyphSize: 12)
+                    .foregroundStyle(.primary)
             } else { AddText() }
         }
         .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+        .tint(.primary)
     }
     private func set(_ g: DataGeneration?) {
         var r = record; r.values.generation = g; if g == nil { r.values.thunderbolt = false }; store.update(r)

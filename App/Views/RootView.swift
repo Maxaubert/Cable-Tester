@@ -12,14 +12,22 @@ struct RootView: View {
     @State private var selection = Set<CableRecord.ID>()
 
     var body: some View {
-        Group {
+        ZStack {
+            // The old screen lifts away quickly; the new one cascades in on its own.
             switch mode {
-            case .now: NowView(showInspector: $showInspector, savingResult: $savingResult)
-            case .history: HistoryView(selection: $selection)
+            case .now:
+                NowView(showInspector: $showInspector, savingResult: $savingResult)
+                    .transition(.asymmetric(insertion: .identity, removal: .opacity.combined(with: .offset(y: -14))))
+            case .history:
+                HistoryView(selection: $selection)
+                    .transition(.asymmetric(insertion: .identity, removal: .opacity.combined(with: .offset(y: -14))))
             }
         }
         .frame(minWidth: 860, minHeight: 560)
-        .background(Color(nsColor: .windowBackgroundColor))
+        .background(Palette.background)
+        .toolbarBackground(Palette.background, for: .windowToolbar)
+        .preferredColorScheme(.dark)
+        .tint(Palette.lime)
         .navigationTitle("Cable Tester")
         .toolbar {
             ToolbarItem(placement: .navigation) {
@@ -27,7 +35,7 @@ struct RootView: View {
                     Button { withAnimation(.snappy) { showInspector.toggle() } } label: { Image(systemName: "sidebar.right") }
                         .help(showInspector ? "Hide details" : "Show details")
                 } else {
-                    Button { mode = .now } label: { Label("Now", systemImage: "chevron.left") }
+                    Button { switchTo(.now) } label: { Label("Now", systemImage: "chevron.left") }
                         .labelStyle(.titleAndIcon).help("Back to the plugged-in cable")
                 }
             }
@@ -42,7 +50,7 @@ struct RootView: View {
                 }
             } else {
                 ToolbarItem(placement: .primaryAction) {
-                    Button { mode = .history } label: { Image(systemName: "clock.arrow.circlepath") }
+                    Button { switchTo(.history) } label: { Image(systemName: "clock.arrow.circlepath") }
                         .help("History").keyboardShortcut("y", modifiers: .command)
                 }
             }
@@ -52,6 +60,10 @@ struct RootView: View {
             Button("OK") { store.lastError = nil }
         } message: { Text(store.lastError ?? "") }
         .onAppear { monitor.start() }
+    }
+
+    private func switchTo(_ m: Mode) {
+        withAnimation(.easeIn(duration: 0.22)) { mode = m }
     }
 
     private var selectedLabel: String? {

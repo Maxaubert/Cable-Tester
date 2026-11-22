@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>History Cascade</title>
+<style>
+:root { --page: #0b0b0c; --text: #fff; --sec: rgba(255,255,255,.55); --ter: rgba(255,255,255,.28); --lime: #c5fa09; --ink: #111014; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+header, .controls, .stage-wrap { max-width: 1180px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+header { padding-top: 32px; }
+header h1 { margin: 0; font-size: 26px; letter-spacing: -.02em; }
+header p { margin: 6px 0 0; color: var(--sec); max-width: 780px; }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-top: 14px; padding-bottom: 14px; }
+.controls button { font: inherit; color: var(--text); background: #1f1f22; border: 1px solid #2c2c30; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.controls button.cur { border-color: var(--lime); color: var(--lime); }
+.stage-wrap { padding-bottom: 50px; }
+
+.pv { container-type: inline-size; aspect-ratio: 1100 / 720; position: relative; overflow: hidden; background: #000; border-radius: 12px; border: 1px solid #1c1c1e; box-shadow: 0 24px 70px rgba(0,0,0,.6); }
+.win { position: absolute; inset: 0; background: #000; display: flex; flex-direction: column; }
+.tb { height: 6cqw; display: flex; align-items: center; gap: .9cqw; padding: 0 1.8cqw; border-bottom: 1px solid #161616; flex: none; position: relative; }
+.tb i { width: 1.2cqw; height: 1.2cqw; border-radius: 50%; background: #262626; }
+.tb .ttl { margin-left: 1.4cqw; font-size: 1.5cqw; font-weight: 600; color: var(--sec); }
+.tbtn { height: 3.4cqw; min-width: 3.4cqw; padding: 0 1cqw; border-radius: 1.7cqw; background: #111; display: inline-flex; align-items: center; justify-content: center; gap: .5cqw; color: var(--sec); font-size: 1.35cqw; cursor: pointer; transition: background .2s, color .2s, opacity .25s, transform .3s; }
+.tbtn svg { width: 1.8cqw; height: 1.8cqw; }
+.tbtn:hover { background: #1c1c1c; color: var(--text); }
+.tbtn.press { background: #262626; color: var(--text); transform: scale(.92); }
+.back { margin-left: 1.4cqw; }
+.tr { margin-left: auto; display: flex; gap: .6cqw; }
+/* toolbar items swap per screen */
+.v-now .back, .v-now .histacts { display: none; }
+.v-hist .ttl, .v-hist .histbtn { display: none; }
+
+.body { flex: 1; position: relative; min-height: 0; }
+.screen { position: absolute; inset: 0; }
+
+/* ---- Now (result) ---- */
+.now { display: flex; }
+.now .left { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0 5.5cqw; }
+.now .right { width: 30%; border-left: 1px solid #141414; padding: 2.6cqw 2cqw; }
+.status { font-size: 1.7cqw; color: var(--sec); }
+.watts { font-size: 11.5cqw; font-weight: 700; letter-spacing: -.02em; line-height: 1; margin-top: 1.4cqw; color: var(--lime); font-variant-numeric: tabular-nums; }
+.data { font-size: 3.6cqw; color: var(--sec); margin-top: .6cqw; display: flex; align-items: center; gap: .8cqw; }
+.bolt { color: var(--lime); display: inline-flex; }
+.data .bolt svg { width: 2.8cqw; height: 2.8cqw; }
+.data b { color: var(--text); font-weight: 400; }
+.chips { display: flex; gap: .9cqw; margin-top: 2cqw; }
+.chips span { font-size: 1.6cqw; font-weight: 600; padding: .6cqw 1.4cqw; border-radius: 1cqw; background: #161616; }
+.btns { display: flex; gap: 1cqw; margin-top: 2.8cqw; }
+.save { height: 4.6cqw; border-radius: 1.2cqw; background: var(--lime); color: var(--ink); font-size: 1.8cqw; font-weight: 600; display: grid; place-items: center; width: 17cqw; }
+.cp { width: 4.6cqw; height: 4.6cqw; border-radius: 1.2cqw; background: #161616; display: grid; place-items: center; color: var(--sec); }
+.cp svg { width: 2cqw; height: 2cqw; }
+.right h4 { margin: 0 0 1.2cqw; font-size: 1.5cqw; }
+.recent { background: #0a0a0a; border: 1px solid rgba(255,255,255,.07); border-radius: 1cqw; }
+.recent p { margin: 0; display: flex; align-items: center; gap: 1cqw; padding: .9cqw 1.2cqw; font-size: 1.3cqw; }
+.recent p + p { border-top: 1px solid #141414; }
+.recent p i { width: 1cqw; height: 1cqw; border-radius: 50%; }
+.recent p em { margin-left: auto; font-style: normal; color: var(--ter); font-size: 1.15cqw; }
+
+/* ---- History ---- */
+.hist { padding: 2.6cqw 0 0; display: flex; flex-direction: column; }
+.hist h2 { margin: 0 3cqw; font-size: 3.6cqw; font-weight: 700; letter-spacing: -.02em; }
+.bar { display: flex; align-items: center; gap: 1.2cqw; margin: 1.8cqw 3cqw 1.6cqw; }
+.search { flex: 0 0 30cqw; height: 3.4cqw; border-radius: 1cqw; background: #0e0e0e; border: 1px solid #1c1c1c; display: flex; align-items: center; gap: .8cqw; padding: 0 1.2cqw; color: var(--ter); font-size: 1.4cqw; }
+.search svg { width: 1.6cqw; height: 1.6cqw; }
+.seg { margin-left: auto; display: flex; background: #0e0e0e; border: 1px solid #1c1c1c; border-radius: 1cqw; padding: .3cqw; gap: .2cqw; }
+.seg span { font-size: 1.35cqw; padding: .55cqw 1.5cqw; border-radius: .7cqw; color: var(--sec); display: inline-flex; gap: .4cqw; align-items: center; }
+.seg span.on { background: #262626; color: var(--text); }
+.seg svg { width: 1.4cqw; height: 1.4cqw; color: var(--lime); }
+table { width: 100%; border-collapse: collapse; font-size: 1.5cqw; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-weight: 600; color: var(--sec); font-size: 1.3cqw; padding: .9cqw 1.2cqw; border-bottom: 1px solid #1c1c1c; }
+td { padding: 1.05cqw 1.2cqw; white-space: nowrap; color: var(--text); }
+th:first-child, td:first-child { padding-left: 3cqw; }
+tbody tr:nth-child(even) td { background: #080808; }
+.dot { display: inline-block; width: 1.3cqw; height: 1.3cqw; border-radius: 50%; vertical-align: -.15cqw; }
+.add { color: var(--ter); }
+.tbd { display: inline-flex; align-items: center; gap: .4cqw; }
+.tbd svg { width: 1.5cqw; height: 1.5cqw; color: var(--lime); }
+.when { color: var(--sec); }
+
+/* ---- cascade in / out (H5) ---- */
+.cas { opacity: 0; transform: translateY(2.2cqw); transition: opacity .38s ease, transform .5s cubic-bezier(.2,.85,.25,1); }
+.on-screen .cas { opacity: 1; transform: none; transition-delay: calc(var(--i) * 45ms + 120ms); }
+.leaving .cas { opacity: 0; transform: translateY(-1.8cqw); transition: opacity .22s ease, transform .3s cubic-bezier(.4,0,.2,1); transition-delay: calc(var(--i) * 18ms); }
+.screen { pointer-events: none; }
+.screen:not(.on-screen):not(.leaving) { visibility: hidden; }
+.screen.on-screen { pointer-events: auto; }
+.watts .num { display: inline-block; min-width: 2ch; }
+@media (prefers-reduced-motion: reduce) { .cas { transition: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Cable Tester: History, Pure Black Lime</h1>
+  <p>White text everywhere; lime only on the Thunderbolt bolt (and the tie dots keep their real cable colors).
+     Opening History cascades the page in row by row, the same way the result builds after plugging in; going back cascades the result in again.
+     Loops on its own, or click the clock and "Now" in the window.</p>
+</header>
+<div class="controls"><button id="play">Pause</button><button data-v="now">Now</button><button data-v="hist">History</button></div>
+<div class="stage-wrap"><div class="pv" id="pv"><div class="win v-now" id="win">
+  <div class="tb"><i></i><i></i><i></i>
+    <span class="tbtn back" id="backbtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>Now</span>
+    <span class="ttl">Cable Tester</span>
+    <span class="tr">
+      <span class="tbtn histacts" title="Copy label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></span>
+      <span class="tbtn histacts" title="Print label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="8" rx="2"/><path d="M7 14h10v6H7z"/></svg></span>
+      <span class="tbtn histacts" title="Export CSV"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></span>
+      <span class="tbtn histbtn" id="histbtn" title="History"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/><path d="M12 7.5V12l3 2"/></svg></span>
+    </span>
+  </div>
+  <div class="body">
+    <div class="screen now on-screen" id="now"></div>
+    <div class="screen hist" id="hist"></div>
+  </div>
+</div></div></div>
+
+<script>
+const BOLT = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4.5 13.5h6.5L9.5 22l9-11.5H12z"/></svg>';
+const COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>';
+const C = { blue: '#0a84ff', purple: '#bf5af2', yellow: '#ffd60a', green: '#32d74b', orange: '#ff9f0a', gray: '#98989d', red: '#ff453a', pink: '#ff6fae' };
+// #, tie, watts, data, thunderbolt, speed, vendor, length, tested
+const ROWS = [
+  ['08', 'pink', 240, 'USB 4', true, '40 Gb/s', 'Apple', '1 m', 'Just now'],
+  ['07', 'blue', 240, 'USB 4', true, '40 Gb/s', 'Apple', '1 m', 'Today 08:00'],
+  ['06', 'purple', 240, 'USB 2', false, '480 Mb/s', '', '2 m', 'Today 07:40'],
+  ['05', 'yellow', 60, 'USB 2', false, '480 Mb/s', '', '', 'Today 07:10'],
+  ['04', 'green', 100, 'USB 3', false, '10 Gb/s', 'Belkin', '1 m', 'Yesterday'],
+  ['03', 'blue', 240, 'USB 4 v2', true, '80 Gb/s', 'Apple', '1 m', 'Yesterday'],
+  ['02', 'gray', 100, 'USB 4', false, '40 Gb/s', 'Anker', '0.8 m', 'Yesterday'],
+  ['01', 'orange', 100, 'USB 2', false, '480 Mb/s', 'Anker', '0.13 m', '21 Nov'],
+];
+let k = 0; const c = () => `class="cas" style="--i:${k++}"`;
+
+k = 0;
+document.getElementById('now').innerHTML = `<div class="left">
+  <div ${c()} ><div class="status">Plugged in 1 minute ago</div></div>
+  <div ${c()}><div class="watts"><span class="num">240</span> W</div></div>
+  <div ${c()}><div class="data"><span class="bolt">${BOLT}</span><b>USB 4</b>· 40 Gb/s</div></div>
+  <div ${c()}><div class="chips"><span>EPR</span><span>5 A</span></div></div>
+  <div ${c()}><div class="btns"><div class="save">Save as #09</div><div class="cp">${COPY}</div></div></div>
+</div>
+<div class="right"><div ${c()}><h4>Recent</h4><div class="recent">${ROWS.slice(0, 5).map(r => `<p><i style="background:${C[r[1]]}"></i>#${r[0]} ${r[2]}W ${r[3].replace(/ /g, '')}<em>${r[8].replace('Today ', '')}</em></p>`).join('')}</div></div></div>`;
+
+k = 0;
+document.getElementById('hist').innerHTML = `
+  <h2 ${c()}>History</h2>
+  <div ${c()}><div class="bar"><div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>Search</div>
+    <div class="seg"><span class="on">All</span><span>240 W</span><span>100 W</span><span>60 W</span><span>${BOLT}Thunderbolt</span></div></div></div>
+  <table><thead ${c()}><tr><th>#</th><th>Tie</th><th>Power</th><th>Data</th><th>Speed</th><th>Vendor</th><th>Length</th><th>Tested</th></tr></thead>
+  <tbody>${ROWS.map(r => `<tr ${c()}><td>${r[0]}</td><td><span class="dot" style="background:${C[r[1]]}"></span></td><td>${r[2]} W</td>
+    <td>${r[4] ? `<span class="tbd">${BOLT}${r[3]}</span>` : r[3]}</td><td>${r[5]}</td><td>${r[6] || '<span class="add">Add</span>'}</td>
+    <td>${r[7] || '<span class="add">Add</span>'}</td><td class="when">${r[8]}</td></tr>`).join('')}</tbody></table>`;
+
+const win = document.getElementById('win'), now = document.getElementById('now'), hist = document.getElementById('hist');
+let view = 'now', timer = null, playing = true, busy = null;
+function go(v, pressEl) {
+  if (v === view) return;
+  clearTimeout(busy);
+  if (pressEl) { pressEl.classList.add('press'); setTimeout(() => pressEl.classList.remove('press'), 180); }
+  const from = v === 'hist' ? now : hist, to = v === 'hist' ? hist : now;
+  from.classList.remove('on-screen'); from.classList.add('leaving');
+  busy = setTimeout(() => {
+    from.classList.remove('leaving');
+    win.className = 'win v-' + v;
+    to.offsetWidth; to.classList.add('on-screen');
+    if (v === 'now') countUp();
+  }, 300);
+  view = v;
+  document.querySelectorAll('[data-v]').forEach(b => b.classList.toggle('cur', b.dataset.v === v));
+}
+function countUp() {
+  const el = document.querySelector('.num'); let t0 = null;
+  const step = t => { if (t0 === null) t0 = t; const p = Math.max(0, Math.min(1, (t - t0) / 1000)); el.textContent = Math.round(240 * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+function loop() { timer = setTimeout(() => { go(view === 'now' ? 'hist' : 'now', document.getElementById(view === 'now' ? 'histbtn' : 'backbtn')); loop(); }, view === 'now' ? 2800 : 4200); }
+function pause() { playing = false; clearTimeout(timer); document.getElementById('play').textContent = 'Play'; }
+document.getElementById('play').onclick = () => { if (playing) pause(); else { playing = true; document.getElementById('play').textContent = 'Pause'; loop(); } };
+document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => { pause(); go(b.dataset.v); });
+document.getElementById('histbtn').onclick = e => { pause(); go('hist', e.currentTarget); };
+document.getElementById('backbtn').onclick = e => { pause(); go('now', e.currentTarget); };
+document.querySelectorAll('[data-v]').forEach(b => b.classList.toggle('cur', b.dataset.v === view));
+const fixed = new URLSearchParams(location.search).get('v');
+if (fixed) { pause(); win.className = 'win v-' + fixed; now.classList.toggle('on-screen', fixed === 'now'); hist.classList.toggle('on-screen', fixed === 'hist'); view = fixed; }
+else { countUp(); loop(); }
+</script>
+</body>
+</html>

@@ -123,6 +123,7 @@ struct SaveSheet: View {
                 Spacer()
                 Button("Cancel") { dismiss() }.keyboardShortcut(.cancelAction).controlSize(.large)
                 Button("Save") { save() }
+                    .buttonStyle(LimeButtonStyle())
                     .keyboardShortcut(.defaultAction).controlSize(.large)
                     .disabled(!draft.isValid)
             }
@@ -151,8 +152,10 @@ struct SaveSheet: View {
 
     private func save() {
         guard draft.isValid else { return }
-        store.add(CableRecord(number: store.nextNumber, tie: draft.tie, values: draft.values,
+        let number = store.nextNumber
+        store.add(CableRecord(number: number, tie: draft.tie, values: draft.values,
                               measured: measured, fingerprint: result.cable?.fingerprint))
+        store.lastSaved = (number, Date())
         dismiss()
     }
 }

@@ -112,7 +112,7 @@ enum Snapshot {
 
     @MainActor static func render<V: View>(_ view: V, size: CGSize, titled: Bool = true, to url: URL) {
         let host = NSHostingView(rootView: view.frame(width: size.width, height: size.height)
-            .background(Color(nsColor: .windowBackgroundColor)).environment(\.colorScheme, .dark))
+            .background(Palette.background).environment(\.colorScheme, .dark))
         let style: NSWindow.StyleMask = titled ? [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView] : [.borderless]
         let win = OffscreenWindow(contentRect: CGRect(x: -30000, y: -30000, width: size.width, height: size.height),
                                   styleMask: style, backing: .buffered, defer: false)
@@ -126,7 +126,7 @@ enum Snapshot {
         win.orderFrontRegardless()
         win.setFrameOrigin(CGPoint(x: -30000, y: -30000))
         // Let SwiftUI lay out, run onAppear and settle animations.
-        RunLoop.main.run(until: Date().addingTimeInterval(0.8))
+        RunLoop.main.run(until: Date().addingTimeInterval(2.6))
         let target = titled ? (win.contentView?.superview ?? host) : host
         target.layoutSubtreeIfNeeded()
         guard let rep = target.bitmapImageRepForCachingDisplay(in: target.bounds) else { return }

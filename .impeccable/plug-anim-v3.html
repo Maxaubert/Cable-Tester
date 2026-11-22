@@ -3,21 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Plug-in Animations</title>
+<title>Plug-in Handoff</title>
 <style>
 :root {
   --page: #0b0b0c; --card: #151517; --line: rgba(255,255,255,.08);
   --text: #fff; --sec: rgba(255,255,255,.55); --ter: rgba(255,255,255,.28);
-  --lime: #c5fa09; --lime2: #a4de06; --ink: #111014;
+  --lime: #c5fa09; --ink: #111014;
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
 header, main, .controls { max-width: 1320px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
 header { padding-top: 32px; }
 header h1 { margin: 0; font-size: 26px; letter-spacing: -.02em; }
-header p { margin: 6px 0 0; color: var(--sec); max-width: 760px; }
-.picks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-.picks span { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: rgba(197,250,9,.1); color: var(--lime); border: 1px solid rgba(197,250,9,.25); }
+header p { margin: 6px 0 0; color: var(--sec); max-width: 780px; }
 .controls { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-top: 12px; padding-bottom: 12px; background: rgba(11,11,12,.85); backdrop-filter: blur(12px); }
 .controls button { font: inherit; color: var(--text); background: #1f1f22; border: 1px solid #2c2c30; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
 .controls button.cur { border-color: var(--lime); color: var(--lime); }
@@ -50,12 +48,12 @@ main { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 
 .recent p i { width: 1cqw; height: 1cqw; border-radius: 50%; }
 .recent p em { margin-left: auto; font-style: normal; color: var(--ter); font-size: 1.15cqw; }
 
-/* checklist layer */
-.check, .result { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity .4s ease, transform .45s cubic-bezier(.3,1.2,.5,1), filter .4s; }
-.check { gap: 2.2cqw; }
-.result { align-items: flex-start; padding: 0 5.5cqw; opacity: 0; transform: scale(.98); pointer-events: none; }
-.st3 .check { opacity: 0; transform: scale(1.02); filter: blur(.4cqw); }
-.st3 .result { opacity: 1; transform: none; pointer-events: auto; }
+/* checklist + result layers */
+.check, .result { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; }
+.check { align-items: center; gap: 2.2cqw; }
+.result { align-items: flex-start; padding: 0 5.5cqw; opacity: 0; pointer-events: none; }
+.st3 .check { opacity: 0; }
+.st3 .result { opacity: 1; pointer-events: auto; }
 .illus { width: 34cqw; height: 15cqw; }
 .illus svg { width: 100%; height: 100%; overflow: visible; display: block; }
 .title { position: relative; height: 3.4cqw; width: 100%; text-align: center; font-size: 2.7cqw; font-weight: 700; letter-spacing: -.01em; }
@@ -82,7 +80,6 @@ main { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 
 .row.done .dt .b { opacity: 0; }
 .row.done .dt .a { opacity: 1; }
 
-/* result layer */
 .status { font-size: 1.7cqw; color: var(--sec); }
 .watts { font-size: 11.5cqw; font-weight: 700; letter-spacing: -.02em; line-height: 1; margin-top: 1.4cqw; color: var(--lime); font-variant-numeric: tabular-nums; }
 .data { font-size: 3.6cqw; color: var(--sec); margin-top: .6cqw; display: flex; align-items: center; gap: .8cqw; }
@@ -103,71 +100,73 @@ main { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 
 .cp { width: 4.6cqw; height: 4.6cqw; border-radius: 1.2cqw; background: #161616; display: grid; place-items: center; color: var(--sec); }
 .cp svg { width: 2cqw; height: 2cqw; }
 
-/* ---------- 1 · Slide and pulse ---------- */
-.c1 .plug, .c1 .wire { transition: transform .55s cubic-bezier(.3,1.35,.5,1); }
-.c1 .wire { transform-origin: 0 45px; transform-box: view-box; }
-.st1 .c1 .plug, .st2 .c1 .plug, .st3 .c1 .plug { transform: translateX(24px); }
-.st1 .c1 .wire, .st2 .c1 .wire, .st3 .c1 .wire { transform: scaleX(1.4); }
-.c1 .slot { fill: #3a3a3a; transition: fill .2s .35s; }
-.st1 .c1 .slot, .st2 .c1 .slot, .st3 .c1 .slot { fill: var(--lime); }
-.c1 .beat { stroke-dasharray: 100; stroke-dashoffset: 100; }
-.st1 .c1 .beat, .st2 .c1 .beat, .st3 .c1 .beat { stroke-dashoffset: 0; transition: stroke-dashoffset .6s .45s ease-out; }
-.c1 .halo { opacity: 0; transform-box: fill-box; transform-origin: center; }
-.st2 .c1 .halo { animation: halo .9s ease-out forwards; }
-@keyframes halo { 0% { opacity: .9; transform: scale(.6) } 100% { opacity: 0; transform: scale(1.7) } }
-.c1 .glow { opacity: .08; transition: opacity .4s; }
-.st1 .c1 .glow, .st2 .c1 .glow { opacity: .2; }
+/* ---------- the plug: rises into place, bolt draws then fills ---------- */
+.plugup { transform: translateY(14px); transition: transform .6s cubic-bezier(.3,1.35,.5,1); }
+.st1 .plugup, .st2 .plugup, .st3 .plugup { transform: none; }
+.boltline { stroke-dasharray: 100; stroke-dashoffset: 100; }
+.st1 .boltline, .st2 .boltline, .st3 .boltline { stroke-dashoffset: 0; transition: stroke-dashoffset .7s .4s ease-out; }
+.boltfill { opacity: 0; }
+.st2 .boltfill, .st3 .boltfill { opacity: 1; transition: opacity .3s ease; }
+.boltwrap { transform-box: fill-box; transform-origin: center; }
+.st2 .boltwrap { animation: boltpop .5s cubic-bezier(.3,1.8,.5,1); filter: drop-shadow(0 0 5px rgba(197,250,9,.7)); }
+@keyframes boltpop { 0% { transform: scale(1) } 45% { transform: scale(1.14) } 100% { transform: scale(1) } }
+.ledge { fill: #1f1f22; transition: fill .3s .3s; }
+.st1 .ledge, .st2 .ledge, .st3 .ledge { fill: var(--lime); }
 
-/* ---------- 2 · Both ends ---------- */
-.c2 .lp, .c2 .rp { transition: transform .55s cubic-bezier(.3,1.35,.5,1); }
-.st1 .c2 .lp, .st2 .c2 .lp, .st3 .c2 .lp { transform: translateX(-12px); }
-.st2 .c2 .rp, .st3 .c2 .rp { transform: translateX(12px); }
-.c2 .mac, .c2 .dev { color: rgba(255,255,255,.35); transition: color .3s .3s; }
-.st1 .c2 .mac, .st2 .c2 .mac, .st3 .c2 .mac, .st2 .c2 .dev, .st3 .c2 .dev { color: var(--lime); }
-.c2 .flow { stroke: var(--lime); stroke-dasharray: 4 6; opacity: 0; transition: opacity .3s .4s; }
-.st2 .c2 .flow, .st3 .c2 .flow { opacity: 1; animation: flow .6s linear infinite; }
-@keyframes flow { to { stroke-dashoffset: -10; } }
+/* no transitions while the loop resets to the start */
+.nt, .nt * { transition: none !important; }
 
-/* ---------- 3 · Signal bars ---------- */
-.c3 .plugup { transform: translateY(16px); transition: transform .6s cubic-bezier(.3,1.35,.5,1); }
-.st1 .c3 .plugup, .st2 .c3 .plugup, .st3 .c3 .plugup { transform: none; }
-.c3 .bar { fill: #1d1d1d; transition: fill .25s; }
-.st1 .c3 .b1 { fill: var(--lime); transition-delay: .45s; }
-.st1 .c3 .b2 { fill: var(--lime); transition-delay: .65s; }
-.st2 .c3 .bar, .st3 .c3 .bar { fill: var(--lime); }
-.st2 .c3 .b3 { transition-delay: .1s; }
-.st2 .c3 .bars { filter: drop-shadow(0 0 4px rgba(197,250,9,.6)); }
+/* ---------- 5 handoffs from "both checked" to the result ---------- */
+/* H1 soft fade: checklist fades out first, the result fades in after it, no overlap */
+.h1 .check { transition: opacity .45s ease, filter .45s ease; }
+.h1.st3 .check { filter: blur(.3cqw); }
+.h1 .result { transition: opacity .6s ease .4s; }
 
-/* ---------- 4 · Heartbeat ---------- */
-.c4 .live { stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset .9s ease-in-out; }
-.st1 .c4 .live { stroke-dashoffset: 50; }
-.st2 .c4 .live, .st3 .c4 .live { stroke-dashoffset: 0; }
-.st2 .c4 .live { filter: drop-shadow(0 0 3px rgba(197,250,9,.8)); }
-.c4 .dot { fill: rgba(255,255,255,.3); transition: fill .3s; }
-.st1 .c4 .d1, .st2 .c4 .dot, .st3 .c4 .dot { fill: var(--lime); }
-.c4 .idle { animation: scan 1.6s linear infinite; }
-.st1 .c4 .idle, .st2 .c4 .idle, .st3 .c4 .idle { opacity: 0; }
-@keyframes scan { from { transform: translateX(0) } to { transform: translateX(160px) } }
+/* H2 rise: everything moves up together; the checklist leaves upward, the result arrives from below */
+.h2 .check { transition: opacity .45s ease, transform .7s cubic-bezier(.4,0,.2,1); }
+.h2.st3 .check { transform: translateY(-5cqw); }
+.h2 .result { transform: translateY(5cqw); transition: opacity .55s ease .18s, transform .8s cubic-bezier(.2,.85,.25,1) .18s; }
+.h2.st3 .result { transform: none; }
 
-/* ---------- 5 · Port ring ---------- */
-.c5 .plugtop { opacity: 0; transform: scale(1.5); transform-box: fill-box; transform-origin: center; transition: opacity .3s, transform .5s cubic-bezier(.3,1.4,.5,1); }
-.st1 .c5 .plugtop, .st2 .c5 .plugtop, .st3 .c5 .plugtop { opacity: 1; transform: none; }
-.c5 .prog { stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset .8s cubic-bezier(.4,0,.2,1); transform: rotate(-90deg); transform-box: fill-box; transform-origin: center; }
-.st1 .c5 .prog { stroke-dashoffset: 50; transition-delay: .3s; }
-.st2 .c5 .prog, .st3 .c5 .prog { stroke-dashoffset: 0; }
-.st2 .c5 .prog { filter: drop-shadow(0 0 3px rgba(197,250,9,.8)); }
-.c5 .seg { fill: rgba(255,255,255,.35); transition: fill .3s; }
-.st1 .c5 .seg1, .st2 .c5 .seg, .st3 .c5 .seg { fill: var(--lime); }
+/* H3 bolt handoff: the bolt flies from the plug to the Thunderbolt mark in the result (JS, FLIP) */
+.h3 .check { transition: opacity .45s ease; }
+.h3 .result { transition: opacity .55s ease .3s; }
+.h3.st3 .boltwrap { opacity: 0; }
+.h3 .data .bolt { opacity: 0; }
+.h3.landed .data .bolt { opacity: 1; transition: opacity .15s; }
+.flyer { position: absolute; color: var(--lime); pointer-events: none; z-index: 3; filter: drop-shadow(0 0 1.2cqw rgba(197,250,9,.7)); }
+.flyer svg { width: 100%; height: 100%; display: block; }
+
+/* H4 depth: the checklist drifts forward and blurs away, the result settles in from behind */
+.h4 .check { transition: opacity .55s ease, transform .8s cubic-bezier(.4,0,.2,1), filter .55s ease; }
+.h4.st3 .check { transform: scale(1.06); filter: blur(.6cqw); }
+.h4 .result { transform: scale(.94); filter: blur(.6cqw); transition: opacity .6s ease .15s, transform .9s cubic-bezier(.2,.9,.2,1) .15s, filter .6s ease .15s; }
+.h4.st3 .result { transform: none; filter: none; }
+
+/* H5 cascade: the checklist leaves top to bottom, the result builds line by line */
+.h5.st3 .check { opacity: 1; }
+.h5 .check > * { transition: opacity .3s ease, transform .45s cubic-bezier(.4,0,.2,1); }
+.h5.st3 .check > * { opacity: 0; transform: translateY(-2.4cqw); }
+.h5.st3 .check > :nth-child(2) { transition-delay: .06s; }
+.h5.st3 .check > :nth-child(3) { transition-delay: .12s; }
+.h5 .result { opacity: 1; }
+.h5 .result > * { opacity: 0; transform: translateY(2.4cqw); transition: opacity .4s ease, transform .55s cubic-bezier(.2,.85,.25,1); }
+.h5.st3 .result > * { opacity: 1; transform: none; }
+.h5.st3 .result > :nth-child(1) { transition-delay: .35s; }
+.h5.st3 .result > :nth-child(2) { transition-delay: .43s; }
+.h5.st3 .result > :nth-child(3) { transition-delay: .51s; }
+.h5.st3 .result > :nth-child(4) { transition-delay: .59s; }
+.h5.st3 .result > :nth-child(5) { transition-delay: .67s; }
 
 @media (prefers-reduced-motion: reduce) { * { transition-duration: 0s !important; animation: none !important; } }
 </style>
 </head>
 <body>
 <header>
-  <h1>Cable Tester: plug-in animation, 5 takes</h1>
-  <p>Each one shown in context, in the Pure Black Lime theme: the plug animation, the checklist with your drawn checkmarks,
-     then the result with the count-up watts and the Save button morph. All five run on the same clock.</p>
-  <div class="picks"><span>MT2 Pure Black Lime</span><span>HT2 Pure Black Lime, white text, lime Thunderbolt</span><span>A1 Drawn checkmark</span><span>A4 Count-up watts</span><span>A9 Save morph (button only)</span></div>
+  <h1>Cable Tester: plug-in, softer handoff</h1>
+  <p>The plug rises into place and the Thunderbolt bolt from the new icon draws in lime for the Mac end, then fills and glows when
+     the other end connects. Each card tries a different, gentler way to go from the checklist to the result.
+     All five run on the same clock; the watts count up once the result has settled.</p>
 </header>
 <div class="controls">
   <button id="play">Pause</button>
@@ -184,68 +183,39 @@ const I = {
   check: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#c5fa09"/><path d="M7 12.5l3.3 3.3L17 9" fill="none" stroke="#111014" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
 };
-const G = 'rgba(255,255,255,.55)';
-const ILLUS = [
-  ['Slide and pulse', 'Today\'s plug, refined: it clicks into the port with a little overshoot, the port light turns lime and the heartbeat from the icon draws across the plug. A lime halo pops when the other end connects.',
-   `<svg class="c1" viewBox="0 0 200 90">
-      <circle class="glow" cx="168" cy="45" r="40" fill="#c5fa09" style="filter:blur(6px)"/>
-      <rect x="140" y="15" width="56" height="60" rx="13" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.6"/>
-      <rect class="slot" x="146" y="42" width="15" height="6" rx="3"/>
-      <circle class="halo" cx="153" cy="45" r="16" fill="none" stroke="#c5fa09" stroke-width="2"/>
-      <rect class="wire" x="0" y="42.5" width="62" height="5" rx="2.5" fill="${G}"/>
-      <g class="plug"><rect x="60" y="31" width="48" height="28" rx="8" fill="#141414" stroke="${G}" stroke-width="1.8"/>
-        <rect x="107" y="38" width="17" height="14" rx="7" fill="none" stroke="${G}" stroke-width="1.8"/>
-        <path class="beat" pathLength="100" d="M68 45 h9 l4 -7 l6 14 l4 -7 h12" fill="none" stroke="#c5fa09" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
-    </svg>`],
-  ['Both ends', 'The whole cable: this Mac on the left, a charger or device on the right. Each plug clicks into its side and that side lights up; once both are in, current flows along the cable in lime.',
-   `<svg class="c2" viewBox="0 0 200 90">
-      <g class="mac"><rect x="4" y="24" width="46" height="31" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M0 62h54" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></g>
-      <g class="dev"><rect x="154" y="27" width="34" height="34" rx="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M172 33l-7 11h6l-2 9 8-12h-6z" fill="currentColor"/></g>
-      <path d="M78 45 C 92 45, 92 70, 100 70 S 108 45, 122 45" fill="none" stroke="${G}" stroke-width="3" stroke-linecap="round"/>
-      <path class="flow" d="M78 45 C 92 45, 92 70, 100 70 S 108 45, 122 45" fill="none" stroke-width="3" stroke-linecap="round"/>
-      <g class="lp"><rect x="62" y="37" width="18" height="16" rx="4" fill="#141414" stroke="${G}" stroke-width="1.6"/><rect x="54" y="41" width="9" height="8" rx="4" fill="none" stroke="${G}" stroke-width="1.6"/></g>
-      <g class="rp"><rect x="120" y="37" width="18" height="16" rx="4" fill="#141414" stroke="${G}" stroke-width="1.6"/><rect x="137" y="41" width="9" height="8" rx="4" fill="none" stroke="${G}" stroke-width="1.6"/></g>
-      <text x="27" y="80" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.4)">This Mac</text>
-      <text x="171" y="80" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.4)">Charger or device</text>
-    </svg>`],
-  ['Signal bars', 'From the second icon: a USB-C plug rises into place and the three lime bars fill up, two for the Mac end and the last one when the other end is in.',
-   `<svg class="c3" viewBox="0 0 200 90">
-      <defs><linearGradient id="steel" x1="0" x2="1"><stop offset="0" stop-color="#6f6f74"/><stop offset=".45" stop-color="#e4e4e7"/><stop offset="1" stop-color="#77777c"/></linearGradient></defs>
-      <g class="bars"><rect class="bar b1" x="78" y="4" width="34" height="7" rx="3.5"/><rect class="bar b2" x="78" y="15" width="42" height="7" rx="3.5"/><rect class="bar b3" x="78" y="26" width="52" height="7" rx="3.5"/></g>
-      <g class="plugup"><rect x="84" y="40" width="32" height="22" rx="7" fill="url(#steel)"/><rect x="90" y="44" width="20" height="4" rx="2" fill="#1a1a1a"/>
-        <rect x="80" y="60" width="40" height="30" rx="5" fill="#2a2a2e"/><rect x="92" y="88" width="16" height="14" fill="#1f1f22"/></g>
-    </svg>`],
-  ['Heartbeat', 'Straight from the first icon\'s glowing pulse: a scanning line waits, the Mac end draws the first heartbeat, the other end draws the second and the line glows.',
-   `<svg class="c4" viewBox="0 0 200 90">
-      <path d="M5 45 H55 l6 -18 l8 36 l6 -18 H125 l6 -18 l8 36 l6 -18 H195" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-      <path class="live" pathLength="100" d="M5 45 H55 l6 -18 l8 36 l6 -18 H125 l6 -18 l8 36 l6 -18 H195" fill="none" stroke="#c5fa09" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
-      <rect class="idle" x="10" y="43" width="20" height="4" rx="2" fill="rgba(197,250,9,.5)"/>
-      <circle class="dot d1" cx="5" cy="45" r="4"/><circle class="dot d2" cx="195" cy="45" r="4"/>
-      <text x="5" y="70" font-size="7" fill="rgba(255,255,255,.4)">This Mac</text>
-      <text x="195" y="70" font-size="7" text-anchor="end" fill="rgba(255,255,255,.4)">Other end</text>
-    </svg>`],
-  ['Port ring', 'Looking straight into the port: the plug drops in from above, and a lime ring fills halfway for the Mac end and all the way when the other end connects.',
-   `<svg class="c5" viewBox="0 0 200 90">
-      <circle cx="100" cy="45" r="40" fill="none" stroke="#161616" stroke-width="5"/>
-      <circle class="prog" pathLength="100" cx="100" cy="45" r="40" fill="none" stroke="#c5fa09" stroke-width="5" stroke-linecap="round"/>
-      <rect x="76" y="35" width="48" height="20" rx="10" fill="#0a0a0a" stroke="rgba(255,255,255,.3)" stroke-width="1.6"/>
-      <rect x="86" y="43" width="28" height="4" rx="2" fill="rgba(255,255,255,.25)"/>
-      <g class="plugtop"><rect x="78" y="37" width="44" height="16" rx="8" fill="url(#steel5)" stroke="rgba(255,255,255,.5)" stroke-width="1"/></g>
-      <defs><linearGradient id="steel5" x1="0" x2="1"><stop offset="0" stop-color="#5d5d62"/><stop offset=".5" stop-color="#d8d8dc"/><stop offset="1" stop-color="#5d5d62"/></linearGradient></defs>
-      <rect class="seg seg1" x="20" y="41" width="16" height="8" rx="4"/><rect class="seg seg2" x="164" y="41" width="16" height="8" rx="4"/>
-    </svg>`],
-];
+// Bolt above a USB-C plug seen from the front (like the second icon, with the bolt of the new one).
+const BOLT = 'M106 -6 L84 22 h13 l-5 20 l23 -30 h-13 z';
+const ILLUS = `<svg viewBox="0 0 200 90">
+  <defs><linearGradient id="steel" x1="0" x2="1"><stop offset="0" stop-color="#6f6f74"/><stop offset=".45" stop-color="#e4e4e7"/><stop offset="1" stop-color="#77777c"/></linearGradient></defs>
+  <g class="boltwrap">
+    <path d="${BOLT}" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="2" stroke-linejoin="round"/>
+    <path class="boltfill" d="${BOLT}" fill="#c5fa09"/>
+    <path class="boltline" pathLength="100" d="${BOLT}" fill="none" stroke="#c5fa09" stroke-width="2.4" stroke-linejoin="round"/>
+  </g>
+  <g class="plugup">
+    <rect x="84" y="48" width="32" height="20" rx="7" fill="url(#steel)"/><rect x="90" y="52" width="20" height="4" rx="2" fill="#1a1a1a"/>
+    <rect class="ledge" x="80" y="66" width="40" height="4" rx="1.5"/>
+    <rect x="80" y="69" width="40" height="26" rx="5" fill="#2a2a2e"/>
+  </g>
+</svg>`;
 
+const HANDOFFS = [
+  ['Soft fade', 'The checklist fades out with a slight blur, a short pause, then the result fades in. Calm and simple, nothing moves.'],
+  ['Rise', 'Everything drifts up together: the checklist leaves upward while the result arrives from just below, like scrolling to the answer.'],
+  ['Bolt handoff', 'The glowing bolt flies from the plug to the Thunderbolt mark next to "USB 4" while the rest cross-fades. One thing carries you across.'],
+  ['Depth', 'The checklist drifts forward and blurs away; the result settles in from behind and sharpens. Feels like focusing a camera.'],
+  ['Cascade', 'The checklist leaves top to bottom, then the result builds line by line: status, watts, data, chips, buttons.'],
+];
 const RECENT = [['#07 240W USB4', '#0a84ff', '10 min'], ['#06 240W USB2', '#bf5af2', '30 min'], ['#05 60W USB2', '#ffd60a', '1 h'], ['#04 100W USB3', '#32d74b', 'yesterday'], ['#03 240W USB4v2', '#0a84ff', 'yesterday']];
 const grid = document.getElementById('grid');
-ILLUS.forEach(([name, desc, svg], k) => {
+HANDOFFS.forEach(([name, desc], k) => {
   const c = document.createElement('article');
-  c.className = 'card'; c.dataset.key = 'P' + (k + 1);
-  c.innerHTML = `<div class="pv st0"><div class="win">
+  c.className = 'card'; c.dataset.key = 'H' + (k + 1);
+  c.innerHTML = `<div class="pv h${k + 1} st0" data-h="h${k + 1}"><div class="win">
     <div class="tb"><i></i><i></i><i></i><span>Cable Tester</span><b>${I.clock}</b></div>
     <div class="body"><div class="left">
       <div class="check">
-        <div class="illus">${svg}</div>
+        <div class="illus">${ILLUS}</div>
         <div class="title"><span class="t0">Plug in a cable you want to test</span><span class="t1">Now plug in the other end</span><span class="t2">Reading the cable…</span></div>
         <div class="list">
           <div class="row r1"><div class="mk"><div class="ring"></div><div class="ck">${I.check}</div></div><div><div class="lb">One end into this Mac</div><div class="dt"><span class="b">Any USB-C port</span><span class="a">Port 1</span></div></div></div>
@@ -262,30 +232,56 @@ ILLUS.forEach(([name, desc, svg], k) => {
     </div>
     <div class="right"><h4>Recent</h4><div class="recent">${RECENT.map(r => `<p><i style="background:${r[1]}"></i>${r[0]}<em>${r[2]}</em></p>`).join('')}</div></div></div>
   </div></div>
-  <div class="meta"><h3><small>P${k + 1}</small>${name}</h3><button class="like">♡ Like</button><p>${desc}</p></div>`;
+  <div class="meta"><h3><small>H${k + 1}</small>${name}</h3><button class="like">♡ Like</button><p>${desc}</p></div>`;
   grid.appendChild(c);
 });
 
+// Bolt handoff (H3): fly a copy of the bolt from the plug to the result's Thunderbolt mark.
+function flyBolt(pv) {
+  const from = pv.querySelector('.boltwrap').getBoundingClientRect();
+  const to = pv.querySelector('.data .bolt').getBoundingClientRect();
+  const base = pv.getBoundingClientRect();
+  if (!from.width || !to.width) { pv.classList.add('landed'); return; }
+  const f = document.createElement('div');
+  f.className = 'flyer'; f.innerHTML = I.bolt;
+  Object.assign(f.style, { left: (to.left - base.left) + 'px', top: (to.top - base.top) + 'px', width: to.width + 'px', height: to.height + 'px' });
+  pv.appendChild(f);
+  const s = Math.max(from.width, from.height) / to.width;
+  const dx = (from.left + from.width / 2) - (to.left + to.width / 2), dy = (from.top + from.height / 2) - (to.top + to.height / 2);
+  f.animate([
+    { transform: `translate(${dx}px, ${dy}px) scale(${s})` },
+    { transform: `translate(${dx * .35}px, ${dy * .2 - 10}px) scale(${(s + 1) / 2})`, offset: .55 },
+    { transform: 'none' },
+  ], { duration: 850, easing: 'cubic-bezier(.45,0,.2,1)', fill: 'forwards' }).onfinish = () => { pv.classList.add('landed'); setTimeout(() => f.remove(), 120); };
+}
+
 // one clock for all cards
-const HOLD = [2000, 2300, 1000, 3800];
-let st = 0, timer = null, playing = true, countTimers = [];
+const HOLD = [2000, 2300, 1000, 4400];
+let st = 0, timer = null, playing = true, later = [];
 function countUp() {
   document.querySelectorAll('.num').forEach(el => {
-    const t0 = performance.now();
-    const step = now => { const p = Math.min(1, (now - t0) / 1100); el.textContent = Math.round(240 * (1 - Math.pow(1 - p, 3))); if (p < 1 && st === 3) requestAnimationFrame(step); };
+    let t0 = null;
+    const step = now => { if (t0 === null) t0 = now; const p = Math.max(0, Math.min(1, (now - t0) / 1100)); el.textContent = Math.round(240 * (1 - Math.pow(1 - p, 3))); if (p < 1 && st === 3) requestAnimationFrame(step); };
     requestAnimationFrame(step);
   });
 }
 function show(n) {
-  st = n;
-  countTimers.forEach(clearTimeout); countTimers = [];
+  const prev = st; st = n;
+  later.forEach(clearTimeout); later = [];
+  document.querySelectorAll('.flyer').forEach(f => f.remove());
   document.querySelectorAll('.pv').forEach(pv => {
-    pv.className = 'pv st' + n;
+    const reset = n < prev;
+    pv.className = 'pv ' + pv.dataset.h + ' st' + n + (reset ? ' nt' : '');
     pv.querySelector('.r1').className = 'row r1' + (n >= 1 ? ' done' : ' on');
     pv.querySelector('.r2').className = 'row r2' + (n >= 2 ? ' done' : n === 1 ? ' on' : '');
+    if (reset) { pv.offsetWidth; requestAnimationFrame(() => pv.classList.remove('nt')); }
   });
-  if (n === 3) { countUp(); countTimers.push(setTimeout(() => document.querySelectorAll('.pv').forEach(p => p.classList.add('saved')), 2000)); }
-  else document.querySelectorAll('.num').forEach(el => el.textContent = '0');
+  document.querySelectorAll('.num').forEach(el => el.textContent = '0');
+  if (n === 3) {
+    document.querySelectorAll('.pv.h3').forEach(flyBolt);
+    later.push(setTimeout(countUp, 650));
+    later.push(setTimeout(() => document.querySelectorAll('.pv').forEach(p => p.classList.add('saved')), 2700));
+  }
   document.querySelectorAll('[data-st]').forEach(b => b.classList.toggle('cur', +b.dataset.st === n));
 }
 function tick() { timer = setTimeout(() => { show((st + 1) % 4); tick(); }, HOLD[st]); }
