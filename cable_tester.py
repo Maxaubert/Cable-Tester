@@ -125,6 +125,18 @@ def tb_links():
     return speeds
 
 
+def port_transports():
+    """Union of active transports on connected USB-C ports, e.g. {"CC", "USB2"}.
+    CIO means a Thunderbolt/USB4 link; only USB2 means a USB 2 cable."""
+    out = subprocess.run(["ioreg", "-l", "-w0"], capture_output=True).stdout.decode("utf-8", "replace")
+    active = set()
+    for m in re.finditer(r'"TransportsActive" = \(([^)]*)\)', out):
+        items = {x.strip().strip('"') for x in m.group(1).split(",") if x.strip()}
+        if "CC" in items:
+            active |= items
+    return active
+
+
 def enter_pressed(timeout):
     r, _, _ = select.select([sys.stdin], [], [], timeout)
     if r:
@@ -136,19 +148,26 @@ def enter_pressed(timeout):
 def data_test():
     print("  Now plug the SAME cable: MacBook <-> Mac mini (a BACK port).")
     print("  Waiting up to 25 s for a link. Press Enter to skip the data test.", flush=True)
-    start = time.time()
+    start, seen_at = time.time(), None
     while time.time() - start < 25:
-        speeds = tb_links()
-        if speeds:
-            time.sleep(2)  # let the link settle, then read again
-            speeds = tb_links() or speeds
-            gb = min(speeds)
-            if gb >= 40:
-                return "TB", f"{gb:g} Gb/s"
-            return f"{gb:g}G", f"{gb:g} Gb/s"
+        tr = port_transports()
+        if "CIO" in tr:
+            for _ in range(10):  # Thunderbolt link up, wait for its speed
+                speeds = tb_links()
+                if speeds:
+                    gb = min(speeds)
+                    return ("TB" if gb >= 40 else f"{gb:g}G"), f"{gb:g} Gb/s"
+                time.sleep(1)
+            return "TB", "Thunderbolt link, speed not reported"
+        if tr & {"USB2", "USB3"}:
+            seen_at = seen_at or time.time()
+            if time.time() - seen_at >= 8:  # gave Thunderbolt time to come up
+                if "USB3" in tr:
+                    return "USB3", "USB 3 link, no Thunderbolt"
+                return "USB2", "USB 2 link only"
         if enter_pressed(1.5):
             return "", "skipped"
-    return "USB2", "no link (USB 2 only, or faulty)"
+    return "?", "no link detected (cable faulty, Mini asleep, or front port)"
 
 
 # ---------- log ----------
@@ -184,6 +203,7 @@ def read_once():
         print("Power: no charger connected")
     speeds = tb_links()
     print("Thunderbolt links:", ", ".join(f"{s:g} Gb/s" for s in speeds) or "none")
+    print("Active on USB-C ports:", ", ".join(sorted(port_transports())) or "nothing")
 
 
 def main():
