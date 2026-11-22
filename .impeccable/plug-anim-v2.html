@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plug-in Animations</title>
+<style>
+:root {
+  --page: #0b0b0c; --card: #151517; --line: rgba(255,255,255,.08);
+  --text: #fff; --sec: rgba(255,255,255,.55); --ter: rgba(255,255,255,.28);
+  --lime: #c5fa09; --lime2: #a4de06; --ink: #111014;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+header, main, .controls { max-width: 1320px; margin: 0 auto; padding-left: 16px; padding-right: 16px; }
+header { padding-top: 32px; }
+header h1 { margin: 0; font-size: 26px; letter-spacing: -.02em; }
+header p { margin: 6px 0 0; color: var(--sec); max-width: 760px; }
+.picks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.picks span { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: rgba(197,250,9,.1); color: var(--lime); border: 1px solid rgba(197,250,9,.25); }
+.controls { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding-top: 12px; padding-bottom: 12px; background: rgba(11,11,12,.85); backdrop-filter: blur(12px); }
+.controls button { font: inherit; color: var(--text); background: #1f1f22; border: 1px solid #2c2c30; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.controls button.cur { border-color: var(--lime); color: var(--lime); }
+.controls .sp { margin-left: auto; color: var(--sec); font-size: 13px; }
+main { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 600px), 1fr)); gap: 18px; padding-bottom: 50px; padding-top: 8px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.card.liked { border-color: var(--lime); }
+.meta { padding: 12px 14px 14px; display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; }
+.meta h3 { margin: 0; font-size: 16px; }
+.meta h3 small { color: var(--ter); margin-right: 6px; font-weight: 500; }
+.meta p { grid-column: 1 / -1; margin: 0; color: var(--sec); font-size: 13px; }
+.like { background: none; border: 1px solid var(--line); color: var(--sec); border-radius: 999px; padding: 2px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+.liked .like { color: var(--lime); border-color: rgba(197,250,9,.5); }
+
+/* ---------- window, Pure Black Lime ---------- */
+.pv { container-type: inline-size; aspect-ratio: 1100 / 720; position: relative; overflow: hidden; background: #000; }
+.win { position: absolute; inset: 0; background: #000; display: flex; flex-direction: column; }
+.tb { height: 6.4cqw; display: flex; align-items: center; gap: .9cqw; padding: 0 2cqw; border-bottom: 1px solid #161616; flex: none; }
+.tb i { width: 1.3cqw; height: 1.3cqw; border-radius: 50%; background: #262626; }
+.tb span { margin-left: 1.6cqw; font-size: 1.6cqw; font-weight: 600; color: var(--sec); }
+.tb b { margin-left: auto; width: 3.6cqw; height: 3.6cqw; border-radius: 50%; background: #111; display: grid; place-items: center; color: var(--sec); }
+.tb b svg { width: 2cqw; height: 2cqw; }
+.body { flex: 1; display: flex; min-height: 0; }
+.left { flex: 1; position: relative; }
+.right { width: 30%; border-left: 1px solid #141414; padding: 2.6cqw 2cqw; }
+.right h4 { margin: 0 0 1.2cqw; font-size: 1.5cqw; }
+.recent { background: #0a0a0a; border: 1px solid rgba(255,255,255,.07); border-radius: 1cqw; }
+.recent p { margin: 0; display: flex; align-items: center; gap: 1cqw; padding: .9cqw 1.2cqw; font-size: 1.3cqw; }
+.recent p + p { border-top: 1px solid #141414; }
+.recent p i { width: 1cqw; height: 1cqw; border-radius: 50%; }
+.recent p em { margin-left: auto; font-style: normal; color: var(--ter); font-size: 1.15cqw; }
+
+/* checklist layer */
+.check, .result { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity .4s ease, transform .45s cubic-bezier(.3,1.2,.5,1), filter .4s; }
+.check { gap: 2.2cqw; }
+.result { align-items: flex-start; padding: 0 5.5cqw; opacity: 0; transform: scale(.98); pointer-events: none; }
+.st3 .check { opacity: 0; transform: scale(1.02); filter: blur(.4cqw); }
+.st3 .result { opacity: 1; transform: none; pointer-events: auto; }
+.illus { width: 34cqw; height: 15cqw; }
+.illus svg { width: 100%; height: 100%; overflow: visible; display: block; }
+.title { position: relative; height: 3.4cqw; width: 100%; text-align: center; font-size: 2.7cqw; font-weight: 700; letter-spacing: -.01em; }
+.title span { position: absolute; inset: 0; opacity: 0; transition: opacity .25s; }
+.st0 .t0, .st1 .t1, .st2 .t2, .st3 .t2 { opacity: 1; }
+.list { width: 44cqw; background: #0a0a0a; border: 1px solid rgba(255,255,255,.08); border-radius: 1.2cqw; }
+.row { display: flex; align-items: center; gap: 1.4cqw; padding: 1.3cqw 1.5cqw; }
+.row + .row { border-top: 1px solid #161616; }
+.mk { width: 2.8cqw; height: 2.8cqw; position: relative; flex: none; }
+.ring { position: absolute; inset: .2cqw; border-radius: 50%; border: .2cqw solid rgba(255,255,255,.25); transition: opacity .2s; }
+.row.on .ring { border-color: var(--lime); animation: breathe 1.5s ease-in-out infinite alternate; }
+@keyframes breathe { from { opacity: .4 } to { opacity: 1 } }
+.ck { position: absolute; inset: 0; opacity: 0; transform: scale(.3); }
+.ck svg { width: 100%; height: 100%; display: block; }
+.ck path { stroke-dasharray: 20; stroke-dashoffset: 20; }
+.row.done .ring { opacity: 0; animation: none; }
+.row.done .ck { opacity: 1; transform: scale(1); transition: opacity .12s, transform .5s cubic-bezier(.3,1.9,.5,1); }
+.row.done .ck path { stroke-dashoffset: 0; transition: stroke-dashoffset .32s .14s ease-out; }
+.lb { font-size: 1.6cqw; font-weight: 500; color: var(--sec); transition: color .2s; }
+.row.on .lb, .row.done .lb { color: var(--text); }
+.dt { font-size: 1.25cqw; color: var(--sec); margin-top: .2cqw; position: relative; height: 1.7cqw; }
+.dt span { position: absolute; left: 0; white-space: nowrap; transition: opacity .25s; }
+.dt .a { opacity: 0; }
+.row.done .dt .b { opacity: 0; }
+.row.done .dt .a { opacity: 1; }
+
+/* result layer */
+.status { font-size: 1.7cqw; color: var(--sec); }
+.watts { font-size: 11.5cqw; font-weight: 700; letter-spacing: -.02em; line-height: 1; margin-top: 1.4cqw; color: var(--lime); font-variant-numeric: tabular-nums; }
+.data { font-size: 3.6cqw; color: var(--sec); margin-top: .6cqw; display: flex; align-items: center; gap: .8cqw; }
+.data .bolt { color: var(--lime); display: inline-flex; }
+.data .bolt svg { width: 2.8cqw; height: 2.8cqw; }
+.data b { color: var(--text); font-weight: 400; }
+.chips { display: flex; gap: .9cqw; margin-top: 2cqw; }
+.chips span { font-size: 1.6cqw; font-weight: 600; padding: .6cqw 1.4cqw; border-radius: 1cqw; background: #161616; }
+.btns { display: flex; gap: 1cqw; margin-top: 2.8cqw; }
+.save { height: 4.6cqw; border-radius: 1.2cqw; background: var(--lime); color: var(--ink); font-size: 1.8cqw; font-weight: 600; display: grid; place-items: center; width: 17cqw; overflow: hidden; cursor: pointer;
+  transition: width .45s cubic-bezier(.3,1.3,.5,1), background .3s; }
+.save span { grid-area: 1 / 1; display: flex; gap: .7cqw; align-items: center; white-space: nowrap; transition: opacity .2s, transform .35s cubic-bezier(.3,1.5,.5,1); }
+.save .s2 { opacity: 0; transform: scale(.6); }
+.save svg { width: 2cqw; height: 2cqw; }
+.saved .save { width: 14cqw; background: #e9ffb0; }
+.saved .save .s1 { opacity: 0; }
+.saved .save .s2 { opacity: 1; transform: none; }
+.cp { width: 4.6cqw; height: 4.6cqw; border-radius: 1.2cqw; background: #161616; display: grid; place-items: center; color: var(--sec); }
+.cp svg { width: 2cqw; height: 2cqw; }
+
+/* ---------- 1 · Slide and pulse ---------- */
+.c1 .plug, .c1 .wire { transition: transform .55s cubic-bezier(.3,1.35,.5,1); }
+.c1 .wire { transform-origin: 0 45px; transform-box: view-box; }
+.st1 .c1 .plug, .st2 .c1 .plug, .st3 .c1 .plug { transform: translateX(24px); }
+.st1 .c1 .wire, .st2 .c1 .wire, .st3 .c1 .wire { transform: scaleX(1.4); }
+.c1 .slot { fill: #3a3a3a; transition: fill .2s .35s; }
+.st1 .c1 .slot, .st2 .c1 .slot, .st3 .c1 .slot { fill: var(--lime); }
+.c1 .beat { stroke-dasharray: 100; stroke-dashoffset: 100; }
+.st1 .c1 .beat, .st2 .c1 .beat, .st3 .c1 .beat { stroke-dashoffset: 0; transition: stroke-dashoffset .6s .45s ease-out; }
+.c1 .halo { opacity: 0; transform-box: fill-box; transform-origin: center; }
+.st2 .c1 .halo { animation: halo .9s ease-out forwards; }
+@keyframes halo { 0% { opacity: .9; transform: scale(.6) } 100% { opacity: 0; transform: scale(1.7) } }
+.c1 .glow { opacity: .08; transition: opacity .4s; }
+.st1 .c1 .glow, .st2 .c1 .glow { opacity: .2; }
+
+/* ---------- 2 · Both ends ---------- */
+.c2 .lp, .c2 .rp { transition: transform .55s cubic-bezier(.3,1.35,.5,1); }
+.st1 .c2 .lp, .st2 .c2 .lp, .st3 .c2 .lp { transform: translateX(-12px); }
+.st2 .c2 .rp, .st3 .c2 .rp { transform: translateX(12px); }
+.c2 .mac, .c2 .dev { color: rgba(255,255,255,.35); transition: color .3s .3s; }
+.st1 .c2 .mac, .st2 .c2 .mac, .st3 .c2 .mac, .st2 .c2 .dev, .st3 .c2 .dev { color: var(--lime); }
+.c2 .flow { stroke: var(--lime); stroke-dasharray: 4 6; opacity: 0; transition: opacity .3s .4s; }
+.st2 .c2 .flow, .st3 .c2 .flow { opacity: 1; animation: flow .6s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -10; } }
+
+/* ---------- 3 · Signal bars ---------- */
+.c3 .plugup { transform: translateY(16px); transition: transform .6s cubic-bezier(.3,1.35,.5,1); }
+.st1 .c3 .plugup, .st2 .c3 .plugup, .st3 .c3 .plugup { transform: none; }
+.c3 .bar { fill: #1d1d1d; transition: fill .25s; }
+.st1 .c3 .b1 { fill: var(--lime); transition-delay: .45s; }
+.st1 .c3 .b2 { fill: var(--lime); transition-delay: .65s; }
+.st2 .c3 .bar, .st3 .c3 .bar { fill: var(--lime); }
+.st2 .c3 .b3 { transition-delay: .1s; }
+.st2 .c3 .bars { filter: drop-shadow(0 0 4px rgba(197,250,9,.6)); }
+
+/* ---------- 4 · Heartbeat ---------- */
+.c4 .live { stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset .9s ease-in-out; }
+.st1 .c4 .live { stroke-dashoffset: 50; }
+.st2 .c4 .live, .st3 .c4 .live { stroke-dashoffset: 0; }
+.st2 .c4 .live { filter: drop-shadow(0 0 3px rgba(197,250,9,.8)); }
+.c4 .dot { fill: rgba(255,255,255,.3); transition: fill .3s; }
+.st1 .c4 .d1, .st2 .c4 .dot, .st3 .c4 .dot { fill: var(--lime); }
+.c4 .idle { animation: scan 1.6s linear infinite; }
+.st1 .c4 .idle, .st2 .c4 .idle, .st3 .c4 .idle { opacity: 0; }
+@keyframes scan { from { transform: translateX(0) } to { transform: translateX(160px) } }
+
+/* ---------- 5 · Port ring ---------- */
+.c5 .plugtop { opacity: 0; transform: scale(1.5); transform-box: fill-box; transform-origin: center; transition: opacity .3s, transform .5s cubic-bezier(.3,1.4,.5,1); }
+.st1 .c5 .plugtop, .st2 .c5 .plugtop, .st3 .c5 .plugtop { opacity: 1; transform: none; }
+.c5 .prog { stroke-dasharray: 100; stroke-dashoffset: 100; transition: stroke-dashoffset .8s cubic-bezier(.4,0,.2,1); transform: rotate(-90deg); transform-box: fill-box; transform-origin: center; }
+.st1 .c5 .prog { stroke-dashoffset: 50; transition-delay: .3s; }
+.st2 .c5 .prog, .st3 .c5 .prog { stroke-dashoffset: 0; }
+.st2 .c5 .prog { filter: drop-shadow(0 0 3px rgba(197,250,9,.8)); }
+.c5 .seg { fill: rgba(255,255,255,.35); transition: fill .3s; }
+.st1 .c5 .seg1, .st2 .c5 .seg, .st3 .c5 .seg { fill: var(--lime); }
+
+@media (prefers-reduced-motion: reduce) { * { transition-duration: 0s !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Cable Tester: plug-in animation, 5 takes</h1>
+  <p>Each one shown in context, in the Pure Black Lime theme: the plug animation, the checklist with your drawn checkmarks,
+     then the result with the count-up watts and the Save button morph. All five run on the same clock.</p>
+  <div class="picks"><span>MT2 Pure Black Lime</span><span>HT2 Pure Black Lime, white text, lime Thunderbolt</span><span>A1 Drawn checkmark</span><span>A4 Count-up watts</span><span>A9 Save morph (button only)</span></div>
+</header>
+<div class="controls">
+  <button id="play">Pause</button>
+  <button data-st="0">Start</button><button data-st="1">Mac end in</button><button data-st="2">Other end in</button><button data-st="3">Result</button>
+  <span class="sp" id="picked">Click ♡ on your favorite.</span>
+</div>
+<main id="grid"></main>
+
+<script>
+const I = {
+  bolt: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2 4.5 13.5h6.5L9.5 22l9-11.5H12z"/></svg>',
+  clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3.5 12a8.5 8.5 0 1 0 2.5-6"/><path d="M3 4v4h4"/><path d="M12 7.5V12l3 2"/></svg>',
+  copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="8" y="8" width="12" height="12" rx="2.5"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#c5fa09"/><path d="M7 12.5l3.3 3.3L17 9" fill="none" stroke="#111014" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  tick: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+};
+const G = 'rgba(255,255,255,.55)';
+const ILLUS = [
+  ['Slide and pulse', 'Today\'s plug, refined: it clicks into the port with a little overshoot, the port light turns lime and the heartbeat from the icon draws across the plug. A lime halo pops when the other end connects.',
+   `<svg class="c1" viewBox="0 0 200 90">
+      <circle class="glow" cx="168" cy="45" r="40" fill="#c5fa09" style="filter:blur(6px)"/>
+      <rect x="140" y="15" width="56" height="60" rx="13" fill="none" stroke="rgba(255,255,255,.3)" stroke-width="1.6"/>
+      <rect class="slot" x="146" y="42" width="15" height="6" rx="3"/>
+      <circle class="halo" cx="153" cy="45" r="16" fill="none" stroke="#c5fa09" stroke-width="2"/>
+      <rect class="wire" x="0" y="42.5" width="62" height="5" rx="2.5" fill="${G}"/>
+      <g class="plug"><rect x="60" y="31" width="48" height="28" rx="8" fill="#141414" stroke="${G}" stroke-width="1.8"/>
+        <rect x="107" y="38" width="17" height="14" rx="7" fill="none" stroke="${G}" stroke-width="1.8"/>
+        <path class="beat" pathLength="100" d="M68 45 h9 l4 -7 l6 14 l4 -7 h12" fill="none" stroke="#c5fa09" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g>
+    </svg>`],
+  ['Both ends', 'The whole cable: this Mac on the left, a charger or device on the right. Each plug clicks into its side and that side lights up; once both are in, current flows along the cable in lime.',
+   `<svg class="c2" viewBox="0 0 200 90">
+      <g class="mac"><rect x="4" y="24" width="46" height="31" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M0 62h54" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></g>
+      <g class="dev"><rect x="154" y="27" width="34" height="34" rx="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M172 33l-7 11h6l-2 9 8-12h-6z" fill="currentColor"/></g>
+      <path d="M78 45 C 92 45, 92 70, 100 70 S 108 45, 122 45" fill="none" stroke="${G}" stroke-width="3" stroke-linecap="round"/>
+      <path class="flow" d="M78 45 C 92 45, 92 70, 100 70 S 108 45, 122 45" fill="none" stroke-width="3" stroke-linecap="round"/>
+      <g class="lp"><rect x="62" y="37" width="18" height="16" rx="4" fill="#141414" stroke="${G}" stroke-width="1.6"/><rect x="54" y="41" width="9" height="8" rx="4" fill="none" stroke="${G}" stroke-width="1.6"/></g>
+      <g class="rp"><rect x="120" y="37" width="18" height="16" rx="4" fill="#141414" stroke="${G}" stroke-width="1.6"/><rect x="137" y="41" width="9" height="8" rx="4" fill="none" stroke="${G}" stroke-width="1.6"/></g>
+      <text x="27" y="80" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.4)">This Mac</text>
+      <text x="171" y="80" text-anchor="middle" font-size="7" fill="rgba(255,255,255,.4)">Charger or device</text>
+    </svg>`],
+  ['Signal bars', 'From the second icon: a USB-C plug rises into place and the three lime bars fill up, two for the Mac end and the last one when the other end is in.',
+   `<svg class="c3" viewBox="0 0 200 90">
+      <defs><linearGradient id="steel" x1="0" x2="1"><stop offset="0" stop-color="#6f6f74"/><stop offset=".45" stop-color="#e4e4e7"/><stop offset="1" stop-color="#77777c"/></linearGradient></defs>
+      <g class="bars"><rect class="bar b1" x="78" y="4" width="34" height="7" rx="3.5"/><rect class="bar b2" x="78" y="15" width="42" height="7" rx="3.5"/><rect class="bar b3" x="78" y="26" width="52" height="7" rx="3.5"/></g>
+      <g class="plugup"><rect x="84" y="40" width="32" height="22" rx="7" fill="url(#steel)"/><rect x="90" y="44" width="20" height="4" rx="2" fill="#1a1a1a"/>
+        <rect x="80" y="60" width="40" height="30" rx="5" fill="#2a2a2e"/><rect x="92" y="88" width="16" height="14" fill="#1f1f22"/></g>
+    </svg>`],
+  ['Heartbeat', 'Straight from the first icon\'s glowing pulse: a scanning line waits, the Mac end draws the first heartbeat, the other end draws the second and the line glows.',
+   `<svg class="c4" viewBox="0 0 200 90">
+      <path d="M5 45 H55 l6 -18 l8 36 l6 -18 H125 l6 -18 l8 36 l6 -18 H195" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path class="live" pathLength="100" d="M5 45 H55 l6 -18 l8 36 l6 -18 H125 l6 -18 l8 36 l6 -18 H195" fill="none" stroke="#c5fa09" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect class="idle" x="10" y="43" width="20" height="4" rx="2" fill="rgba(197,250,9,.5)"/>
+      <circle class="dot d1" cx="5" cy="45" r="4"/><circle class="dot d2" cx="195" cy="45" r="4"/>
+      <text x="5" y="70" font-size="7" fill="rgba(255,255,255,.4)">This Mac</text>
+      <text x="195" y="70" font-size="7" text-anchor="end" fill="rgba(255,255,255,.4)">Other end</text>
+    </svg>`],
+  ['Port ring', 'Looking straight into the port: the plug drops in from above, and a lime ring fills halfway for the Mac end and all the way when the other end connects.',
+   `<svg class="c5" viewBox="0 0 200 90">
+      <circle cx="100" cy="45" r="40" fill="none" stroke="#161616" stroke-width="5"/>
+      <circle class="prog" pathLength="100" cx="100" cy="45" r="40" fill="none" stroke="#c5fa09" stroke-width="5" stroke-linecap="round"/>
+      <rect x="76" y="35" width="48" height="20" rx="10" fill="#0a0a0a" stroke="rgba(255,255,255,.3)" stroke-width="1.6"/>
+      <rect x="86" y="43" width="28" height="4" rx="2" fill="rgba(255,255,255,.25)"/>
+      <g class="plugtop"><rect x="78" y="37" width="44" height="16" rx="8" fill="url(#steel5)" stroke="rgba(255,255,255,.5)" stroke-width="1"/></g>
+      <defs><linearGradient id="steel5" x1="0" x2="1"><stop offset="0" stop-color="#5d5d62"/><stop offset=".5" stop-color="#d8d8dc"/><stop offset="1" stop-color="#5d5d62"/></linearGradient></defs>
+      <rect class="seg seg1" x="20" y="41" width="16" height="8" rx="4"/><rect class="seg seg2" x="164" y="41" width="16" height="8" rx="4"/>
+    </svg>`],
+];
+
+const RECENT = [['#07 240W USB4', '#0a84ff', '10 min'], ['#06 240W USB2', '#bf5af2', '30 min'], ['#05 60W USB2', '#ffd60a', '1 h'], ['#04 100W USB3', '#32d74b', 'yesterday'], ['#03 240W USB4v2', '#0a84ff', 'yesterday']];
+const grid = document.getElementById('grid');
+ILLUS.forEach(([name, desc, svg], k) => {
+  const c = document.createElement('article');
+  c.className = 'card'; c.dataset.key = 'P' + (k + 1);
+  c.innerHTML = `<div class="pv st0"><div class="win">
+    <div class="tb"><i></i><i></i><i></i><span>Cable Tester</span><b>${I.clock}</b></div>
+    <div class="body"><div class="left">
+      <div class="check">
+        <div class="illus">${svg}</div>
+        <div class="title"><span class="t0">Plug in a cable you want to test</span><span class="t1">Now plug in the other end</span><span class="t2">Reading the cable…</span></div>
+        <div class="list">
+          <div class="row r1"><div class="mk"><div class="ring"></div><div class="ck">${I.check}</div></div><div><div class="lb">One end into this Mac</div><div class="dt"><span class="b">Any USB-C port</span><span class="a">Port 1</span></div></div></div>
+          <div class="row r2"><div class="mk"><div class="ring"></div><div class="ck">${I.check}</div></div><div><div class="lb">Other end into a charger, Mac or device</div><div class="dt"><span class="b">A charger tests power. A Mac or device also shows data speed.</span><span class="a">Mac mini</span></div></div></div>
+        </div>
+      </div>
+      <div class="result">
+        <div class="status">Plugged in just now</div>
+        <div class="watts"><span class="num">0</span> W</div>
+        <div class="data"><span class="bolt">${I.bolt}</span><b>USB 4</b>· 40 Gb/s</div>
+        <div class="chips"><span>EPR</span><span>5 A</span></div>
+        <div class="btns"><div class="save"><span class="s1">Save as #08</span><span class="s2">${I.tick}Saved #08</span></div><div class="cp">${I.copy}</div></div>
+      </div>
+    </div>
+    <div class="right"><h4>Recent</h4><div class="recent">${RECENT.map(r => `<p><i style="background:${r[1]}"></i>${r[0]}<em>${r[2]}</em></p>`).join('')}</div></div></div>
+  </div></div>
+  <div class="meta"><h3><small>P${k + 1}</small>${name}</h3><button class="like">♡ Like</button><p>${desc}</p></div>`;
+  grid.appendChild(c);
+});
+
+// one clock for all cards
+const HOLD = [2000, 2300, 1000, 3800];
+let st = 0, timer = null, playing = true, countTimers = [];
+function countUp() {
+  document.querySelectorAll('.num').forEach(el => {
+    const t0 = performance.now();
+    const step = now => { const p = Math.min(1, (now - t0) / 1100); el.textContent = Math.round(240 * (1 - Math.pow(1 - p, 3))); if (p < 1 && st === 3) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  });
+}
+function show(n) {
+  st = n;
+  countTimers.forEach(clearTimeout); countTimers = [];
+  document.querySelectorAll('.pv').forEach(pv => {
+    pv.className = 'pv st' + n;
+    pv.querySelector('.r1').className = 'row r1' + (n >= 1 ? ' done' : ' on');
+    pv.querySelector('.r2').className = 'row r2' + (n >= 2 ? ' done' : n === 1 ? ' on' : '');
+  });
+  if (n === 3) { countUp(); countTimers.push(setTimeout(() => document.querySelectorAll('.pv').forEach(p => p.classList.add('saved')), 2000)); }
+  else document.querySelectorAll('.num').forEach(el => el.textContent = '0');
+  document.querySelectorAll('[data-st]').forEach(b => b.classList.toggle('cur', +b.dataset.st === n));
+}
+function tick() { timer = setTimeout(() => { show((st + 1) % 4); tick(); }, HOLD[st]); }
+function pause() { playing = false; clearTimeout(timer); document.getElementById('play').textContent = 'Play'; }
+document.getElementById('play').onclick = () => { if (playing) pause(); else { playing = true; document.getElementById('play').textContent = 'Pause'; tick(); } };
+document.querySelectorAll('[data-st]').forEach(b => b.onclick = () => { pause(); show(+b.dataset.st); });
+document.addEventListener('click', e => {
+  const s = e.target.closest('.save'); if (s) { s.closest('.pv').classList.toggle('saved'); return; }
+  const l = e.target.closest('.like'); if (!l) return;
+  const card = l.closest('.card'); card.classList.toggle('liked');
+  l.textContent = card.classList.contains('liked') ? '♥ Liked' : '♡ Like';
+  const p = [...document.querySelectorAll('.card.liked')].map(c => c.dataset.key + ' ' + c.querySelector('h3').lastChild.textContent);
+  document.getElementById('picked').textContent = p.length ? 'Picked: ' + p.join(', ') : 'Click ♡ on your favorite.';
+});
+const fixed = new URLSearchParams(location.search).get('st');
+if (fixed !== null) { pause(); show(+fixed); } else { show(0); tick(); }
+</script>
+</body>
+</html>

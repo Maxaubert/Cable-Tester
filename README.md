@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/icon.png" alt="Cable Tester icon" width="128">
+
 # Cable Tester
 
 **Plug in a USB-C cable. See its wattage and data speed.** A small native Mac app that reads the
