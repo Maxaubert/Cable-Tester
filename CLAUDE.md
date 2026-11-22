@@ -32,9 +32,9 @@ the overview; docs/app-spec-and-plan.md is the spec; docs/emarker.md the chip fi
 ## README film
 - `video/` is a HyperFrames project (spec in `video/SPEC.md`) that rebuilds the app at 1.6x. SF Pro is
   git-ignored (Apple licence): copy `/System/Library/Fonts/SFNS.ttf` to `video/assets/fonts/` first.
-- `cd video && npx hyperframes render --output renders/cable-tester-demo.mp4`, then
-  `ffmpeg -i video/renders/cable-tester-demo.mp4 -vf scale=1600:-2 -c:v libsvtav1 -crf 36 -preset 5 -pix_fmt yuv420p -loop 0 docs/media/demo.avif`
-  and copy the MP4 to `docs/media/demo.mp4`. Change the film when the app's look changes.
+- `cd video && npx hyperframes render --output renders/cable-tester-demo.mp4`, copy it to `docs/media/demo.mp4`,
+  then drag it into a GitHub comment box and put the `user-attachments` URL on its own line in the README
+  (GitHub's player, as in Wind; there is no API for that upload). Change the film when the app's look changes.
 
 ## Release notes
 - `scripts/release.sh [--notes notes.md] [--dry-run]` signs Sparkle's helpers inside out, notarizes app and

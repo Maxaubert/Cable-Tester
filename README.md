@@ -12,10 +12,9 @@
   [Download](https://github.com/loftspace/cable-tester-releases/releases/latest) · [Releases](https://github.com/loftspace/cable-tester-releases/releases) · [How it reads the chip](docs/emarker.md)
 </div>
 
-<picture>
-  <source srcset="docs/media/demo.avif" type="image/avif">
-  <img src="docs/media/demo-poster.png" alt="Cable Tester demo: plug in a cable, the checklist ticks off both ends, a Thunderbolt 5 cable counts up to 240 W at USB 4 v2 80 Gb/s, it is saved as #13 and shows up in History" width="100%">
-</picture>
+https://github.com/user-attachments/assets/d37fcfc2-c120-4b40-a396-9c51f74ea87a
+
+## About
 
 Cable Tester is a small native Mac app that reads the chip inside a USB-C cable, so you can sort and
 label a drawer of cables without a hardware tester. Plug a cable into the Mac, plug the other end
