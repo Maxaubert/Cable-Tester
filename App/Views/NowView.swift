@@ -1,33 +1,62 @@
 import CableKit
 import SwiftUI
 
-/// The "Now" screen: what is plugged in, or the empty state.
+/// The "Now" screen: the plug-in checklist, then the result once both ends are connected.
 struct NowView: View {
     @Environment(PortMonitor.self) private var monitor
     @Environment(CableStore.self) private var store
     @Binding var showInspector: Bool
     @Binding var savingResult: CableResult?
+    /// The plug session whose result is on screen (set a moment after both checks tick).
+    @State private var shownKey: String?
+    /// The plug session where the user asked to see the chip before the far end was connected.
+    @State private var forcedKey: String?
+
+    private var plugKey: String? {
+        guard let n = monitor.focusedPort else { return nil }
+        return "\(n)-\(monitor.pluggedAt?.timeIntervalSince1970 ?? 0)"
+    }
+
+    /// Both ends connected: one in this Mac, the other in a charger, Mac or device.
+    private var bothEnds: Bool {
+        guard let r = monitor.result else { return false }
+        if case .nothing = r.farEnd { return false }
+        return true
+    }
+
+    private var showingResult: Bool {
+        guard monitor.result != nil, let key = plugKey else { return false }
+        if forcedKey == key { return true }
+        return bothEnds && (monitor.isDemo || shownKey == key)
+    }
 
     var body: some View {
         HStack(spacing: 0) {
             Group {
-                if let r = monitor.result {
-                    if case .nothing = r.farEnd, r.cable == nil {
-                        CableOnlyView(port: r.port)
-                    } else {
-                        ResultView(result: r, savingResult: $savingResult)
-                    }
+                if showingResult, let r = monitor.result {
+                    ResultView(result: r, savingResult: $savingResult)
+                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
                 } else {
-                    EmptyStateView()
+                    PlugChecklistView(port: monitor.focusedPortState, result: monitor.result,
+                                      otherConnected: monitor.otherConnectedCount) {
+                        withAnimation(.snappy) { forcedKey = plugKey }
+                    }
+                    .transition(.opacity)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .task(id: bothEnds ? plugKey : nil) {
+                guard bothEnds, let key = plugKey else { shownKey = nil; return }
+                // Let both checkmarks show for a moment before the result replaces them.
+                try? await Task.sleep(for: .milliseconds(900))
+                if !Task.isCancelled { withAnimation(.snappy) { shownKey = key } }
+            }
 
             if showInspector {
                 Divider()
                 ScrollView {
                     Group {
-                        if let r = monitor.result { InspectorView(result: r) } else { RecentView() }
+                        if showingResult, let r = monitor.result { InspectorView(result: r) } else { RecentView() }
                     }
                     .padding(22)
                 }
@@ -38,24 +67,119 @@ struct NowView: View {
     }
 }
 
-// MARK: Empty
+// MARK: Plug-in checklist
 
-struct EmptyStateView: View {
+/// "Plug in a cable you want to test": ticks off each end as it is connected.
+struct PlugChecklistView: View {
+    var port: PortState?
+    var result: CableResult?
+    var otherConnected: Int
+    var showChipAnyway: () -> Void
     @State private var pulse = false
 
+    private var macDone: Bool { port?.connectionActive == true }
+    private var farDone: Bool {
+        guard let r = result else { return false }
+        if case .nothing = r.farEnd { return false }
+        return true
+    }
+
     var body: some View {
-        VStack(spacing: 22) {
+        VStack(spacing: 24) {
             PlugIllustration(pulse: pulse)
-                .frame(width: 300, height: 150)
-            VStack(spacing: 8) {
-                Text("Plug in a cable").font(.system(size: 30, weight: .bold))
-                Text("A charger tests power. Another Mac or any USB-C device reads the cable's chip too.")
-                    .font(.system(size: 14)).foregroundStyle(.secondary)
-                    .multilineTextAlignment(.center).frame(maxWidth: 360)
+                .frame(width: 260, height: 130)
+            Text(title).font(.system(size: 30, weight: .bold))
+                .contentTransition(.opacity)
+                .id(title)
+
+            VStack(alignment: .leading, spacing: 0) {
+                StepRow(done: macDone, active: !macDone, pulse: pulse,
+                        title: "One end into this Mac", detail: macDetail)
+                Divider().padding(.leading, 54)
+                StepRow(done: farDone, active: macDone && !farDone, pulse: pulse,
+                        title: "Other end into a charger, Mac or device", detail: farDetail)
             }
+            .frame(width: 440)
+            .background(Palette.groupFill, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Palette.groupStroke))
+
+            footer.frame(maxWidth: 440)
         }
         .padding(40)
+        .animation(.snappy, value: macDone)
+        .animation(.snappy, value: farDone)
         .onAppear { withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) { pulse = true } }
+    }
+
+    private var title: String {
+        if !macDone { return "Plug in a cable you want to test" }
+        if !farDone { return "Now plug in the other end" }
+        return "Reading the cable…"
+    }
+
+    private var macDetail: String {
+        guard macDone, let port else { return "Any USB-C port" }
+        return "Port \(port.number)" + (port.cable != nil ? " · cable chip found" : "")
+    }
+
+    private var farDetail: String {
+        if let r = result, farDone {
+            return switch r.farEnd {
+            case .charger(let c): c.name ?? "USB-C charger"
+            case .unknown: "USB-C device"
+            default: r.farEnd.name ?? "Connected"
+            }
+        }
+        return "A charger tests power. A Mac or device also shows data speed."
+    }
+
+    @ViewBuilder private var footer: some View {
+        if macDone, !farDone, port?.cable != nil {
+            Button("Nothing to plug into? Show what the chip says", action: showChipAnyway)
+                .buttonStyle(.link).font(.system(size: 13))
+        } else if !macDone, otherConnected > 0 {
+            Text(otherConnected == 1
+                 ? "A cable that was already connected is ignored. Unplug and replug it to test it."
+                 : "\(otherConnected) cables that were already connected are ignored. Unplug and replug one to test it.")
+                .font(.system(size: 12)).foregroundStyle(.tertiary).multilineTextAlignment(.center)
+        }
+    }
+}
+
+/// One line of the checklist: an empty ring, a pulsing ring for the current step, or a green check.
+struct StepRow: View {
+    var done: Bool
+    var active: Bool
+    var pulse: Bool
+    var title: String
+    var detail: String
+
+    var body: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                if done {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundStyle(Palette.power)
+                        .transition(.scale.combined(with: .opacity))
+                } else {
+                    Circle().strokeBorder(active ? Palette.thunderbolt.opacity(pulse ? 1 : 0.45) : Color.secondary.opacity(0.4),
+                                          lineWidth: 2)
+                        .frame(width: 22, height: 22)
+                }
+            }
+            .frame(width: 26, height: 26)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.system(size: 15, weight: .medium))
+                    .foregroundStyle(done || active ? .primary : .secondary)
+                Text(detail).font(.system(size: 12)).foregroundStyle(.secondary)
+                    .lineLimit(2).fixedSize(horizontal: false, vertical: true)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.horizontal, 14).padding(.vertical, 12)
+        .accessibilityElement(children: .combine)
+        .accessibilityValue(done ? "Done" : active ? "Waiting" : "Not yet")
     }
 }
 
@@ -124,23 +248,6 @@ struct RecentView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-}
-
-// MARK: Cable only (other end free)
-
-struct CableOnlyView: View {
-    var port: Int
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Label("Cable detected on port \(port)", systemImage: "cable.connector.horizontal")
-                .font(.system(size: 15)).foregroundStyle(.secondary)
-            Text("Plug in the other end").font(.system(size: 34, weight: .bold))
-            Text("Into a charger, a Mac or any USB-C device. The Mac can only read the cable when something is on the other end.")
-                .font(.system(size: 15)).foregroundStyle(.secondary).frame(maxWidth: 440, alignment: .leading)
-        }
-        .padding(48)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
     }
 }
 

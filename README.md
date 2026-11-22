@@ -59,8 +59,10 @@ itself (Sparkle): it checks once a day, and **Cable Tester → Check for Updates
 
 ## Using it
 
-1. Plug the cable into the Mac, and the other end into a charger, another Mac or any USB-C device.
-2. Read the result. Press **Save** (⌘S): the sheet is prefilled from the cable; add the tie colour
+1. Plug the cable into the Mac, then the other end into a charger, another Mac or any USB-C device.
+   A checklist ticks off each end; cables that were already connected when the app started are
+   ignored until you replug them.
+2. Read the result once both ends are in. Press **Save** (⌘S): the sheet is prefilled from the cable; add the tie colour
    and anything else you know. Empty fields stay blank.
 3. Write the label (`#07 240W USB4`) on the cable. The copy button puts it on the clipboard.
 4. **History** (⌘Y): every field is editable in place, with filters for 240/100/60 W and Thunderbolt,

@@ -35,7 +35,10 @@ enum Demo {
         let at = Date().addingTimeInterval(-2)
         switch s {
         case .empty, .history:
-            return PortMonitor(demoPorts: [], charger: nil, focused: nil, pluggedAt: nil)
+            // A hub that was connected before launch: ignored, mentioned under the checklist.
+            var hub = port(nil, partner: 0x2109, name: "USB hub", links: [LiveLink(kind: .usb3, speed: .gbps(5), deviceName: "USB hub")])
+            hub.number = 2
+            return PortMonitor(demoPorts: [hub], charger: nil, focused: nil, pluggedAt: nil)
         case .mac:
             return PortMonitor(demoPorts: [port(appleUSB4, partner: 0x05AC, name: "Macintosh",
                                                 links: [LiveLink(kind: .cio, speed: .gbps(40), deviceName: "Mac mini")])],
@@ -47,7 +50,7 @@ enum Demo {
                                                 links: [LiveLink(kind: .usb2, speed: .mbps(480), deviceName: "Mac mini")])],
                                charger: nil, focused: 1, pluggedAt: at.addingTimeInterval(-1))
         case .cableonly:
-            return PortMonitor(demoPorts: [port(nil)], charger: nil, focused: 1, pluggedAt: at)
+            return PortMonitor(demoPorts: [port(noName240)], charger: nil, focused: 1, pluggedAt: at)
         case .device:
             return PortMonitor(demoPorts: [port(noName240, links: [LiveLink(kind: .usb2, speed: .mbps(12), deviceName: "Arctis GameBuds")])],
                                charger: nil, focused: 1, pluggedAt: at)
