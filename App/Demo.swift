@@ -50,7 +50,7 @@ enum Demo {
                                                 links: [LiveLink(kind: .usb2, speed: .mbps(480), deviceName: "Mac mini")])],
                                charger: nil, focused: 1, pluggedAt: at.addingTimeInterval(-1))
         case .cableonly:
-            return PortMonitor(demoPorts: [port(noName240)], charger: nil, focused: 1, pluggedAt: at)
+            return PortMonitor(demoPorts: [port(nil)], charger: nil, focused: 1, pluggedAt: at)
         case .device:
             return PortMonitor(demoPorts: [port(noName240, links: [LiveLink(kind: .usb2, speed: .mbps(12), deviceName: "Arctis GameBuds")])],
                                charger: nil, focused: 1, pluggedAt: at)

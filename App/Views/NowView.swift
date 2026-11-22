@@ -9,8 +9,6 @@ struct NowView: View {
     @Binding var savingResult: CableResult?
     /// The plug session whose result is on screen (set a moment after both checks tick).
     @State private var shownKey: String?
-    /// The plug session where the user asked to see the chip before the far end was connected.
-    @State private var forcedKey: String?
 
     private var plugKey: String? {
         guard let n = monitor.focusedPort else { return nil }
@@ -26,7 +24,6 @@ struct NowView: View {
 
     private var showingResult: Bool {
         guard monitor.result != nil, let key = plugKey else { return false }
-        if forcedKey == key { return true }
         return bothEnds && (monitor.isDemo || shownKey == key)
     }
 
@@ -38,9 +35,7 @@ struct NowView: View {
                         .transition(.opacity.combined(with: .scale(scale: 0.98)))
                 } else {
                     PlugChecklistView(port: monitor.focusedPortState, result: monitor.result,
-                                      otherConnected: monitor.otherConnectedCount) {
-                        withAnimation(.snappy) { forcedKey = plugKey }
-                    }
+                                      otherConnected: monitor.otherConnectedCount)
                     .transition(.opacity)
                 }
             }
@@ -74,7 +69,6 @@ struct PlugChecklistView: View {
     var port: PortState?
     var result: CableResult?
     var otherConnected: Int
-    var showChipAnyway: () -> Void
     @State private var pulse = false
 
     private var macDone: Bool { port?.connectionActive == true }
@@ -86,7 +80,7 @@ struct PlugChecklistView: View {
 
     var body: some View {
         VStack(spacing: 24) {
-            PlugIllustration(pulse: pulse)
+            PlugIllustration(pulse: pulse, plugged: macDone)
                 .frame(width: 260, height: 130)
             Text(title).font(.system(size: 30, weight: .bold))
                 .contentTransition(.opacity)
@@ -106,8 +100,8 @@ struct PlugChecklistView: View {
             footer.frame(maxWidth: 440)
         }
         .padding(40)
-        .animation(.snappy, value: macDone)
-        .animation(.snappy, value: farDone)
+        .animation(.spring(response: 0.45, dampingFraction: 0.6), value: macDone)
+        .animation(.spring(response: 0.45, dampingFraction: 0.6), value: farDone)
         .onAppear { withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) { pulse = true } }
     }
 
@@ -119,7 +113,8 @@ struct PlugChecklistView: View {
 
     private var macDetail: String {
         guard macDone, let port else { return "Any USB-C port" }
-        return "Port \(port.number)" + (port.cable != nil ? " · cable chip found" : "")
+        // The chip is only readable once the far end is connected (docs/emarker.md).
+        return "Port \(port.number)"
     }
 
     private var farDetail: String {
@@ -134,10 +129,7 @@ struct PlugChecklistView: View {
     }
 
     @ViewBuilder private var footer: some View {
-        if macDone, !farDone, port?.cable != nil {
-            Button("Nothing to plug into? Show what the chip says", action: showChipAnyway)
-                .buttonStyle(.link).font(.system(size: 13))
-        } else if !macDone, otherConnected > 0 {
+        if !macDone, otherConnected > 0 {
             Text(otherConnected == 1
                  ? "A cable that was already connected is ignored. Unplug and replug it to test it."
                  : "\(otherConnected) cables that were already connected are ignored. Unplug and replug one to test it.")
@@ -161,7 +153,7 @@ struct StepRow: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 24))
                         .foregroundStyle(Palette.power)
-                        .transition(.scale.combined(with: .opacity))
+                        .transition(.scale(scale: 0.4).combined(with: .opacity))
                 } else {
                     Circle().strokeBorder(active ? Palette.thunderbolt.opacity(pulse ? 1 : 0.45) : Color.secondary.opacity(0.4),
                                           lineWidth: 2)
@@ -183,26 +175,30 @@ struct StepRow: View {
     }
 }
 
-/// A USB-C plug heading for a port, with a soft glow at the port.
+/// A USB-C plug heading for a port, with a soft glow at the port. When `plugged`, the plug slides
+/// in and the port light turns green.
 struct PlugIllustration: View {
     var pulse: Bool
+    var plugged = false
 
     var body: some View {
         GeometryReader { g in
             let w = g.size.width, h = g.size.height
+            let shift = plugged ? w * 0.135 : 0
             ZStack {
                 // cable
-                Path { p in p.move(to: CGPoint(x: 0, y: h * 0.5)); p.addLine(to: CGPoint(x: w * 0.30, y: h * 0.5)) }
-                    .stroke(Color.secondary.opacity(0.7), style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                Capsule().fill(Color.secondary.opacity(0.7))
+                    .frame(width: w * 0.30 + shift, height: 5)
+                    .position(x: (w * 0.30 + shift) / 2, y: h * 0.5)
                 // plug body
                 RoundedRectangle(cornerRadius: 9, style: .continuous)
                     .strokeBorder(Color.secondary.opacity(0.85), lineWidth: 2)
                     .frame(width: w * 0.24, height: h * 0.30)
-                    .position(x: w * 0.42, y: h * 0.5)
+                    .position(x: w * 0.42 + shift, y: h * 0.5)
                 // plug tip
                 Capsule().strokeBorder(Color.secondary.opacity(0.85), lineWidth: 2)
                     .frame(width: w * 0.09, height: h * 0.16)
-                    .position(x: w * 0.585, y: h * 0.5)
+                    .position(x: w * 0.585 + shift, y: h * 0.5)
                 // glow + port on the Mac's side
                 Circle().fill(Palette.thunderbolt.opacity(pulse ? 0.22 : 0.08))
                     .frame(width: h * 0.85, height: h * 0.85)
@@ -212,7 +208,7 @@ struct PlugIllustration: View {
                     .strokeBorder(Color.secondary.opacity(0.5), lineWidth: 1.5)
                     .frame(width: w * 0.30, height: h * 0.62)
                     .position(x: w * 0.86, y: h * 0.5)
-                Capsule().fill(Palette.thunderbolt.opacity(0.9))
+                Capsule().fill((plugged ? Palette.power : Palette.thunderbolt).opacity(0.9))
                     .frame(width: w * 0.08, height: h * 0.07)
                     .position(x: w * 0.78, y: h * 0.5)
             }

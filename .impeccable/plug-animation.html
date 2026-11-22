@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plug-in Animation</title>
+<style>
+  :root {
+    --page: #141416; --win: #1e1e1e; --group: rgba(255,255,255,.045); --stroke: rgba(255,255,255,.09);
+    --text: #f5f5f7; --sec: rgba(235,235,245,.6); --ter: rgba(235,235,245,.3);
+    --green: #32d74b; --blue: #0a84ff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 28px 16px 40px; background: var(--page); color: var(--text);
+         font: 14px -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 auto 4px; max-width: 1100px; }
+  .sub { color: var(--sec); margin: 0 auto 18px; max-width: 1100px; }
+
+  /* The window: real snapshots at 1100 x 752, the checklist drawn live on top. */
+  .stage { position: relative; width: 1100px; max-width: 100%; aspect-ratio: 1100 / 752; margin: 0 auto;
+           border-radius: 12px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.55); container-type: inline-size; }
+  .stage img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .result { opacity: 0; transform: scale(.98); transition: opacity .35s ease, transform .35s cubic-bezier(.3,1.3,.5,1); }
+  .stage.show-result .result { opacity: 1; transform: none; }
+
+  /* everything below is in units of the 1100 px window, scaled with cqw */
+  .pane { position: absolute; left: 0; top: 6.9%; width: 69.8%; bottom: 0; background: var(--win);
+          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2.2cqw; }
+  .illus { width: 23.6cqw; height: 11.8cqw; position: relative; }
+  .illus .wire { position: absolute; left: 0; top: 50%; width: 30%; height: .45cqw; margin-top: -.22cqw; background: rgba(235,235,245,.42); border-radius: 1cqw;
+                 transition: transform .5s ease; }
+  .illus .plug { position: absolute; left: 30%; top: 35%; width: 24%; height: 30%; border: .18cqw solid rgba(235,235,245,.5); border-radius: .8cqw;
+                 transition: transform .5s cubic-bezier(.3,1.2,.5,1); }
+  .illus .tip { position: absolute; left: 54%; top: 42%; width: 9%; height: 16%; border: .18cqw solid rgba(235,235,245,.5); border-radius: 1cqw;
+                transition: transform .5s cubic-bezier(.3,1.2,.5,1); }
+  .illus .glow { position: absolute; left: 62%; top: 7.5%; width: 37%; aspect-ratio: 1; border-radius: 50%; background: var(--blue);
+                 filter: blur(.5cqw); animation: glow 1.6s ease-in-out infinite alternate; }
+  .illus .port { position: absolute; left: 71%; top: 19%; width: 30%; height: 62%; border: .14cqw solid rgba(235,235,245,.32); border-radius: 1.3cqw; }
+  .illus .slot { position: absolute; left: 74%; top: 46.5%; width: 8%; height: 7%; border-radius: 1cqw; background: var(--blue); opacity: .9;
+                 transition: background .3s; }
+  @keyframes glow { from { opacity: .08 } to { opacity: .22 } }
+  .s1 .illus .plug, .s2 .illus .plug, .s3 .illus .plug { transform: translateX(3.2cqw); }
+  .s1 .illus .tip,  .s2 .illus .tip,  .s3 .illus .tip  { transform: translateX(3.2cqw); }
+  .s1 .illus .wire, .s2 .illus .wire, .s3 .illus .wire { transform: scaleX(1.95); transform-origin: left; }
+  .s1 .illus .slot, .s2 .illus .slot, .s3 .illus .slot { background: var(--green); }
+
+  .title { font-size: 2.75cqw; font-weight: 700; letter-spacing: -.01em; height: 3.4cqw; position: relative; width: 60cqw; text-align: center; }
+  .title span { position: absolute; inset: 0; opacity: 0; transition: opacity .25s ease; }
+  .s0 .title .t0, .s1 .title .t1, .s2 .title .t2, .s3 .title .t2 { opacity: 1; }
+
+  .list { width: 40cqw; background: var(--group); border: 1px solid var(--stroke); border-radius: 1.1cqw; }
+  .row { display: flex; align-items: center; gap: 1.27cqw; padding: 1.1cqw 1.27cqw; }
+  .row + .row { border-top: 1px solid var(--stroke); margin-left: 0; }
+  .mark { width: 2.36cqw; height: 2.36cqw; position: relative; flex: none; }
+  .ring { position: absolute; inset: .18cqw; border-radius: 50%; border: .18cqw solid rgba(235,235,245,.3); transition: opacity .2s; }
+  .ring.active { border-color: var(--blue); animation: ring 1.6s ease-in-out infinite alternate; }
+  @keyframes ring { from { opacity: .45 } to { opacity: 1 } }
+  .check { position: absolute; inset: 0; opacity: 0; transform: scale(.4); }
+  .check svg { width: 100%; height: 100%; display: block; }
+  .check path { stroke-dasharray: 20; stroke-dashoffset: 20; }
+  .row.done .ring { opacity: 0; }
+  .row.done .check { opacity: 1; transform: scale(1); transition: opacity .15s, transform .45s cubic-bezier(.3,1.8,.5,1); }
+  .row.done .check path { stroke-dashoffset: 0; transition: stroke-dashoffset .3s .12s ease-out; }
+  .row .label { font-size: 1.36cqw; font-weight: 500; color: var(--sec); transition: color .2s; }
+  .row.done .label, .row.on .label { color: var(--text); }
+  .row .detail { font-size: 1.09cqw; color: var(--sec); margin-top: .18cqw; position: relative; height: 1.5cqw; }
+  .row .detail span { position: absolute; left: 0; white-space: nowrap; transition: opacity .25s; }
+  .row .detail .after { opacity: 0; }
+  .row.done .detail .before { opacity: 0; }
+  .row.done .detail .after { opacity: 1; }
+  .foot { font-size: 1.09cqw; color: var(--ter); height: 1.6cqw; text-align: center; transition: opacity .25s; }
+  .s1 .foot, .s2 .foot, .s3 .foot { opacity: 0; }
+
+  .controls { max-width: 1100px; margin: 16px auto 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  button { font: inherit; color: var(--text); background: #2c2c2e; border: 1px solid #3a3a3c; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  button:hover { background: #3a3a3c; }
+  .steps { display: flex; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+  .steps button.cur { border-color: var(--blue); color: #fff; }
+  .note { max-width: 1100px; margin: 14px auto 0; color: var(--sec); line-height: 1.5; }
+  .note b { color: var(--text); font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<h1>Cable Tester: plug-in animation</h1>
+<p class="sub">Loops through one test: plug the Mac end in, then the buds, then the result, then unplug.</p>
+
+<div class="stage s0" id="stage">
+  <img src="mocks/anim-base.png" alt="">
+  <div class="pane">
+    <div class="illus" aria-hidden="true">
+      <div class="glow"></div><div class="port"></div><div class="slot"></div>
+      <div class="wire"></div><div class="plug"></div><div class="tip"></div>
+    </div>
+    <div class="title">
+      <span class="t0">Plug in a cable you want to test</span>
+      <span class="t1">Now plug in the other end</span>
+      <span class="t2">Reading the cable…</span>
+    </div>
+    <div class="list">
+      <div class="row" id="r1">
+        <div class="mark"><div class="ring"></div><div class="check"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#32d74b"/><path d="M7 12.5l3.3 3.3L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+        <div><div class="label">One end into this Mac</div><div class="detail"><span class="before">Any USB-C port</span><span class="after">Port 1</span></div></div>
+      </div>
+      <div class="row" id="r2">
+        <div class="mark"><div class="ring"></div><div class="check"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#32d74b"/><path d="M7 12.5l3.3 3.3L17 9" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div>
+        <div><div class="label">Other end into a charger, Mac or device</div><div class="detail"><span class="before">A charger tests power. A Mac or device also shows data speed.</span><span class="after">Arctis GameBuds</span></div></div>
+      </div>
+    </div>
+    <div class="foot">A cable that was already connected is ignored. Unplug and replug it to test it.</div>
+  </div>
+  <img class="result" src="mocks/anim-result.png" alt="Result: 240 W, USB 2 at 12 Mb/s">
+</div>
+
+<div class="controls">
+  <button id="play">Pause</button>
+  <button id="next">Next step</button>
+  <div class="steps" id="steps"></div>
+</div>
+<p class="note"><b>Timing:</b> each check pops in with a small bounce and draws its tick. The title cross-fades.
+After the second check, both stay on screen for 0.9 s, then the result fades and scales in.
+Unplugging fades straight back to the start.</p>
+
+<script>
+  const stage = document.getElementById('stage'), r1 = document.getElementById('r1'), r2 = document.getElementById('r2');
+  const STEPS = [
+    { name: 'Start', hold: 2200, s: 0 },
+    { name: 'Mac end in', hold: 2400, s: 1 },
+    { name: 'Other end in', hold: 900, s: 2 },
+    { name: 'Result', hold: 3200, s: 4 },
+  ];
+  let i = 0, timer = null, playing = true;
+  const stepsEl = document.getElementById('steps');
+  STEPS.forEach((st, k) => {
+    const b = document.createElement('button'); b.textContent = st.name;
+    b.onclick = () => { pause(); show(k); };
+    stepsEl.appendChild(b);
+  });
+  function show(k) {
+    i = k; const s = STEPS[k].s;
+    stage.className = 'stage s' + Math.min(s, 3) + (s === 4 ? ' s3 show-result' : '');
+    r1.className = 'row' + (s >= 1 ? ' done' : ' on');
+    r1.querySelector('.ring').classList.toggle('active', s === 0);
+    r2.className = 'row' + (s >= 2 ? ' done' : s === 1 ? ' on' : '');
+    r2.querySelector('.ring').classList.toggle('active', s === 1);
+    [...stepsEl.children].forEach((b, n) => b.classList.toggle('cur', n === k));
+  }
+  function tick() { timer = setTimeout(() => { show((i + 1) % STEPS.length); tick(); }, STEPS[i].hold); }
+  function pause() { playing = false; clearTimeout(timer); document.getElementById('play').textContent = 'Play'; }
+  document.getElementById('play').onclick = () => {
+    if (playing) pause(); else { playing = true; document.getElementById('play').textContent = 'Pause'; tick(); }
+  };
+  document.getElementById('next').onclick = () => { pause(); show((i + 1) % STEPS.length); };
+  show(0); tick();
+</script>
+</body>
+</html>
