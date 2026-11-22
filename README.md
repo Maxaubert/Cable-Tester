@@ -19,7 +19,6 @@ https://github.com/user-attachments/assets/d37fcfc2-c120-4b40-a396-9c51f74ea87a
 Cable Tester is a small native Mac app that reads the chip inside a USB-C cable, so you can sort and
 label a drawer of cables without a hardware tester. Plug a cable into the Mac, plug the other end
 into a charger, another Mac or any USB-C device, and it shows what the cable can do.
-[Watch the demo as MP4](docs/media/demo.mp4).
 
 ## Features
 
