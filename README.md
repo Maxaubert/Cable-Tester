@@ -19,7 +19,9 @@ Label a drawer full of USB-C cables by **wattage** and **data speed**, using a M
 | `240W` | EPR cable (28 V and up) |
 | `TB` | Thunderbolt/USB4 link at 40 Gb/s or more |
 | `20G`, `10G` | USB4 link at a lower speed |
-| `USB2` | No link at all: USB 2 only (or faulty) |
+| `USB3` | USB 3 link but no Thunderbolt |
+| `USB2` | Only a USB 2 link: the cable has no high-speed wires |
+| `?` | No link at all (faulty cable, Mini asleep, or front port) |
 
 Each cable gets a number and a line in a CSV log, so a label like `#07 240W TB` can be looked up later.
 
@@ -32,7 +34,10 @@ sends the Mac a list of what it will supply. It only offers 5 A when the cable a
 does not matter.
 
 **Data.** The same cable is then plugged between the MacBook and another Thunderbolt Mac. The
-negotiated link speed comes from `system_profiler SPThunderboltDataType`.
+script reads which links are active on the port (`TransportsActive` in `ioreg`: `CIO` is
+Thunderbolt/USB4, `USB2` alone means a USB 2 cable) and the Thunderbolt speed from
+`system_profiler SPThunderboltDataType`. Tested 2026-11-22: a USB 2 charging cable to the Mac mini
+showed `CC, USB2` only.
 
 > [!IMPORTANT]
 > The result can never be higher than the weakest part. A 100 W charger makes a 240 W cable read
