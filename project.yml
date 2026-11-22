@@ -1,0 +1,51 @@
+name: CableTester
+options:
+  bundleIdPrefix: com.loftspace
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+packages:
+  CableKit:
+    path: CableKit
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: WV7BY8CUM8
+targets:
+  CableTester:
+    type: application
+    platform: macOS
+    sources: [App]
+    dependencies:
+      - package: CableKit
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Cable Tester
+        CFBundleName: Cable Tester
+        LSApplicationCategoryType: public.app-category.utilities
+        LSMinimumSystemVersion: "15.0"
+        NSHumanReadableCopyright: "© 2026 loftspace"
+    settings:
+      base:
+        PRODUCT_NAME: Cable Tester
+        PRODUCT_BUNDLE_IDENTIFIER: com.loftspace.CableTester
+        ENABLE_HARDENED_RUNTIME: YES
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "Developer ID Application"
+        ENABLE_APP_SANDBOX: NO
+        GENERATE_INFOPLIST_FILE: NO
+      configs:
+        Debug:
+          CODE_SIGN_IDENTITY: "-"
+          CODE_SIGN_STYLE: Manual
+          DEVELOPMENT_TEAM: ""
+schemes:
+  CableTester:
+    build:
+      targets:
+        CableTester: all
+    test:
+      targets: []

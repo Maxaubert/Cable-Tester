@@ -1,6 +1,14 @@
 # cable-tester
 
-USB-C cable labeller. See README.md for how it works and the tested setup.
+USB-C cable labeller: native SwiftUI Mac app (`App/`) on the `CableKit` package. README.md has
+the overview; docs/app-spec-and-plan.md is the spec; docs/emarker.md the chip findings.
+
+## Build and test
+- `xcodegen generate` (project.yml is the source; the .xcodeproj is gitignored), then
+  `xcodebuild -project CableTester.xcodeproj -scheme CableTester -configuration Debug -derivedDataPath build/dd build`.
+- `cd CableKit && swift test`. Fixtures are real `ioreg -a -r -c AppleHPMInterfaceType10 -l` dumps.
+- Never open a window to check things: use the app's `--probe` (live ports, text) and
+  `--snapshot <dir>` (all screens rendered offscreen from demo data).
 
 ## Facts that are easy to get wrong
 - Charger readings (`AdapterDetails` in `ioreg -rn AppleSmartBattery`) need a Mac with a battery
@@ -17,6 +25,7 @@ USB-C cable labeller. See README.md for how it works and the tested setup.
   (`~/Documents/Claude/zz-Misc/cable-tester/cables.csv`, outside the repo).
 
 ## Status (2026-11-22)
-- Tested: 100 W path, USB 2 detection. Untested: 240 W path (140 W charger), a Thunderbolt cable.
-- Next: turn the CLI into a small, good-looking Mac app (Max's request). Labelling the pile waits
-  for coloured cable ties, so colour may become part of the label scheme.
+- v1 app built on branch `app`. Verified on the Mac mini: chip read with a Mac or a small USB device at
+  the far end; far end unplugged gives no chip. Untested: charger path on the MacBook, a Thunderbolt
+  link (CIO transport keys), telling Thunderbolt cables from plain USB 4 ones.
+- Later ideas (Ethernet, HDMI, USB-A, transfer test): end of docs/app-spec-and-plan.md.
