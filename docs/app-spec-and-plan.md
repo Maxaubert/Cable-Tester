@@ -102,7 +102,8 @@ label via the system print dialog.
 - Theme "Pure Black Lime" from the app icon: black window and toolbar, lime #C5FA09 for the wattage,
   the Save button (ink #111014 text) and the Thunderbolt bolt; everything else white or gray.
   History text stays white; only the Thunderbolt bolt is lime. Tie dots keep their cable colors.
-- Plug-in: a USB-C plug (front view) rises and the icon's bolt outline draws in lime for the Mac end;
+- Plug-in: a USB-C plug (front view) stays still; its collar (around the tip, like the icon's ring) turns
+  lime and the icon's bolt outline draws for the Mac end;
   the bolt fills, glows and pops for the other end. Checks are a lime disc that springs in with a
   drawn tick. After both, a 0.9 s hold, then the checklist cascades out and the result cascades in.
 - Result: watts count up from 0; Save morphs into "✓ Saved #08" after saving.
