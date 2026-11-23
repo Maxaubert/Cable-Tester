@@ -13,8 +13,8 @@ packages:
 settings:
   base:
     SWIFT_VERSION: "6.0"
-    MARKETING_VERSION: "0.4.3"
-    CURRENT_PROJECT_VERSION: "8"
+    MARKETING_VERSION: "0.4.4"
+    CURRENT_PROJECT_VERSION: "9"
     DEVELOPMENT_TEAM: WV7BY8CUM8
 targets:
   CableTester:

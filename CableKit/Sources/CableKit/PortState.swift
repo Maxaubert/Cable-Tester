@@ -8,7 +8,7 @@ public struct LiveLink: Codable, Hashable, Sendable {
     public var deviceName: String?
 
     public init(kind: Kind, speed: DataSpeed?, deviceName: String?) {
-        self.kind = kind; self.speed = speed; self.deviceName = deviceName
+        self.kind = kind; self.speed = speed; self.deviceName = deviceName.map(DisplayName.tidy)
     }
 }
 
