@@ -147,6 +147,8 @@ func le(_ v: UInt32) -> Data { withUnsafeBytes(of: v.littleEndian) { Data($0) } 
         #expect(DisplayName.tidy("Apple 140W USB-C Power Adapter") == "Apple 140W USB-C Power Adapter")
         #expect(DisplayName.tidy("Arctis GameBuds") == "Arctis GameBuds")
         #expect(DisplayName.tidy("nvme ssd") == "NVMe SSD")
+        #expect(DisplayName.tidy("iPad") == "iPad")
+        #expect(DisplayName.tidy("iPhone 17 Pro") == "iPhone 17 Pro")
         let c = ChargerInfo(adapterDetails: ["Description": "pd charger", "Watts": 94])
         #expect(c?.name == "PD charger")
     }

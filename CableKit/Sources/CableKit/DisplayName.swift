@@ -23,7 +23,11 @@ public enum DisplayName {
             return word
         }
         var out = words.joined(separator: " ")
-        if let first = out.first, first.isLowercase { out = first.uppercased() + out.dropFirst() }
+        // Capitalise a plain lower-case first word ("charger" -> "Charger"), never "iPad" or "eGPU".
+        let firstWord = raw.split(separator: " ").first.map(String.init) ?? ""
+        if firstWord == firstWord.lowercased(), let first = out.first, first.isLowercase {
+            out = first.uppercased() + out.dropFirst()
+        }
         return out
     }
 }
