@@ -142,14 +142,7 @@ struct PlugChecklistView: View {
     }
 
     @ViewBuilder private var footer: some View {
-        if !macDone, otherConnected > 0 {
-            Text(otherConnected == 1
-                 ? "A cable that was already connected is ignored. Unplug and replug it to test it."
-                 : "\(otherConnected) cables that were already connected are ignored. Unplug and replug one to test it.")
-                .font(.system(size: 12)).foregroundStyle(.tertiary).multilineTextAlignment(.center)
-        } else {
-            Color.clear.frame(height: 1)
-        }
+        Color.clear.frame(height: 1)
     }
 }
 
