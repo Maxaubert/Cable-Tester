@@ -45,6 +45,7 @@ the overview; docs/app-spec-and-plan.md is the spec; docs/emarker.md the chip fi
 - v0.4.0 released: app icon, Pure Black Lime theme, bolt plug-in animation, cascades (spec "Visual design").
   The Now screen tests only a cable plugged in after launch, with a two-step checklist ("Plug-in flow").
 - Verified on the Mac mini: chip read with a Mac or a small USB device at the far end; far end free
-  gives CC only, no chip. Untested: charger path on the MacBook, a Thunderbolt link (CIO keys),
+  gives CC only, no chip. 2026-11-23, MacBook: chip also read with a charger at the far end (0.4.3
+  shows its rated speed). Untested: a Thunderbolt link (CIO keys),
   telling Thunderbolt cables from plain USB 4 ones, a Sparkle update end to end, the animations on real hardware.
 - Later ideas (Ethernet, HDMI, USB-A, transfer test): end of docs/app-spec-and-plan.md.
