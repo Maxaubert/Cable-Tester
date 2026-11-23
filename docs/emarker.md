@@ -40,5 +40,9 @@ passive, USB 2.0 only, 5 A, 50 V, EPR = a 240 W charge-only cable, ~2 m, Vendor 
   SteelSeries Arctis GameBuds (USB 2 full speed, 12 Mb/s). `SOP'` was read with the full cable VDO.
   So any small powered device lets the Mac read the chip. The live link then shows the device's
   speed (12 Mb/s here), not the cable's: the app must say "limited by the device".
-- Untested: whether `SOP'` appears when the far end is a charger (the charger, not the Mac, may run
-  the cable discovery). Confirmed with the Mac mini as the far end.
+- Far end a charger works (tested 2026-11-23): MacBook Pro M5 Pro, port 3, a 100 W "pd charger"
+  (20 V x 5 A max) and a no-name 240 W cable. `SOP'` was read with the full cable VDO (`40460a00`:
+  USB 2.0, 5 A, 50 V, EPR, ~2 m), `TransportsActive = ("CC")`. The chip rating is not capped by
+  the charger: it said 240 W while the charger only offered 100 W. So one plug-in into a charger
+  gives the chip's watts and rated speed; the Mac is only needed to test the speed live.
+  Fixture: `CableKit/Tests/CableKitTests/Fixtures/macbook-charger-240w-chip.plist`.

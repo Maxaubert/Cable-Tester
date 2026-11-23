@@ -34,15 +34,19 @@ public struct CableResult: Hashable, Sendable {
     public var liveSpeed: DataSpeed?
     public var liveLink: LiveLink?
 
-    /// Show the data line in the result? Hidden on a charger: there is no data link to show.
+    /// Show the data line in the result? On a charger there is no data link, but the cable's chip
+    /// still states its rated speed (verified 2026-11-22, MacBook on a charger), so show that.
     public var showsData: Bool {
-        if case .charger = farEnd { return false }
+        if case .charger = farEnd { return cable != nil }
         if case .nothing = farEnd { return cable != nil }
         return generation != nil
     }
 
     /// The speed shown in the result: the live link when there is one, otherwise the chip's rating.
     public var shownSpeed: DataSpeed? { liveSpeed ?? ratedSpeed }
+
+    /// The data line comes from the chip's rating only, with no live link to confirm it.
+    public var dataFromChipOnly: Bool { showsData && liveSpeed == nil && !thunderbolt && cable != nil }
 
     /// "Limited to 40 Gb/s by Mac mini", when the live link is slower than the cable.
     public var limitNote: String? {

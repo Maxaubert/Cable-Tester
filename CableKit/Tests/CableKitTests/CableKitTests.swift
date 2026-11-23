@@ -108,7 +108,24 @@ func le(_ v: UInt32) -> Data { withUnsafeBytes(of: v.littleEndian) { Data($0) } 
         #expect(rq.showsData)
     }
 
-    @Test func chargerHidesData() {
+    @Test func chargerShowsChipSpeed() throws {
+        // Real reading: MacBook Pro on a 100 W charger, no-name 240 W USB 2 cable (2026-11-23).
+        let ports = try PortState.parseIoregPlist(fixture("macbook-charger-240w-chip"))
+        let p = try #require(ports.first { $0.cable != nil })
+        let ch = ChargerInfo(name: "pd charger", offers: [
+            .init(millivolts: 5000, milliamps: 3000), .init(millivolts: 20000, milliamps: 5000)], negotiatedWatts: 94)
+        let r = try #require(CableResult.make(port: p, charger: ch))
+        guard case .charger = r.farEnd else { Issue.record("far end \(r.farEnd)"); return }
+        #expect(r.watts == 240)
+        #expect(r.wattsSource == .chip)
+        #expect(r.showsData)
+        #expect(r.dataFromChipOnly)
+        #expect(r.generation == .usb2)
+        #expect(r.shownSpeed == .mbps(480))
+        #expect(r.limitNote == nil)
+    }
+
+    @Test func chargerWithoutChipHidesData() {
         let ch = ChargerInfo(name: "Apple 140W", offers: [
             .init(millivolts: 5000, milliamps: 3000), .init(millivolts: 20000, milliamps: 5000),
             .init(millivolts: 28000, milliamps: 5000)], negotiatedWatts: 140)
