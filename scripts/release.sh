@@ -4,8 +4,11 @@
 #   scripts/release.sh [--notes notes.md] [--dry-run]
 #
 # Version comes from project.yml (MARKETING_VERSION, build number CURRENT_PROJECT_VERSION).
-# Publishes the DMG to github.com/loftspace/cable-tester-releases and adds it to the Sparkle feed
-# (appcast.xml in that repo). --dry-run stops after the notarized DMG is built.
+# Publishes the DMG and the Sparkle feed (appcast.xml, as a release asset) as a release of
+# github.com/Maxaubert/cable-tester. Apps from 0.4.6 read releases/latest/download/appcast.xml.
+# While loftspace/cable-tester-releases (the feed of apps up to 0.4.5) is not archived, its
+# appcast.xml gets the new entry too, so old installs update and move over.
+# --dry-run stops after the notarized DMG is built.
 #
 # Needs: Xcode, xcodegen, gh (logged in), the Developer ID certificate and the notarytool keychain
 # profile "notary", and the Sparkle EdDSA key in the Keychain (account "cable-tester").
@@ -15,7 +18,8 @@ cd "$(dirname "$0")/.."
 ROOT=$(pwd)
 IDENTITY="Developer ID Application: MAX AUBERT (WV7BY8CUM8)"
 NOTARY_PROFILE="notary"
-RELEASES_REPO="loftspace/cable-tester-releases"
+RELEASES_REPO="Maxaubert/cable-tester"
+LEGACY_REPO="loftspace/cable-tester-releases"
 SPARKLE_ACCOUNT="cable-tester"
 MIN_MACOS="15.0"
 
@@ -114,9 +118,7 @@ fi
 NOTES="Cable Tester $VERSION"
 [ -n "$NOTES_FILE" ] && NOTES=$(cat "$NOTES_FILE")
 
-step "Publishing $TAG to $RELEASES_REPO"
 printf '%s\n' "$NOTES" > "$OUT/notes.md"
-gh release create "$TAG" "$OUT/$DMG_NAME" --repo "$RELEASES_REPO" --title "Cable Tester $VERSION" --notes-file "$OUT/notes.md"
 
 step "Adding $VERSION to the update feed"
 URL="https://github.com/$RELEASES_REPO/releases/download/$TAG/$DMG_NAME"
@@ -130,18 +132,34 @@ ITEM="    <item>
       <description><![CDATA[$NOTES_HTML]]></description>
       <enclosure url=\"$URL\" type=\"application/octet-stream\" $SIG />
     </item>"
-FEED_JSON=$(gh api "repos/$RELEASES_REPO/contents/appcast.xml")
-FEED_SHA=$(printf '%s' "$FEED_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["sha"])')
-printf '%s' "$FEED_JSON" | python3 -c 'import json,sys,base64; sys.stdout.write(base64.b64decode(json.load(sys.stdin)["content"]).decode())' > "$OUT/appcast-old.xml"
-ITEM="$ITEM" python3 - "$OUT/appcast-old.xml" "$OUT/appcast.xml" <<'PY'
+add_item() {  # add_item <old feed> <new feed>
+  ITEM="$ITEM" python3 - "$1" "$2" <<'PY'
 import os, sys
 old = open(sys.argv[1]).read()
 marker = "</language>\n"
 i = old.index(marker) + len(marker)
 open(sys.argv[2], "w").write(old[:i] + os.environ["ITEM"] + "\n" + old[i:])
 PY
-gh api -X PUT "repos/$RELEASES_REPO/contents/appcast.xml" -f message="Cable Tester $VERSION" \
-  -f content="$(base64 -i "$OUT/appcast.xml")" -f sha="$FEED_SHA" --jq .commit.sha
+}
+# The newest feed: the latest release's appcast.xml, or (first release here) the legacy one.
+rm -f "$OUT/appcast-old.xml"
+gh release download --repo "$RELEASES_REPO" --pattern appcast.xml --output "$OUT/appcast-old.xml" 2>/dev/null \
+  || gh api "repos/$LEGACY_REPO/contents/appcast.xml" --jq .content | base64 -D > "$OUT/appcast-old.xml"
+add_item "$OUT/appcast-old.xml" "$OUT/appcast.xml"
+
+step "Publishing $TAG to $RELEASES_REPO"
+gh release create "$TAG" "$OUT/$DMG_NAME" "$OUT/appcast.xml" --repo "$RELEASES_REPO" \
+  --target "$(git rev-parse HEAD)" --title "Cable Tester $VERSION" --notes-file "$OUT/notes.md"
+
+if [ "$(gh api "repos/$LEGACY_REPO" --jq .archived)" = "false" ]; then
+  step "Adding $VERSION to the legacy feed in $LEGACY_REPO (apps up to 0.4.5)"
+  FEED_JSON=$(gh api "repos/$LEGACY_REPO/contents/appcast.xml")
+  FEED_SHA=$(printf '%s' "$FEED_JSON" | python3 -c 'import json,sys; print(json.load(sys.stdin)["sha"])')
+  printf '%s' "$FEED_JSON" | python3 -c 'import json,sys,base64; sys.stdout.write(base64.b64decode(json.load(sys.stdin)["content"]).decode())' > "$OUT/appcast-legacy-old.xml"
+  add_item "$OUT/appcast-legacy-old.xml" "$OUT/appcast-legacy.xml"
+  gh api -X PUT "repos/$LEGACY_REPO/contents/appcast.xml" -f message="Cable Tester $VERSION" \
+    -f content="$(base64 -i "$OUT/appcast-legacy.xml")" -f sha="$FEED_SHA" --jq .commit.sha
+fi
 
 COPY="$HOME/Documents/Claude/zz-Misc/cable-tester/release"
 mkdir -p "$COPY" && cp "$OUT/$DMG_NAME" "$COPY/"
