@@ -5,11 +5,11 @@
 
   Plug in a USB-C cable. See its watts and data speed.
 
-  [![Latest release](https://img.shields.io/github/v/release/loftspace/cable-tester-releases?style=flat-square&color=a4de06&label=release)](https://github.com/loftspace/cable-tester-releases/releases/latest)
+  [![Latest release](https://img.shields.io/github/v/release/Maxaubert/cable-tester?style=flat-square&color=a4de06&label=release)](https://github.com/Maxaubert/cable-tester/releases/latest)
   [![macOS 15+](https://img.shields.io/badge/macOS-15%2B-a4de06?style=flat-square)](#install)
   [![Signed and notarized](https://img.shields.io/badge/signed-notarized-a4de06?style=flat-square)](#install)
 
-  [Download](https://github.com/loftspace/cable-tester-releases/releases/latest) · [Releases](https://github.com/loftspace/cable-tester-releases/releases) · [How it reads the chip](docs/emarker.md)
+  [Download](https://github.com/Maxaubert/cable-tester/releases/latest) · [Releases](https://github.com/Maxaubert/cable-tester/releases) · [How it reads the chip](docs/emarker.md)
 </div>
 
 https://github.com/user-attachments/assets/d37fcfc2-c120-4b40-a396-9c51f74ea87a
@@ -32,7 +32,7 @@ into a charger, another Mac or any USB-C device, and it shows what the cable can
 
 ## Install
 
-[Download the latest DMG](https://github.com/loftspace/cable-tester-releases/releases/latest),
+[Download the latest DMG](https://github.com/Maxaubert/cable-tester/releases/latest),
 open it and drag **Cable Tester** into Applications.
 
 - Needs an Apple Silicon Mac with macOS 15 or later.
