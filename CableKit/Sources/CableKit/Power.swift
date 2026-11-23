@@ -28,7 +28,7 @@ public struct ChargerInfo: Codable, Hashable, Sendable {
         let offers = menu.map {
             PowerOffer(millivolts: ($0["MaxVoltage"] as? Int) ?? 0, milliamps: ($0["MaxCurrent"] as? Int) ?? 0)
         }
-        let name = (d["Name"] as? String) ?? (d["Description"] as? String)
+        let name = ((d["Name"] as? String) ?? (d["Description"] as? String)).map(DisplayName.tidy)
         self.init(name: name, offers: offers, negotiatedWatts: d["Watts"] as? Int)
         if self.offers.isEmpty && negotiatedWatts == nil { return nil }
     }

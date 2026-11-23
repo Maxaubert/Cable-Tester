@@ -141,6 +141,16 @@ func le(_ v: UInt32) -> Data { withUnsafeBytes(of: v.littleEndian) { Data($0) } 
 }
 
 @Suite struct PowerTests {
+    @Test func chargerNamesAreTidied() {
+        #expect(DisplayName.tidy("pd charger") == "PD charger")
+        #expect(DisplayName.tidy("usb-c pd 65w gan charger") == "USB-C PD 65W GaN charger")
+        #expect(DisplayName.tidy("Apple 140W USB-C Power Adapter") == "Apple 140W USB-C Power Adapter")
+        #expect(DisplayName.tidy("Arctis GameBuds") == "Arctis GameBuds")
+        #expect(DisplayName.tidy("nvme ssd") == "NVMe SSD")
+        let c = ChargerInfo(adapterDetails: ["Description": "pd charger", "Watts": 94])
+        #expect(c?.name == "PD charger")
+    }
+
     @Test func chargerTiers() {
         func info(_ o: [(Int, Int)], _ w: Int?) -> ChargerInfo {
             ChargerInfo(name: nil, offers: o.map { PowerOffer(millivolts: $0.0, milliamps: $0.1) }, negotiatedWatts: w)
