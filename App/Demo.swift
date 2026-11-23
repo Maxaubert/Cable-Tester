@@ -16,7 +16,10 @@ enum Demo {
     }
 
     /// Apple 240 W USB 4 cable: 5 A, 50 V, EPR, USB4 Gen3, ~1 m.
-    static let appleUSB4 = chip(vendor: 0x05AC, product: 0x7314, vdo: (0b10 << 5) | 0b011 | (0b11 << 9) | (1 << 13) | (1 << 17) | (0b10 << 18))
+    /// = (0b10 << 5) | 0b011 | (0b11 << 9) | (1 << 13) | (1 << 17) | (0b10 << 18). Written as its value:
+    /// Xcode 16.4 (CI) could not type-check that `|` chain in reasonable time.
+    static let appleUSB4VDO: UInt32 = 0x000A_2643
+    static let appleUSB4 = chip(vendor: 0x05AC, product: 0x7314, vdo: appleUSB4VDO)
     /// The real no-name 240 W USB 2 cable (Cable VDO 0x000A4E40).
     static let noName240 = chip(vendor: 0, product: 0, vdo: 0x000A4E40)
     static let ugreen240 = chip(vendor: 0x2B1D, product: 0x1512, vdo: 0x000A4E40)
