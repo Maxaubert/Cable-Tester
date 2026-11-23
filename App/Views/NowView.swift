@@ -415,12 +415,7 @@ struct ResultView: View {
             }
             if result.showsData, let note = result.limitNote {
                 Text(note).font(.system(size: 13)).foregroundStyle(.secondary)
-            }
-            if result.dataFromChipOnly {
-                Label("Speed from the cable's chip. Plug it into a Mac to test it live.", systemImage: "cpu")
-                    .font(.system(size: 13)).foregroundStyle(.secondary)
-            }
-            if let same = store.sameModel(as: result.cable?.fingerprint, before: monitor.pluggedAt ?? .distantFuture) {
+            }            if let same = store.sameModel(as: result.cable?.fingerprint, before: monitor.pluggedAt ?? .distantFuture) {
                 Label("Same model as #\(same.numberText) (\(CableLabel.make(number: same.number, watts: same.values.watts, generation: same.values.generation).split(separator: " ").dropFirst().joined(separator: " ")))", systemImage: "clock.arrow.circlepath")
                     .font(.system(size: 13)).foregroundStyle(.secondary)
             }
