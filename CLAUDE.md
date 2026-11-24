@@ -11,7 +11,7 @@ the overview; docs/app-spec-and-plan.md is the spec; docs/emarker.md the chip fi
 - Known failures to tolerate: none
 - Version source: `project.yml` (MARKETING_VERSION + CURRENT_PROJECT_VERSION, bump both)   Release: `scripts/release.sh` on this Mac after merge (not release.yml: the certificate stays in the Keychain)
 - Install locally after merge: copy the app from the DMG to /Applications   Confirm version: `PlistBuddy -c "Print :CFBundleShortVersionString"` on the installed app, or About
-- Deploy: DMG + Sparkle feed (`appcast.xml` as a release asset) on the releases of Maxaubert/cable-tester; apps from 0.4.6 read `releases/latest/download/appcast.xml`. Up to 0.4.5 the feed was `raw.githubusercontent.com/loftspace/cable-tester-releases/main/appcast.xml` (that repo is archived after 0.4.6, whose entry moves old installs over; 2026-11-24). Code: public, github.com/Maxaubert/cable-tester
+- Deploy: DMG + Sparkle feed (`appcast.xml` as a release asset) on the releases of Maxaubert/cable-tester; apps from 0.4.6 read `releases/latest/download/appcast.xml`. Up to 0.4.5 the feed was in loftspace/cable-tester-releases, deleted by Max on 2026-11-24 after 0.4.6 (copies at 0.4.5 or older no longer get updates; Max accepted that). Code: public, github.com/Maxaubert/cable-tester
 - Signing: Developer ID WV7BY8CUM8 + notarization (profile `notary`), Sparkle EdDSA key in the Keychain (account `cable-tester`)
 - Never open a window to check things: use `--probe` and `--snapshot`.
 
